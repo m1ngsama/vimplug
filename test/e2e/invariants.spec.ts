@@ -89,6 +89,41 @@ test('j scrolls the page in normal mode', async () => {
   await page.close()
 })
 
+// The engine animates while the key is held rather than reacting to OS key repeat, so a
+// single keydown with no repeats must still scroll far.
+test('holding j scrolls continuously and stops when released', async () => {
+  const page = await open('/tall')
+
+  await page.keyboard.down('j')
+  await page.waitForTimeout(500)
+  const held = await page.evaluate(() => window.scrollY)
+  expect(held).toBeGreaterThan(300)
+
+  await page.keyboard.up('j')
+  await page.waitForTimeout(300)
+  const stopped = await page.evaluate(() => window.scrollY)
+  await page.waitForTimeout(300)
+  expect(await page.evaluate(() => window.scrollY)).toBe(stopped)
+
+  await page.close()
+})
+
+test('holding j accelerates rather than moving at a fixed rate', async () => {
+  const page = await open('/tall')
+  await page.keyboard.down('j')
+
+  await page.waitForTimeout(150)
+  const early = await page.evaluate(() => window.scrollY)
+  await page.waitForTimeout(400)
+  const late = await page.evaluate(() => window.scrollY)
+  await page.keyboard.up('j')
+
+  const firstRate = early / 150
+  const laterRate = (late - early) / 400
+  expect(laterRate).toBeGreaterThan(firstRate * 1.5)
+  await page.close()
+})
+
 test('invariant 1: typing in a textarea does not scroll', async () => {
   const page = await open('/textarea')
   await page.focus('#t')

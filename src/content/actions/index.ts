@@ -1,6 +1,5 @@
 import { ACTIONS } from '../../shared/actions.ts'
 import type { Options } from '../../shared/config.ts'
-import { runScroll } from './scroll.ts'
 import { runHistory } from './history.ts'
 import { runClipboard } from './clipboard.ts'
 import { runFocusInput } from './focus-input.ts'
@@ -40,8 +39,7 @@ export function runAction(id: string, ctx: ActionContext): boolean {
     return true
   }
 
-  if (runScroll(id, opts) || runHistory(id) || runMedia(id, opts.volumeStep) || runFocusInput(id))
-    return true
+  if (runHistory(id) || runMedia(id, opts.volumeStep) || runFocusInput(id)) return true
 
   if (id === 'copyUrl' || id === 'openClipboard' || id === 'openClipboardNewTab') {
     void runClipboard(id, opts.searchEngine, openTarget)

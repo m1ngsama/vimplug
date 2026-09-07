@@ -5,6 +5,8 @@ import { fromEvent } from './event-keys.ts'
 import { boundKeyIds, shouldHandle } from './dispatch.ts'
 import { deepActiveElement, modeForFocus } from './focus.ts'
 import { runAction, openTarget, type ActionContext } from './actions/index.ts'
+import { Scroller } from './actions/scroll.ts'
+import { keyId } from '../shared/keys.ts'
 import { startHint, type HintSession } from './hint/index.ts'
 import { startOverlay } from './overlay/index.ts'
 import { createFind, type FindSession } from './find/index.ts'
@@ -35,6 +37,7 @@ async function main(): Promise<void> {
   const matcher = new Matcher(site.bindings.normal, keyMatching)
   const boundIds = boundKeyIds(site.bindings.normal, keyMatching)
   const modes = new ModeMachine()
+  const scroller = new Scroller(() => site.options)
 
   let hint: HintSession | null = null
 
@@ -44,6 +47,10 @@ async function main(): Promise<void> {
   let overlayOpen = false
   const finder = createFind()
   let awaitingMark: 'set' | 'jump' | null = null
+
+  // The runtime owns key identity so actions never need to know which key ran them.
+  const dispatch = (id: string, key: string | null): boolean =>
+    scroller.press(id, key) || runAction(id, ctx)
 
   const ctx: ActionContext = {
     opts: site.options,
@@ -88,7 +95,7 @@ async function main(): Promise<void> {
           overlayOpen = false
           modes.enter('normal')
         },
-        id => runAction(id, ctx),
+        id => dispatch(id, null),
         query => finder?.search(query),
       ).then(o => {
         overlay = o
@@ -137,8 +144,10 @@ async function main(): Promise<void> {
     const key = fromEvent(e)
     if (!shouldHandle(key, boundIds, keyMatching)) return
     const r = matcher.step(key)
-    if (r.kind === 'match' && runAction(r.action, ctx)) e.preventDefault()
+    if (r.kind === 'match' && dispatch(r.action, keyId(key, keyMatching))) e.preventDefault()
   }
+
+  const onKeyup = (e: KeyboardEvent) => scroller.release(keyId(fromEvent(e), keyMatching))
 
   // Passthrough detaches the main listener, so it needs its own way out. This one only
   // observes Esc and never calls preventDefault, so the page keeps its own Esc handling.
@@ -161,13 +170,16 @@ async function main(): Promise<void> {
   const attach = () => {
     if (attached) return
     document.addEventListener('keydown', onKeydown, true)
+    document.addEventListener('keyup', onKeyup, true)
     attached = true
   }
   const detach = () => {
     if (!attached) return
     document.removeEventListener('keydown', onKeydown, true)
+    document.removeEventListener('keyup', onKeyup, true)
     attached = false
     matcher.reset()
+    scroller.releaseAll()
   }
   modes.onChange((next, prev) => {
     if (needsKeydown(next)) attach()
