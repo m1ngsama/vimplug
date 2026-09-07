@@ -97,6 +97,10 @@ python3 -m http.server 8000
 | 15 | marks | Scroll down, press `Ma`, scroll to top, press `` `a `` | The original position is restored |
 | 16 | visual | Press `v`, then `l` a few times, then `y` | Text is selected and copied |
 
+| 17 | settings, rebind | Open settings, click the key beside "Scroll down", press `d` | The key updates and `d` scrolls on any page |
+| 18 | settings, comments | Add a `#` comment in Text, rebind something in Keys, return to Text | The comment is still there |
+| 19 | settings, disable | Add a host under "Disabled sites", reload that host | vimplug does nothing there |
+
 Check 13 depends on the CSS Custom Highlight API. Safari has it from 17.2; on anything
 older the engine skips highlighting and only scrolls, which is the intended fallback.
 

@@ -1,4 +1,4 @@
-import { readDsl } from './storage.ts'
+import { readDsl } from '../shared/storage.ts'
 import { registrationFor, isDisabled, REGISTRATION_ID } from './injection.ts'
 import { runTabAction } from './tabs.ts'
 import { disabledHosts } from '../shared/config.ts'

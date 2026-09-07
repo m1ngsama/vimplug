@@ -375,6 +375,107 @@ test('the command palette runs an action by name', async () => {
   await page.close()
 })
 
+async function openOptions(): Promise<Page> {
+  const [sw] = ctx.serviceWorkers()
+  const id = new URL(sw!.url()).host
+  const page = await ctx.newPage()
+  await page.goto(`chrome-extension://${id}/options.html`)
+  await page.waitForSelector('.cap')
+  return page
+}
+
+test('the options page lists a keycap for every action', async () => {
+  await setDsl(DEFAULT_DSL)
+  const page = await openOptions()
+  expect(await page.locator('.cap').count()).toBe(37)
+  expect(await page.locator('.cap', { hasText: 'j' }).first().textContent()).toBe('j')
+  await page.close()
+})
+
+test('rebinding through the GUI rewrites the config and preserves comments', async () => {
+  await setDsl(`# a comment I wrote\nmap j scrollDown\nmap k scrollUp\n`)
+  const page = await openOptions()
+
+  await page.locator('.row', { hasText: 'Scroll down' }).locator('.cap').click()
+  await page.keyboard.press('Shift+d')
+
+  await expect
+    .poll(() => page.locator('.row', { hasText: 'Scroll down' }).locator('.cap').textContent())
+    .toBe('D')
+
+  await page.locator('.tabs button', { hasText: 'Text' }).click()
+  const text = await page.locator('textarea').inputValue()
+  expect(text).toContain('# a comment I wrote')
+  expect(text).toContain('map D scrollDown')
+  expect(text).toContain('map k scrollUp')
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
+test('a rebind made in the GUI reaches the page', async () => {
+  await setDsl('map g scrollDown')
+  const page = await open('/tall')
+  await page.keyboard.press('g')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
+test('the text view reports parse errors with line numbers', async () => {
+  await setDsl('map j scrollDown\nmap k nonsenseAction\n')
+  const page = await openOptions()
+  await page.locator('.tabs button', { hasText: 'Text' }).click()
+  await expect(page.locator('.errors li')).toHaveCount(1)
+  expect(await page.locator('.errors li').textContent()).toContain('line 2')
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
+test('adding a disabled site from the GUI takes effect', async () => {
+  await setDsl(DEFAULT_DSL)
+  const page = await openOptions()
+  await page.locator('form.add input').fill('127.0.0.1')
+  await page.locator('form.add button').click()
+  await expect(page.locator('.site')).toHaveCount(1)
+
+  const target = await ctx.newPage()
+  await target.goto(`${base}/tall`)
+  await target.waitForTimeout(700)
+  expect(await target.evaluate(() => document.documentElement.dataset.vimplug)).toBeUndefined()
+
+  await target.close()
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
+// Saving options re-registers content scripts, which can deliver the engine to a loading
+// page twice. Two engines would double every keystroke.
+test('a second injection does not produce a second engine', async () => {
+  // Instant scrolling is required to see the fault: two smooth scrollBy calls in one frame
+  // both target current+60 and the second replaces the first, hiding the doubling.
+  await setDsl(`${DEFAULT_DSL}\nset scrollSmooth = false`)
+  const page = await open('/tall')
+
+  const [sw] = ctx.serviceWorkers()
+  // Target by URL: a Playwright page is not necessarily the active tab, and injecting
+  // into the wrong one would make this test prove nothing.
+  const injected = await sw!.evaluate(async (want: string) => {
+    const tabs = await chrome.tabs.query({})
+    const tab = tabs.find(t => t.url === want)
+    if (tab?.id === undefined) return 'no tab'
+    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] })
+    return 'injected'
+  }, page.url())
+  expect(injected).toBe('injected')
+  await page.waitForTimeout(300)
+
+  await page.keyboard.press('j')
+  await page.waitForTimeout(250)
+  expect(await page.evaluate(() => window.scrollY)).toBe(60)
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
 test('invariant 3: a disabled host never activates the engine', async () => {
   await setDsl('site 127.0.0.1 {\n  disable\n}')
   const page = await ctx.newPage()

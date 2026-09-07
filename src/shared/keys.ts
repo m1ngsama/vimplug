@@ -22,6 +22,19 @@ const NAMED: Record<string, string> = {
   right: 'ArrowRight',
 }
 
+const DISPLAY: Record<string, string> = {
+  esc: 'Esc',
+  space: 'Space',
+  cr: 'CR',
+  tab: 'Tab',
+  bs: 'BS',
+  del: 'Del',
+  up: 'Up',
+  down: 'Down',
+  left: 'Left',
+  right: 'Right',
+}
+
 const MODS: Record<string, 'ctrl' | 'meta' | 'alt' | 'shift'> = {
   c: 'ctrl',
   m: 'meta',
@@ -154,4 +167,37 @@ export function keyId(k: Key, matching: KeyMatching): string {
 // Shift is excluded: `F` and `f` are distinct bindings, not one key plus a modifier.
 export function hasModifier(k: Key): boolean {
   return k.ctrl || k.meta || k.alt
+}
+
+const REV_NAMED = new Map(Object.entries(NAMED).map(([name, code]) => [code, name]))
+const REV_PUNCT = new Map(Object.entries(PUNCT).map(([ch, code]) => [code, ch]))
+const REV_SHIFTED = new Map(Object.entries(SHIFTED).map(([ch, code]) => [code, ch]))
+
+function baseOf(k: Key): { text: string; named: boolean } {
+  const named = REV_NAMED.get(k.code)
+  if (named) return { text: DISPLAY[named] ?? named, named: true }
+
+  const letter = /^Key([A-Z])$/.exec(k.code)?.[1]
+  if (letter) return { text: k.shift ? letter : letter.toLowerCase(), named: false }
+
+  const digit = /^Digit([0-9])$/.exec(k.code)?.[1]
+  if (digit) return { text: (k.shift ? REV_SHIFTED.get(k.code) : digit) ?? digit, named: false }
+
+  const punct = k.shift ? REV_SHIFTED.get(k.code) : REV_PUNCT.get(k.code)
+  if (punct) return { text: punct, named: false }
+
+  return { text: k.code, named: true }
+}
+
+// Inverse of parseKeys, for rendering a captured keypress back into the DSL.
+export function toNotation(k: Key): string {
+  const base = baseOf(k)
+  let mods = ''
+  if (k.ctrl) mods += 'C-'
+  if (k.meta) mods += 'M-'
+  if (k.alt) mods += 'A-'
+  if (k.shift && base.named) mods += 'S-'
+
+  if (mods === '' && !base.named) return base.text
+  return `<${mods}${base.text}>`
 }

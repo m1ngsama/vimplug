@@ -44,15 +44,44 @@ function matches(pattern: string, host: string): boolean {
   return pattern === host
 }
 
+export interface OptionDef {
+  key: keyof Options
+  type: 'text' | 'number' | 'boolean' | 'choice'
+  choices?: string[]
+}
+
+// One list drives the DSL parser and the settings UI, so an option cannot exist in one
+// and not the other. Labels live with the UI so their copy stays out of content scripts.
+export const OPTION_SCHEMA: readonly OptionDef[] = [
+  { key: 'hintChars', type: 'text' },
+  { key: 'keyMatching', type: 'choice', choices: ['physical', 'logical'] },
+  { key: 'scrollStep', type: 'number' },
+  { key: 'scrollSmooth', type: 'boolean' },
+  { key: 'sequenceTimeout', type: 'number' },
+  { key: 'volumeStep', type: 'number' },
+  { key: 'searchEngine', type: 'text' },
+]
+
+const BY_KEY = new Map(OPTION_SCHEMA.map(d => [d.key as string, d]))
+
 function applyOption(o: Options, option: string, value: string): void {
-  if (option === 'hintChars') o.hintChars = value
-  else if (option === 'keyMatching' && (value === 'physical' || value === 'logical'))
-    o.keyMatching = value
-  else if (option === 'sequenceTimeout') o.sequenceTimeout = Number(value) || o.sequenceTimeout
-  else if (option === 'scrollStep') o.scrollStep = Number(value) || o.scrollStep
-  else if (option === 'scrollSmooth') o.scrollSmooth = value !== 'false'
-  else if (option === 'volumeStep') o.volumeStep = Number(value) || o.volumeStep
-  else if (option === 'searchEngine') o.searchEngine = value
+  const def = BY_KEY.get(option)
+  if (!def) return
+
+  if (def.type === 'number') {
+    const n = Number(value)
+    if (Number.isFinite(n)) (o[def.key] as number) = n
+    return
+  }
+  if (def.type === 'boolean') {
+    ;(o[def.key] as boolean) = value !== 'false'
+    return
+  }
+  if (def.type === 'choice') {
+    if (def.choices?.includes(value)) (o[def.key] as string) = value
+    return
+  }
+  ;(o[def.key] as string) = value
 }
 
 function apply(

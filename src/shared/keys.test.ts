@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { parseKeys, keyId, hasModifier } from './keys.ts'
+import { parseKeys, keyId, hasModifier, toNotation } from './keys.ts'
 
 test('parses a plain letter to a physical code', () => {
   const keys = parseKeys('j')
@@ -77,4 +77,22 @@ test('an uppercase letter carries shift', () => {
   const k = parseKeys('F')?.[0]
   assert.equal(k?.code, 'KeyF')
   assert.equal(k?.shift, true)
+})
+
+test('toNotation round-trips through parseKeys', () => {
+  for (const n of ['j', 'F', '<C-d>', '<M-k>', '<Esc>', '<Space>', '1', '[', '?', '-', '`']) {
+    const key = parseKeys(n)![0]!
+    assert.deepEqual(parseKeys(toNotation(key))![0], key, `round trip failed for ${n}`)
+  }
+})
+
+test('toNotation prefers the bare form when there is no modifier', () => {
+  assert.equal(toNotation(parseKeys('j')![0]!), 'j')
+  assert.equal(toNotation(parseKeys('F')![0]!), 'F')
+})
+
+test('toNotation wraps modified and named keys in angle brackets', () => {
+  assert.equal(toNotation(parseKeys('<C-d>')![0]!), '<C-d>')
+  assert.equal(toNotation(parseKeys('<Esc>')![0]!), '<Esc>')
+  assert.equal(toNotation(parseKeys('<C-[>')![0]!), '<C-[>')
 })

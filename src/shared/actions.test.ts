@@ -44,3 +44,8 @@ test('no two actions claim the same default key', () => {
     }
   }
 })
+
+test('every action belongs to a group', () => {
+  const groups = new Set(['Scroll', 'Navigation', 'Tabs', 'Open', 'Media', 'Modes'])
+  for (const a of ACTIONS) assert.ok(groups.has(a.group), `${a.id} has group ${a.group}`)
+})

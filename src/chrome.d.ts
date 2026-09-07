@@ -71,5 +71,9 @@ declare namespace chrome {
     }
     function registerContentScripts(scripts: RegisteredContentScript[]): Promise<void>
     function unregisterContentScripts(filter: { ids: string[] }): Promise<void>
+    function executeScript(injection: {
+      target: { tabId: number }
+      files: string[]
+    }): Promise<unknown>
   }
 }

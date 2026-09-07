@@ -18,6 +18,15 @@ async function loadDsl(): Promise<string> {
   return typeof dsl === 'string' ? dsl : DEFAULT_DSL
 }
 
+// Content scripts of one extension share an isolated world per frame, so this flag is
+// invisible to the page and survives a second injection. Re-registering scripts while a
+// page is loading can deliver the engine twice; two engines would double every keystroke.
+declare global {
+  interface Window {
+    __vimplugLoaded?: true
+  }
+}
+
 async function main(): Promise<void> {
   const site = resolveForHost(await loadDsl(), location.hostname)
   if (site.disabled) return
@@ -188,4 +197,7 @@ async function main(): Promise<void> {
   document.documentElement.dataset.vimplug = 'on'
 }
 
-void main()
+if (!window.__vimplugLoaded) {
+  window.__vimplugLoaded = true
+  void main()
+}

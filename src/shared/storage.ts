@@ -1,4 +1,4 @@
-import { DEFAULT_DSL } from '../shared/config.ts'
+import { DEFAULT_DSL } from './config.ts'
 
 const KEY = 'dsl'
 

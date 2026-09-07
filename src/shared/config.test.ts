@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { resolveForHost, disabledHosts, DEFAULT_DSL } from './config.ts'
+import { resolveForHost, disabledHosts, DEFAULT_DSL, OPTION_SCHEMA } from './config.ts'
 
 test('the shipped defaults parse without error', () => {
   const r = resolveForHost(DEFAULT_DSL, 'example.com')
@@ -72,4 +72,19 @@ test('bindings are resolved for every mode', () => {
   const r = resolveForHost('hmap d scrollDown\ncmap k scrollUp', 'a.com')
   assert.ok(r.bindings.hint.some(b => b.action === 'scrollDown'))
   assert.ok(r.bindings.command.some(b => b.action === 'scrollUp'))
+})
+
+test('the option schema covers every runtime option', () => {
+  const defaults = resolveForHost('', 'a.com').options
+  const declared = new Set(OPTION_SCHEMA.map(o => o.key))
+  for (const k of Object.keys(defaults)) assert.ok(declared.has(k as never), `${k} missing from schema`)
+})
+
+test('a choice option rejects a value outside its list', () => {
+  assert.equal(resolveForHost('set keyMatching = nonsense', 'a.com').options.keyMatching, 'physical')
+})
+
+test('a boolean option reads false only from the literal string', () => {
+  assert.equal(resolveForHost('set scrollSmooth = false', 'a.com').options.scrollSmooth, false)
+  assert.equal(resolveForHost('set scrollSmooth = true', 'a.com').options.scrollSmooth, true)
 })

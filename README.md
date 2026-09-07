@@ -64,6 +64,11 @@ In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection, `y` copies 
 
 ## Configuration
 
+The settings page has two views over one configuration. **Keys** lists every action with
+its key; click a key and press the one you want. **Text** is the same configuration as
+text. The Keys view edits that text in place through the parser's source spans, so your
+comments and layout survive a rebind.
+
 Bindings and options are one block of text, stored as written so comments survive edits.
 
 ```
@@ -103,6 +108,10 @@ them is a behaviour change, not a refactor.
    with the page.
 3. **A disabled host never activates the engine.** Chrome excludes it from injection
    outright; Safari loads a fail-closed bootstrap that confirms the host first.
+
+A fourth property holds for the same reason: **one engine per frame.** Saving settings
+re-registers content scripts and can deliver the engine to a loading page twice, which
+would double every keystroke. A flag in the extension's isolated world prevents it.
 
 ## Budget
 
