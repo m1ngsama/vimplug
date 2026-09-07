@@ -43,5 +43,6 @@ export default defineConfig({
   plugins: [
     iifeEntry('content', 'src/content/runtime.ts'),
     iifeEntry('background', 'src/background/index.ts'),
+    ...(target === 'safari' ? [iifeEntry('bootstrap', 'src/content/bootstrap.ts')] : []),
   ],
 })

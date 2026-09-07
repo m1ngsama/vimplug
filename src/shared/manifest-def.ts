@@ -13,7 +13,11 @@ export function buildManifest(target: Target): Record<string, unknown> {
     options_ui:
       target === 'safari' ? { page: 'options.html' } : { page: 'options.html', open_in_tab: true },
     ...(target === 'safari'
-      ? { browser_specific_settings: { safari: { strict_min_version: '16.4' } } }
+      ? {
+          browser_specific_settings: { safari: { strict_min_version: '16.4' } },
+          // bootstrap.js reaches the engine through import(), which needs it exposed.
+          web_accessible_resources: [{ resources: ['content.js'], matches: ['<all_urls>'] }],
+        }
       : {}),
   }
 }

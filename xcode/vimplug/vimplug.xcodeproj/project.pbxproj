@@ -7,41 +7,42 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		589F4A8E304EDEEB009FF1CD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589F4A8D304EDEEB009FF1CD /* AppDelegate.swift */; };
-		589F4A92304EDEEB009FF1CD /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A90304EDEEB009FF1CD /* Main.html */; };
-		589F4A94304EDEEB009FF1CD /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A93304EDEEB009FF1CD /* Icon.png */; };
-		589F4A96304EDEEB009FF1CD /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A95304EDEEB009FF1CD /* Style.css */; };
-		589F4A98304EDEEB009FF1CD /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A97304EDEEB009FF1CD /* Script.js */; };
-		589F4A9A304EDEEB009FF1CD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589F4A99304EDEEB009FF1CD /* ViewController.swift */; };
-		589F4A9D304EDEEB009FF1CD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A9B304EDEEB009FF1CD /* Main.storyboard */; };
-		589F4A9F304EDEEC009FF1CD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A9E304EDEEC009FF1CD /* Assets.xcassets */; };
-		589F4AA6304EDEEC009FF1CD /* vimplug Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 589F4AA5304EDEEC009FF1CD /* vimplug Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		589F4AAB304EDEEC009FF1CD /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589F4AAA304EDEEC009FF1CD /* SafariWebExtensionHandler.swift */; };
-		589F4ABC304EDEEC009FF1CD /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 589F4AB7304EDEEC009FF1CD /* background.js */; };
-		589F4ABD304EDEEC009FF1CD /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = 589F4AB8304EDEEC009FF1CD /* options.js */; };
-		589F4ABE304EDEEC009FF1CD /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 589F4AB9304EDEEC009FF1CD /* manifest.json */; };
-		589F4ABF304EDEEC009FF1CD /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 589F4ABA304EDEEC009FF1CD /* options.html */; };
-		589F4AC0304EDEEC009FF1CD /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 589F4ABB304EDEEC009FF1CD /* content.js */; };
+		58B2B2DF304EE25C00F0BA1E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B2B2DE304EE25C00F0BA1E /* AppDelegate.swift */; };
+		58B2B2E3304EE25C00F0BA1E /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B2E1304EE25C00F0BA1E /* Main.html */; };
+		58B2B2E5304EE25C00F0BA1E /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B2E4304EE25C00F0BA1E /* Icon.png */; };
+		58B2B2E7304EE25C00F0BA1E /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B2E6304EE25C00F0BA1E /* Style.css */; };
+		58B2B2E9304EE25C00F0BA1E /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B2E8304EE25C00F0BA1E /* Script.js */; };
+		58B2B2EB304EE25C00F0BA1E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B2B2EA304EE25C00F0BA1E /* ViewController.swift */; };
+		58B2B2EE304EE25C00F0BA1E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B2EC304EE25C00F0BA1E /* Main.storyboard */; };
+		58B2B2F0304EE25D00F0BA1E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B2EF304EE25D00F0BA1E /* Assets.xcassets */; };
+		58B2B2F7304EE25D00F0BA1E /* vimplug Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 58B2B2F6304EE25D00F0BA1E /* vimplug Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		58B2B2FC304EE25D00F0BA1E /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B2B2FB304EE25D00F0BA1E /* SafariWebExtensionHandler.swift */; };
+		58B2B30E304EE25D00F0BA1E /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B308304EE25D00F0BA1E /* background.js */; };
+		58B2B30F304EE25D00F0BA1E /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B309304EE25D00F0BA1E /* options.js */; };
+		58B2B310304EE25D00F0BA1E /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B30A304EE25D00F0BA1E /* bootstrap.js */; };
+		58B2B311304EE25D00F0BA1E /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B30B304EE25D00F0BA1E /* manifest.json */; };
+		58B2B312304EE25D00F0BA1E /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B30C304EE25D00F0BA1E /* options.html */; };
+		58B2B313304EE25D00F0BA1E /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 58B2B30D304EE25D00F0BA1E /* content.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		589F4AA7304EDEEC009FF1CD /* PBXContainerItemProxy */ = {
+		58B2B2F8304EE25D00F0BA1E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 589F4A82304EDEEB009FF1CD /* Project object */;
+			containerPortal = 58B2B2D3304EE25C00F0BA1E /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 589F4AA4304EDEEC009FF1CD;
+			remoteGlobalIDString = 58B2B2F5304EE25D00F0BA1E;
 			remoteInfo = "vimplug Extension";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		589F4AB2304EDEEC009FF1CD /* Embed Foundation Extensions */ = {
+		58B2B303304EE25D00F0BA1E /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				589F4AA6304EDEEC009FF1CD /* vimplug Extension.appex in Embed Foundation Extensions */,
+				58B2B2F7304EE25D00F0BA1E /* vimplug Extension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -49,35 +50,36 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		589F4A8A304EDEEB009FF1CD /* vimplug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = vimplug.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		589F4A8D304EDEEB009FF1CD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		589F4A91304EDEEB009FF1CD /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
-		589F4A93304EDEEB009FF1CD /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
-		589F4A95304EDEEB009FF1CD /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
-		589F4A97304EDEEB009FF1CD /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
-		589F4A99304EDEEB009FF1CD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		589F4A9C304EDEEB009FF1CD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		589F4A9E304EDEEC009FF1CD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		589F4AA0304EDEEC009FF1CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		589F4AA5304EDEEC009FF1CD /* vimplug Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "vimplug Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		589F4AAA304EDEEC009FF1CD /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
-		589F4AAC304EDEEC009FF1CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		589F4AB7304EDEEC009FF1CD /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../../dist/safari/background.js; sourceTree = "<group>"; };
-		589F4AB8304EDEEC009FF1CD /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = ../../../dist/safari/options.js; sourceTree = "<group>"; };
-		589F4AB9304EDEEC009FF1CD /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../dist/safari/manifest.json; sourceTree = "<group>"; };
-		589F4ABA304EDEEC009FF1CD /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../../dist/safari/options.html; sourceTree = "<group>"; };
-		589F4ABB304EDEEC009FF1CD /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../../dist/safari/content.js; sourceTree = "<group>"; };
+		58B2B2DB304EE25C00F0BA1E /* vimplug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = vimplug.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		58B2B2DE304EE25C00F0BA1E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		58B2B2E2304EE25C00F0BA1E /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		58B2B2E4304EE25C00F0BA1E /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		58B2B2E6304EE25C00F0BA1E /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		58B2B2E8304EE25C00F0BA1E /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		58B2B2EA304EE25C00F0BA1E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		58B2B2ED304EE25C00F0BA1E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		58B2B2EF304EE25D00F0BA1E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		58B2B2F1304EE25D00F0BA1E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		58B2B2F6304EE25D00F0BA1E /* vimplug Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "vimplug Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		58B2B2FB304EE25D00F0BA1E /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		58B2B2FD304EE25D00F0BA1E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		58B2B308304EE25D00F0BA1E /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../../dist/safari/background.js; sourceTree = "<group>"; };
+		58B2B309304EE25D00F0BA1E /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = ../../../dist/safari/options.js; sourceTree = "<group>"; };
+		58B2B30A304EE25D00F0BA1E /* bootstrap.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = bootstrap.js; path = ../../../dist/safari/bootstrap.js; sourceTree = "<group>"; };
+		58B2B30B304EE25D00F0BA1E /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../dist/safari/manifest.json; sourceTree = "<group>"; };
+		58B2B30C304EE25D00F0BA1E /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../../dist/safari/options.html; sourceTree = "<group>"; };
+		58B2B30D304EE25D00F0BA1E /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../../dist/safari/content.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		589F4A87304EDEEB009FF1CD /* Frameworks */ = {
+		58B2B2D8304EE25C00F0BA1E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		589F4AA2304EDEEC009FF1CD /* Frameworks */ = {
+		58B2B2F3304EE25D00F0BA1E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -87,66 +89,67 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		589F4A81304EDEEB009FF1CD = {
+		58B2B2D2304EE25C00F0BA1E = {
 			isa = PBXGroup;
 			children = (
-				589F4A8C304EDEEB009FF1CD /* vimplug */,
-				589F4AA9304EDEEC009FF1CD /* vimplug Extension */,
-				589F4A8B304EDEEB009FF1CD /* Products */,
+				58B2B2DD304EE25C00F0BA1E /* vimplug */,
+				58B2B2FA304EE25D00F0BA1E /* vimplug Extension */,
+				58B2B2DC304EE25C00F0BA1E /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		589F4A8B304EDEEB009FF1CD /* Products */ = {
+		58B2B2DC304EE25C00F0BA1E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				589F4A8A304EDEEB009FF1CD /* vimplug.app */,
-				589F4AA5304EDEEC009FF1CD /* vimplug Extension.appex */,
+				58B2B2DB304EE25C00F0BA1E /* vimplug.app */,
+				58B2B2F6304EE25D00F0BA1E /* vimplug Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		589F4A8C304EDEEB009FF1CD /* vimplug */ = {
+		58B2B2DD304EE25C00F0BA1E /* vimplug */ = {
 			isa = PBXGroup;
 			children = (
-				589F4A8D304EDEEB009FF1CD /* AppDelegate.swift */,
-				589F4A99304EDEEB009FF1CD /* ViewController.swift */,
-				589F4A9B304EDEEB009FF1CD /* Main.storyboard */,
-				589F4A9E304EDEEC009FF1CD /* Assets.xcassets */,
-				589F4AA0304EDEEC009FF1CD /* Info.plist */,
-				589F4A8F304EDEEB009FF1CD /* Resources */,
+				58B2B2DE304EE25C00F0BA1E /* AppDelegate.swift */,
+				58B2B2EA304EE25C00F0BA1E /* ViewController.swift */,
+				58B2B2EC304EE25C00F0BA1E /* Main.storyboard */,
+				58B2B2EF304EE25D00F0BA1E /* Assets.xcassets */,
+				58B2B2F1304EE25D00F0BA1E /* Info.plist */,
+				58B2B2E0304EE25C00F0BA1E /* Resources */,
 			);
 			path = vimplug;
 			sourceTree = "<group>";
 		};
-		589F4A8F304EDEEB009FF1CD /* Resources */ = {
+		58B2B2E0304EE25C00F0BA1E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				589F4A90304EDEEB009FF1CD /* Main.html */,
-				589F4A93304EDEEB009FF1CD /* Icon.png */,
-				589F4A95304EDEEB009FF1CD /* Style.css */,
-				589F4A97304EDEEB009FF1CD /* Script.js */,
+				58B2B2E1304EE25C00F0BA1E /* Main.html */,
+				58B2B2E4304EE25C00F0BA1E /* Icon.png */,
+				58B2B2E6304EE25C00F0BA1E /* Style.css */,
+				58B2B2E8304EE25C00F0BA1E /* Script.js */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		589F4AA9304EDEEC009FF1CD /* vimplug Extension */ = {
+		58B2B2FA304EE25D00F0BA1E /* vimplug Extension */ = {
 			isa = PBXGroup;
 			children = (
-				589F4AB6304EDEEC009FF1CD /* Resources */,
-				589F4AAA304EDEEC009FF1CD /* SafariWebExtensionHandler.swift */,
-				589F4AAC304EDEEC009FF1CD /* Info.plist */,
+				58B2B307304EE25D00F0BA1E /* Resources */,
+				58B2B2FB304EE25D00F0BA1E /* SafariWebExtensionHandler.swift */,
+				58B2B2FD304EE25D00F0BA1E /* Info.plist */,
 			);
 			path = "vimplug Extension";
 			sourceTree = "<group>";
 		};
-		589F4AB6304EDEEC009FF1CD /* Resources */ = {
+		58B2B307304EE25D00F0BA1E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				589F4AB7304EDEEC009FF1CD /* background.js */,
-				589F4AB8304EDEEC009FF1CD /* options.js */,
-				589F4AB9304EDEEC009FF1CD /* manifest.json */,
-				589F4ABA304EDEEC009FF1CD /* options.html */,
-				589F4ABB304EDEEC009FF1CD /* content.js */,
+				58B2B308304EE25D00F0BA1E /* background.js */,
+				58B2B309304EE25D00F0BA1E /* options.js */,
+				58B2B30A304EE25D00F0BA1E /* bootstrap.js */,
+				58B2B30B304EE25D00F0BA1E /* manifest.json */,
+				58B2B30C304EE25D00F0BA1E /* options.html */,
+				58B2B30D304EE25D00F0BA1E /* content.js */,
 			);
 			name = Resources;
 			path = "vimplug Extension";
@@ -155,34 +158,34 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		589F4A89304EDEEB009FF1CD /* vimplug */ = {
+		58B2B2DA304EE25C00F0BA1E /* vimplug */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 589F4AB3304EDEEC009FF1CD /* Build configuration list for PBXNativeTarget "vimplug" */;
+			buildConfigurationList = 58B2B304304EE25D00F0BA1E /* Build configuration list for PBXNativeTarget "vimplug" */;
 			buildPhases = (
-				589F4A86304EDEEB009FF1CD /* Sources */,
-				589F4A87304EDEEB009FF1CD /* Frameworks */,
-				589F4A88304EDEEB009FF1CD /* Resources */,
-				589F4AB2304EDEEC009FF1CD /* Embed Foundation Extensions */,
+				58B2B2D7304EE25C00F0BA1E /* Sources */,
+				58B2B2D8304EE25C00F0BA1E /* Frameworks */,
+				58B2B2D9304EE25C00F0BA1E /* Resources */,
+				58B2B303304EE25D00F0BA1E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				589F4AA8304EDEEC009FF1CD /* PBXTargetDependency */,
+				58B2B2F9304EE25D00F0BA1E /* PBXTargetDependency */,
 			);
 			name = vimplug;
 			packageProductDependencies = (
 			);
 			productName = vimplug;
-			productReference = 589F4A8A304EDEEB009FF1CD /* vimplug.app */;
+			productReference = 58B2B2DB304EE25C00F0BA1E /* vimplug.app */;
 			productType = "com.apple.product-type.application";
 		};
-		589F4AA4304EDEEC009FF1CD /* vimplug Extension */ = {
+		58B2B2F5304EE25D00F0BA1E /* vimplug Extension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 589F4AAF304EDEEC009FF1CD /* Build configuration list for PBXNativeTarget "vimplug Extension" */;
+			buildConfigurationList = 58B2B300304EE25D00F0BA1E /* Build configuration list for PBXNativeTarget "vimplug Extension" */;
 			buildPhases = (
-				589F4AA1304EDEEC009FF1CD /* Sources */,
-				589F4AA2304EDEEC009FF1CD /* Frameworks */,
-				589F4AA3304EDEEC009FF1CD /* Resources */,
+				58B2B2F2304EE25D00F0BA1E /* Sources */,
+				58B2B2F3304EE25D00F0BA1E /* Frameworks */,
+				58B2B2F4304EE25D00F0BA1E /* Resources */,
 			);
 			buildRules = (
 			);
@@ -192,116 +195,117 @@
 			packageProductDependencies = (
 			);
 			productName = "vimplug Extension";
-			productReference = 589F4AA5304EDEEC009FF1CD /* vimplug Extension.appex */;
+			productReference = 58B2B2F6304EE25D00F0BA1E /* vimplug Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		589F4A82304EDEEB009FF1CD /* Project object */ = {
+		58B2B2D3304EE25C00F0BA1E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
-					589F4A89304EDEEB009FF1CD = {
+					58B2B2DA304EE25C00F0BA1E = {
 						CreatedOnToolsVersion = 26.3;
 					};
-					589F4AA4304EDEEC009FF1CD = {
+					58B2B2F5304EE25D00F0BA1E = {
 						CreatedOnToolsVersion = 26.3;
 					};
 				};
 			};
-			buildConfigurationList = 589F4A85304EDEEB009FF1CD /* Build configuration list for PBXProject "vimplug" */;
+			buildConfigurationList = 58B2B2D6304EE25C00F0BA1E /* Build configuration list for PBXProject "vimplug" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 589F4A81304EDEEB009FF1CD;
+			mainGroup = 58B2B2D2304EE25C00F0BA1E;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 589F4A8B304EDEEB009FF1CD /* Products */;
+			productRefGroup = 58B2B2DC304EE25C00F0BA1E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				589F4A89304EDEEB009FF1CD /* vimplug */,
-				589F4AA4304EDEEC009FF1CD /* vimplug Extension */,
+				58B2B2DA304EE25C00F0BA1E /* vimplug */,
+				58B2B2F5304EE25D00F0BA1E /* vimplug Extension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		589F4A88304EDEEB009FF1CD /* Resources */ = {
+		58B2B2D9304EE25C00F0BA1E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				589F4A94304EDEEB009FF1CD /* Icon.png in Resources */,
-				589F4A9D304EDEEB009FF1CD /* Main.storyboard in Resources */,
-				589F4A98304EDEEB009FF1CD /* Script.js in Resources */,
-				589F4A92304EDEEB009FF1CD /* Main.html in Resources */,
-				589F4A9F304EDEEC009FF1CD /* Assets.xcassets in Resources */,
-				589F4A96304EDEEB009FF1CD /* Style.css in Resources */,
+				58B2B2E5304EE25C00F0BA1E /* Icon.png in Resources */,
+				58B2B2EE304EE25C00F0BA1E /* Main.storyboard in Resources */,
+				58B2B2E9304EE25C00F0BA1E /* Script.js in Resources */,
+				58B2B2E3304EE25C00F0BA1E /* Main.html in Resources */,
+				58B2B2F0304EE25D00F0BA1E /* Assets.xcassets in Resources */,
+				58B2B2E7304EE25C00F0BA1E /* Style.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		589F4AA3304EDEEC009FF1CD /* Resources */ = {
+		58B2B2F4304EE25D00F0BA1E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				589F4ABC304EDEEC009FF1CD /* background.js in Resources */,
-				589F4ABE304EDEEC009FF1CD /* manifest.json in Resources */,
-				589F4ABD304EDEEC009FF1CD /* options.js in Resources */,
-				589F4ABF304EDEEC009FF1CD /* options.html in Resources */,
-				589F4AC0304EDEEC009FF1CD /* content.js in Resources */,
+				58B2B313304EE25D00F0BA1E /* content.js in Resources */,
+				58B2B311304EE25D00F0BA1E /* manifest.json in Resources */,
+				58B2B310304EE25D00F0BA1E /* bootstrap.js in Resources */,
+				58B2B312304EE25D00F0BA1E /* options.html in Resources */,
+				58B2B30E304EE25D00F0BA1E /* background.js in Resources */,
+				58B2B30F304EE25D00F0BA1E /* options.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		589F4A86304EDEEB009FF1CD /* Sources */ = {
+		58B2B2D7304EE25C00F0BA1E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				589F4A9A304EDEEB009FF1CD /* ViewController.swift in Sources */,
-				589F4A8E304EDEEB009FF1CD /* AppDelegate.swift in Sources */,
+				58B2B2EB304EE25C00F0BA1E /* ViewController.swift in Sources */,
+				58B2B2DF304EE25C00F0BA1E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		589F4AA1304EDEEC009FF1CD /* Sources */ = {
+		58B2B2F2304EE25D00F0BA1E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				589F4AAB304EDEEC009FF1CD /* SafariWebExtensionHandler.swift in Sources */,
+				58B2B2FC304EE25D00F0BA1E /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		589F4AA8304EDEEC009FF1CD /* PBXTargetDependency */ = {
+		58B2B2F9304EE25D00F0BA1E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 589F4AA4304EDEEC009FF1CD /* vimplug Extension */;
-			targetProxy = 589F4AA7304EDEEC009FF1CD /* PBXContainerItemProxy */;
+			target = 58B2B2F5304EE25D00F0BA1E /* vimplug Extension */;
+			targetProxy = 58B2B2F8304EE25D00F0BA1E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		589F4A90304EDEEB009FF1CD /* Main.html */ = {
+		58B2B2E1304EE25C00F0BA1E /* Main.html */ = {
 			isa = PBXVariantGroup;
 			children = (
-				589F4A91304EDEEB009FF1CD /* Base */,
+				58B2B2E2304EE25C00F0BA1E /* Base */,
 			);
 			name = Main.html;
 			sourceTree = "<group>";
 		};
-		589F4A9B304EDEEB009FF1CD /* Main.storyboard */ = {
+		58B2B2EC304EE25C00F0BA1E /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				589F4A9C304EDEEB009FF1CD /* Base */,
+				58B2B2ED304EE25C00F0BA1E /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -309,7 +313,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		589F4AAD304EDEEC009FF1CD /* Debug */ = {
+		58B2B2FE304EE25D00F0BA1E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -372,7 +376,7 @@
 			};
 			name = Debug;
 		};
-		589F4AAE304EDEEC009FF1CD /* Release */ = {
+		58B2B2FF304EE25D00F0BA1E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -427,7 +431,7 @@
 			};
 			name = Release;
 		};
-		589F4AB0304EDEEC009FF1CD /* Debug */ = {
+		58B2B301304EE25D00F0BA1E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -461,7 +465,7 @@
 			};
 			name = Debug;
 		};
-		589F4AB1304EDEEC009FF1CD /* Release */ = {
+		58B2B302304EE25D00F0BA1E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -495,7 +499,7 @@
 			};
 			name = Release;
 		};
-		589F4AB4304EDEEC009FF1CD /* Debug */ = {
+		58B2B305304EE25D00F0BA1E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -536,7 +540,7 @@
 			};
 			name = Debug;
 		};
-		589F4AB5304EDEEC009FF1CD /* Release */ = {
+		58B2B306304EE25D00F0BA1E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -580,34 +584,34 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		589F4A85304EDEEB009FF1CD /* Build configuration list for PBXProject "vimplug" */ = {
+		58B2B2D6304EE25C00F0BA1E /* Build configuration list for PBXProject "vimplug" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				589F4AAD304EDEEC009FF1CD /* Debug */,
-				589F4AAE304EDEEC009FF1CD /* Release */,
+				58B2B2FE304EE25D00F0BA1E /* Debug */,
+				58B2B2FF304EE25D00F0BA1E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		589F4AAF304EDEEC009FF1CD /* Build configuration list for PBXNativeTarget "vimplug Extension" */ = {
+		58B2B300304EE25D00F0BA1E /* Build configuration list for PBXNativeTarget "vimplug Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				589F4AB0304EDEEC009FF1CD /* Debug */,
-				589F4AB1304EDEEC009FF1CD /* Release */,
+				58B2B301304EE25D00F0BA1E /* Debug */,
+				58B2B302304EE25D00F0BA1E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		589F4AB3304EDEEC009FF1CD /* Build configuration list for PBXNativeTarget "vimplug" */ = {
+		58B2B304304EE25D00F0BA1E /* Build configuration list for PBXNativeTarget "vimplug" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				589F4AB4304EDEEC009FF1CD /* Debug */,
-				589F4AB5304EDEEC009FF1CD /* Release */,
+				58B2B305304EE25D00F0BA1E /* Debug */,
+				58B2B306304EE25D00F0BA1E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 589F4A82304EDEEB009FF1CD /* Project object */;
+	rootObject = 58B2B2D3304EE25C00F0BA1E /* Project object */;
 }

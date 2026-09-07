@@ -28,6 +28,12 @@ test('safari omits open_in_tab, chrome keeps it', () => {
   assert.equal(chrome.open_in_tab, true)
 })
 
+test('safari exposes content.js so the bootstrap can import it', () => {
+  const war = buildManifest('safari').web_accessible_resources as Array<{ resources: string[] }>
+  assert.deepEqual(war[0]?.resources, ['content.js'])
+  assert.equal(buildManifest('chrome').web_accessible_resources, undefined)
+})
+
 test('requests scripting and storage permissions', () => {
   const perms = buildManifest('chrome').permissions as string[]
   assert.ok(perms.includes('scripting'))

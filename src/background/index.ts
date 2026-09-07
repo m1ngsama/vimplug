@@ -1,4 +1,16 @@
 import { readDsl } from './storage.ts'
+import { registrationFor, isDisabled, REGISTRATION_ID } from './injection.ts'
+import { disabledHosts } from '../shared/config.ts'
+
+async function sync(): Promise<void> {
+  const reg = registrationFor(__TARGET__, disabledHosts(await readDsl()))
+  await chrome.scripting.unregisterContentScripts({ ids: [REGISTRATION_ID] }).catch(() => {})
+  await chrome.scripting.registerContentScripts([reg])
+}
+
+chrome.runtime.onInstalled.addListener(() => void sync())
+chrome.runtime.onStartup.addListener(() => void sync())
+chrome.storage.onChanged.addListener(() => void sync())
 
 function messageType(m: unknown): string | null {
   if (typeof m !== 'object' || m === null) return null
@@ -7,7 +19,18 @@ function messageType(m: unknown): string | null {
 }
 
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
-  if (messageType(msg) !== 'getDsl') return false
-  void readDsl().then(dsl => reply({ dsl }))
-  return true
+  const type = messageType(msg)
+
+  if (type === 'getDsl') {
+    void readDsl().then(dsl => reply({ dsl }))
+    return true
+  }
+
+  if (type === 'siteEnabled') {
+    const host = String((msg as { host?: unknown }).host ?? '')
+    void readDsl().then(src => reply({ enabled: !isDisabled(disabledHosts(src), host) }))
+    return true
+  }
+
+  return false
 })
