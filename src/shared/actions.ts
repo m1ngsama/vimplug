@@ -30,6 +30,13 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'copyUrl', description: 'Copy the page URL', scope: 'content', defaultKeys: ['yy'] },
   { id: 'openClipboard', description: 'Open the clipboard URL here', scope: 'content', defaultKeys: ['p'] },
   { id: 'openClipboardNewTab', description: 'Open the clipboard URL in a new tab', scope: 'content', defaultKeys: ['P'] },
+
+  { id: 'focusInput', description: 'Focus the first text field', scope: 'content', defaultKeys: ['gi'] },
+  { id: 'passthrough', description: 'Suspend vimplug until Esc', scope: 'content', defaultKeys: ['i'] },
+
+  { id: 'volumeUp', description: 'Raise media volume', scope: 'content', defaultKeys: ['='] },
+  { id: 'volumeDown', description: 'Lower media volume', scope: 'content', defaultKeys: ['-'] },
+  { id: 'toggleMute', description: 'Mute or unmute media', scope: 'content', defaultKeys: ['m'] },
 ]
 
 const IDS = new Set(ACTIONS.map(a => a.id))

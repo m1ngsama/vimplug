@@ -1,6 +1,6 @@
 import { Matcher } from '../shared/matcher.ts'
 import { resolveForHost, DEFAULT_DSL } from '../shared/config.ts'
-import { ModeMachine, needsKeydown } from './mode.ts'
+import { ModeMachine, needsKeydown, type Mode } from './mode.ts'
 import { fromEvent } from './event-keys.ts'
 import { boundKeyIds, shouldHandle } from './dispatch.ts'
 import { deepActiveElement, modeForFocus } from './focus.ts'
@@ -25,7 +25,23 @@ async function main(): Promise<void> {
     const key = fromEvent(e)
     if (!shouldHandle(key, boundIds, keyMatching)) return
     const r = matcher.step(key)
-    if (r.kind === 'match' && runAction(r.action, site.options)) e.preventDefault()
+    const ctx = { opts: site.options, enter: (m: Mode) => modes.enter(m) }
+    if (r.kind === 'match' && runAction(r.action, ctx)) e.preventDefault()
+  }
+
+  // Passthrough detaches the main listener, so it needs its own way out. This one only
+  // observes Esc and never calls preventDefault, so the page keeps its own Esc handling.
+  let escapeHatch: ((e: KeyboardEvent) => void) | null = null
+  const setHatch = (on: boolean) => {
+    if (on && !escapeHatch) {
+      escapeHatch = e => {
+        if (e.key === 'Escape') modes.enter('normal')
+      }
+      document.addEventListener('keydown', escapeHatch, true)
+    } else if (!on && escapeHatch) {
+      document.removeEventListener('keydown', escapeHatch, true)
+      escapeHatch = null
+    }
   }
 
   // Invariant 1: the mode machine is the only thing that attaches or detaches the
@@ -42,7 +58,11 @@ async function main(): Promise<void> {
     attached = false
     matcher.reset()
   }
-  modes.onChange(next => (needsKeydown(next) ? attach() : detach()))
+  modes.onChange(next => {
+    if (needsKeydown(next)) attach()
+    else detach()
+    setHatch(next === 'passthrough')
+  })
 
   const syncMode = () => modes.enter(modeForFocus(deepActiveElement(document)))
   document.addEventListener('focusin', syncMode, true)

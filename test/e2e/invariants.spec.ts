@@ -156,6 +156,35 @@ test('shift+h goes back in history', async () => {
   await page.close()
 })
 
+test('i suspends the engine until Esc', async () => {
+  const page = await open('/tall')
+  await page.keyboard.press('i')
+  await page.keyboard.press('j')
+  await page.waitForTimeout(200)
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+
+  await page.keyboard.press('Escape')
+  await page.keyboard.press('j')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await page.close()
+})
+
+test('gi focuses the first text field', async () => {
+  const page = await open('/textarea')
+  await page.keyboard.press('g')
+  await page.keyboard.press('i')
+  await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe('t')
+  await page.close()
+})
+
+test('d scrolls half a viewport', async () => {
+  const page = await open('/tall')
+  const half = await page.evaluate(() => window.innerHeight / 2)
+  await page.keyboard.press('d')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(half - 5)
+  await page.close()
+})
+
 test('invariant 3: a disabled host never activates the engine', async () => {
   await setDsl('site 127.0.0.1 {\n  disable\n}')
   const page = await ctx.newPage()

@@ -9,6 +9,7 @@ export interface Options {
   sequenceTimeout: number
   scrollStep: number
   scrollSmooth: boolean
+  volumeStep: number
   searchEngine: string
 }
 
@@ -26,6 +27,7 @@ const DEFAULT_OPTIONS: Options = {
   sequenceTimeout: 1000,
   scrollStep: 60,
   scrollSmooth: true,
+  volumeStep: 0.1,
   searchEngine: 'https://www.google.com/search?q=%s',
 }
 
@@ -49,6 +51,7 @@ function applyOption(o: Options, option: string, value: string): void {
   else if (option === 'sequenceTimeout') o.sequenceTimeout = Number(value) || o.sequenceTimeout
   else if (option === 'scrollStep') o.scrollStep = Number(value) || o.scrollStep
   else if (option === 'scrollSmooth') o.scrollSmooth = value !== 'false'
+  else if (option === 'volumeStep') o.volumeStep = Number(value) || o.volumeStep
   else if (option === 'searchEngine') o.searchEngine = value
 }
 
