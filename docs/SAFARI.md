@@ -39,14 +39,31 @@ xcodebuild -project xcode/vimplug/vimplug.xcodeproj -scheme vimplug \
 The built app lands in `~/Library/Developer/Xcode/DerivedData/vimplug-*/Build/Products/Debug/`.
 Extension resources are bundled at `vimplug.app/Contents/PlugIns/vimplug Extension.appex/Contents/Resources/`.
 
-## Enabling in Safari
+## Loading for development
 
-1. Run the host app once (open `vimplug.app`, or Run the scheme in Xcode).
-2. Safari > Settings > Advanced > check "Show features for web developers".
-3. Safari > Develop > check "Allow Unsigned Extensions". This resets on every Safari restart.
-4. Safari > Settings > Extensions > enable vimplug, then grant site access.
+Recent Safari loads an unpacked extension directly, with no host app involved. Prefer this
+while developing; the Xcode project is for distribution.
+
+1. Safari > Settings > Advanced > check "Show features for web developers".
+2. Safari > Settings > Developer > check "Allow unsigned extensions". This resets whenever
+   Safari restarts.
+3. Safari > Settings > Developer > "Add Temporary Extension…", then pick the `dist/safari`
+   directory itself, not a file inside it.
+4. Safari > Settings > Extensions > enable vimplug and set site access to "Always Allow on
+   Every Website". Without site access `registerContentScripts` silently injects nothing,
+   which looks identical to a broken build.
+
+To test the packaged form instead, run the host app once (open `vimplug.app`, or Run the
+scheme in Xcode) and then enable it under Extensions as above.
 
 Background console: Safari > Develop > Web Extension Background Content > vimplug.
+
+**Checking that the background worker runs:** the background is the only thing that
+registers content scripts, so behaviour answers the question directly. If `j` scrolls a
+long page, the worker ran. If nothing responds anywhere, it did not, and `background`
+needs to become `{ scripts: ['background.js'], persistent: false }` in
+`src/shared/manifest-def.ts`. The build already emits background as IIFE, so no build
+change is needed for that switch.
 
 ## Manifest fields Safari rejects
 
