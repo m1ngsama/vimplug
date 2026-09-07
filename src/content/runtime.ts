@@ -1,8 +1,9 @@
 import { Matcher } from '../shared/matcher.ts'
 import { resolveForHost, DEFAULT_DSL } from '../shared/config.ts'
-import { ModeMachine } from './mode.ts'
+import { ModeMachine, needsKeydown } from './mode.ts'
 import { fromEvent } from './event-keys.ts'
 import { boundKeyIds, shouldHandle } from './dispatch.ts'
+import { deepActiveElement, modeForFocus } from './focus.ts'
 import { runScroll } from './actions/scroll.ts'
 
 async function loadDsl(): Promise<string> {
@@ -15,19 +16,41 @@ async function main(): Promise<void> {
   const site = resolveForHost(await loadDsl(), location.hostname)
   if (site.disabled) return
 
-  const matcher = new Matcher(site.bindings.normal, site.options.keyMatching)
-  const boundIds = boundKeyIds(site.bindings.normal, site.options.keyMatching)
+  const { keyMatching } = site.options
+  const matcher = new Matcher(site.bindings.normal, keyMatching)
+  const boundIds = boundKeyIds(site.bindings.normal, keyMatching)
   const modes = new ModeMachine()
 
   const onKeydown = (e: KeyboardEvent) => {
     const key = fromEvent(e)
-    if (!shouldHandle(key, boundIds, site.options.keyMatching)) return
+    if (!shouldHandle(key, boundIds, keyMatching)) return
     const r = matcher.step(key)
     if (r.kind === 'match' && runScroll(r.action, site.options)) e.preventDefault()
   }
 
-  document.addEventListener('keydown', onKeydown, true)
-  void modes
+  // Invariant 1: the mode machine is the only thing that attaches or detaches the
+  // listener, so insert mode leaves nothing on the typing path.
+  let attached = false
+  const attach = () => {
+    if (attached) return
+    document.addEventListener('keydown', onKeydown, true)
+    attached = true
+  }
+  const detach = () => {
+    if (!attached) return
+    document.removeEventListener('keydown', onKeydown, true)
+    attached = false
+    matcher.reset()
+  }
+  modes.onChange(next => (needsKeydown(next) ? attach() : detach()))
+
+  const syncMode = () => modes.enter(modeForFocus(deepActiveElement(document)))
+  document.addEventListener('focusin', syncMode, true)
+  // focusout fires before the new element takes focus.
+  document.addEventListener('focusout', () => queueMicrotask(syncMode), true)
+
+  syncMode()
+  if (needsKeydown(modes.current)) attach()
 }
 
 void main()
