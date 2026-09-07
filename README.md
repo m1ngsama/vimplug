@@ -49,6 +49,18 @@ Defaults. Every one of them is rebindable; `?` shows the bindings actually in fo
 | `-` `=` `m` | Media volume down, up, mute |
 | `?` | Keyboard help |
 | `<Esc>` | Leave the current mode |
+| `:` | Run any action by name |
+| `/` `n` `N` | Find in page, next, previous |
+| `M` `` ` `` | Set a mark, jump to it |
+| `v` | Visual mode |
+
+`m` stays vimkey's mute, so marks use `M` and `` ` `` instead of vim's `m`.
+
+During `f`, characters that are not a hint label narrow the hints by link text, and the
+last remaining candidate fires on its own.
+
+In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection, `y` copies it, and
+`<Esc>` cancels.
 
 ## Configuration
 

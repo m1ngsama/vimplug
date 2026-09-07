@@ -91,6 +91,14 @@ python3 -m http.server 8000
 | 9 | hint teardown | Press `f`, then Esc | Every label disappears |
 | 10 | overlay input | Press `o`, type two words with a space | The space lands in the field, not swallowed |
 | 11 | overlay isolation | Press `?`, type `jjjj` | The page does not scroll |
+| 12 | filtered hints | Press `f`, then type part of a link's text | Hints narrow to that link |
+| 13 | find | Press `/`, type a word further down the page | The word scrolls into view and is highlighted |
+| 14 | find teardown | Press Esc after a find | Highlighting clears and the page markup is unchanged |
+| 15 | marks | Scroll down, press `Ma`, scroll to top, press `` `a `` | The original position is restored |
+| 16 | visual | Press `v`, then `l` a few times, then `y` | Text is selected and copied |
+
+Check 13 depends on the CSS Custom Highlight API. Safari has it from 17.2; on anything
+older the engine skips highlighting and only scrolls, which is the intended fallback.
 
 Check 7 is the one that differs by platform: Chrome never injects, while Safari injects
 `bootstrap.js` and stops there. Both must end with no listener and no DOM changes.
