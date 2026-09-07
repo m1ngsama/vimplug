@@ -1,0 +1,55 @@
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { ModeMachine, needsKeydown } from './mode.ts'
+
+test('insert and passthrough do not need a keydown listener', () => {
+  assert.equal(needsKeydown('insert'), false)
+  assert.equal(needsKeydown('passthrough'), false)
+  assert.equal(needsKeydown('normal'), true)
+  assert.equal(needsKeydown('hint'), true)
+  assert.equal(needsKeydown('command'), true)
+})
+
+test('starts in normal mode', () => {
+  assert.equal(new ModeMachine().current, 'normal')
+})
+
+test('notifies listeners on change with the previous mode', () => {
+  const m = new ModeMachine()
+  const seen: Array<[string, string]> = []
+  m.onChange((next, prev) => seen.push([prev, next]))
+  m.enter('insert')
+  assert.deepEqual(seen, [['normal', 'insert']])
+})
+
+test('does not notify when entering the current mode', () => {
+  const m = new ModeMachine()
+  let calls = 0
+  m.onChange(() => {
+    calls += 1
+  })
+  m.enter('normal')
+  assert.equal(calls, 0)
+})
+
+test('transient modes fall back to normal after their timeout', async () => {
+  const m = new ModeMachine(20)
+  m.enter('hint')
+  await new Promise(r => setTimeout(r, 60))
+  assert.equal(m.current, 'normal')
+})
+
+test('normal and insert never time out', async () => {
+  const m = new ModeMachine(20)
+  m.enter('insert')
+  await new Promise(r => setTimeout(r, 60))
+  assert.equal(m.current, 'insert')
+})
+
+test('leaving a transient mode cancels its timeout', async () => {
+  const m = new ModeMachine(20)
+  m.enter('hint')
+  m.enter('insert')
+  await new Promise(r => setTimeout(r, 60))
+  assert.equal(m.current, 'insert')
+})
