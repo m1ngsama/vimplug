@@ -2,12 +2,12 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { ModeMachine, needsKeydown } from './mode.ts'
 
-test('insert and passthrough do not need a keydown listener', () => {
+test('modes owning a text input do not need a keydown listener', () => {
   assert.equal(needsKeydown('insert'), false)
   assert.equal(needsKeydown('passthrough'), false)
+  assert.equal(needsKeydown('command'), false)
   assert.equal(needsKeydown('normal'), true)
   assert.equal(needsKeydown('hint'), true)
-  assert.equal(needsKeydown('command'), true)
 })
 
 test('starts in normal mode', () => {
@@ -37,6 +37,13 @@ test('transient modes fall back to normal after their timeout', async () => {
   m.enter('hint')
   await new Promise(r => setTimeout(r, 60))
   assert.equal(m.current, 'normal')
+})
+
+test('command has no deadline because its overlay is visible and dismissible', async () => {
+  const m = new ModeMachine(20)
+  m.enter('command')
+  await new Promise(r => setTimeout(r, 60))
+  assert.equal(m.current, 'command')
 })
 
 test('normal and insert never time out', async () => {

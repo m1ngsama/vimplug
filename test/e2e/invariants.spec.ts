@@ -228,6 +228,56 @@ test('invariant 1 holds for hint mode: f does not fire while typing', async () =
   await page.close()
 })
 
+test('? opens the help overlay and Esc closes it', async () => {
+  const page = await open('/tall')
+  const before = await page.evaluate(() => document.body.childElementCount)
+
+  await page.keyboard.press('Shift+/')
+  await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+  expect(
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset.vimplugUi),
+  ).toBe('')
+
+  await page.keyboard.press('Escape')
+  await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before)
+  await page.close()
+})
+
+test('typing in an overlay does not reach the engine', async () => {
+  const page = await open('/tall')
+  await page.keyboard.press('Shift+/')
+  await page.waitForTimeout(200)
+  await page.keyboard.type('jjjj')
+  await page.waitForTimeout(150)
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  await page.keyboard.press('Escape')
+  await page.close()
+})
+
+test('o accepts spaces and searches (vimkey #26)', async () => {
+  await setDsl(`${DEFAULT_DSL}\nset searchEngine = ${base}/search?q=%s`)
+  const page = await open('/tall')
+
+  await page.keyboard.press('o')
+  await page.waitForTimeout(200)
+  await page.keyboard.type('hello world')
+  await page.keyboard.press('Enter')
+
+  await expect.poll(() => page.url()).toContain('q=hello%20world')
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
+test('o navigates to a bare domain as a url', async () => {
+  const page = await open('/tall')
+  await page.keyboard.press('o')
+  await page.waitForTimeout(200)
+  await page.keyboard.type(`127.0.0.1:${new URL(base).port}/textarea`)
+  await page.keyboard.press('Enter')
+  await expect.poll(() => page.url()).toContain('/textarea')
+  await page.close()
+})
+
 test('invariant 3: a disabled host never activates the engine', async () => {
   await setDsl('site 127.0.0.1 {\n  disable\n}')
   const page = await ctx.newPage()

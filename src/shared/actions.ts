@@ -40,6 +40,10 @@ export const ACTIONS: readonly ActionDef[] = [
 
   { id: 'hint', description: 'Show hints for clickable elements', scope: 'content', defaultKeys: ['f'] },
   { id: 'hintNewTab', description: 'Show hints, opening links in a new tab', scope: 'content', defaultKeys: ['F'] },
+
+  { id: 'openPrompt', description: 'Open a URL or search', scope: 'content', defaultKeys: ['o'] },
+  { id: 'tabSearch', description: 'Search open tabs', scope: 'content', defaultKeys: ['T'] },
+  { id: 'help', description: 'Show keyboard help', scope: 'content', defaultKeys: ['?'] },
 ]
 
 const IDS = new Set(ACTIONS.map(a => a.id))

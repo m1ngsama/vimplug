@@ -18,6 +18,7 @@ export interface ActionContext {
   opts: Options
   enter: (m: Mode) => void
   startHint: (newTab: boolean) => void
+  startOverlay: (kind: 'help' | 'open' | 'tabs') => void
 }
 
 export function runAction(id: string, ctx: ActionContext): boolean {
@@ -38,6 +39,11 @@ export function runAction(id: string, ctx: ActionContext): boolean {
 
   if (id === 'hint' || id === 'hintNewTab') {
     ctx.startHint(id === 'hintNewTab')
+    return true
+  }
+
+  if (id === 'help' || id === 'openPrompt' || id === 'tabSearch') {
+    ctx.startOverlay(id === 'help' ? 'help' : id === 'openPrompt' ? 'open' : 'tabs')
     return true
   }
 

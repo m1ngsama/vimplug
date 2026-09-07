@@ -103,7 +103,7 @@ export function resolveForHost(src: string, host: string): SiteResolution {
   for (const mode of ['normal', 'hint', 'command'] as const) {
     for (const [notation, action] of maps[mode]) {
       const keys = parseKeys(notation)
-      if (keys) out.bindings[mode].push({ keys, action })
+      if (keys) out.bindings[mode].push({ keys, action, notation })
     }
   }
 

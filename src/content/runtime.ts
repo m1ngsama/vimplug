@@ -6,6 +6,8 @@ import { boundKeyIds, shouldHandle } from './dispatch.ts'
 import { deepActiveElement, modeForFocus } from './focus.ts'
 import { runAction, openTarget, type ActionContext } from './actions/index.ts'
 import { startHint, type HintSession } from './hint/index.ts'
+import { startOverlay } from './overlay/index.ts'
+import type { Overlay } from './overlay/shell.ts'
 
 async function loadDsl(): Promise<string> {
   const res = await chrome.runtime.sendMessage({ type: 'getDsl' }).catch(() => null)
@@ -24,6 +26,11 @@ async function main(): Promise<void> {
 
   let hint: HintSession | null = null
 
+  let overlay: Overlay | null = null
+  // Set before the overlay is built: its input takes focus synchronously, so a handle
+  // assigned from the promise would arrive after focusin has already re-synced the mode.
+  let overlayOpen = false
+
   const ctx: ActionContext = {
     opts: site.options,
     enter: (m: Mode) => modes.enter(m),
@@ -32,6 +39,18 @@ async function main(): Promise<void> {
       if (!session) return
       hint = session
       modes.enter('hint')
+    },
+    startOverlay: kind => {
+      if (overlayOpen) return
+      overlayOpen = true
+      modes.enter('command')
+      void startOverlay(kind, site.bindings.normal, site.options.searchEngine, () => {
+        overlay = null
+        overlayOpen = false
+        modes.enter('normal')
+      }).then(o => {
+        overlay = o
+      })
     },
   }
 
@@ -93,7 +112,12 @@ async function main(): Promise<void> {
     }
   })
 
-  const syncMode = () => modes.enter(modeForFocus(deepActiveElement(document)))
+  // Our own overlay input takes focus; syncing on it would drop us back to normal and
+  // re-attach the global listener over the field the user is typing in.
+  const syncMode = () => {
+    if (overlayOpen) return
+    modes.enter(modeForFocus(deepActiveElement(document)))
+  }
   document.addEventListener('focusin', syncMode, true)
   // focusout fires before the new element takes focus.
   document.addEventListener('focusout', () => queueMicrotask(syncMode), true)

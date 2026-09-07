@@ -14,9 +14,17 @@ test('a bare domain gets https', () => {
   assert.equal(clipboardTarget('sub.example.co.uk/path', SEARCH), 'https://sub.example.co.uk/path')
 })
 
-test('localhost with a port is treated as a url', () => {
-  assert.equal(clipboardTarget('localhost:3000', SEARCH), 'https://localhost:3000')
-  assert.equal(clipboardTarget('localhost', SEARCH), 'https://localhost')
+// Chrome's omnibox sends loopback to http and everything else to https; dev servers are
+// almost never TLS, so guessing https there just breaks the navigation.
+test('loopback hosts get http, not https', () => {
+  assert.equal(clipboardTarget('localhost:3000', SEARCH), 'http://localhost:3000')
+  assert.equal(clipboardTarget('localhost', SEARCH), 'http://localhost')
+  assert.equal(clipboardTarget('127.0.0.1:8000/x', SEARCH), 'http://127.0.0.1:8000/x')
+  assert.equal(clipboardTarget('0.0.0.0:5173', SEARCH), 'http://0.0.0.0:5173')
+})
+
+test('non-loopback hosts still get https', () => {
+  assert.equal(clipboardTarget('192.168.1.4:8080', SEARCH), 'https://192.168.1.4:8080')
 })
 
 test('text with spaces becomes a search', () => {

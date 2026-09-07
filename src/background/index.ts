@@ -22,6 +22,22 @@ function messageType(m: unknown): string | null {
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   const type = messageType(msg)
 
+  if (type === 'listTabs') {
+    void chrome.tabs.query({}).then(tabs =>
+      reply({
+        tabs: tabs.map(t => ({ id: t.id, title: t.title ?? '', url: t.url ?? '' })),
+      }),
+    )
+    return true
+  }
+
+  if (type === 'activateTab') {
+    const id = Number((msg as { id?: unknown }).id)
+    if (Number.isFinite(id)) void chrome.tabs.update(id, { active: true })
+    reply({ ok: true })
+    return true
+  }
+
   if (type === 'openUrl') {
     const url = String((msg as { url?: unknown }).url ?? '')
     if (url) void chrome.tabs.create({ url, windowId: sender.tab?.windowId })

@@ -3,6 +3,7 @@ import { keyId, type Key, type KeyMatching } from './keys.ts'
 export interface Binding {
   keys: Key[]
   action: string
+  notation?: string
 }
 
 export type MatchResult =
