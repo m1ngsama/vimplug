@@ -4,7 +4,7 @@ import { ModeMachine, needsKeydown } from './mode.ts'
 import { fromEvent } from './event-keys.ts'
 import { boundKeyIds, shouldHandle } from './dispatch.ts'
 import { deepActiveElement, modeForFocus } from './focus.ts'
-import { runScroll } from './actions/scroll.ts'
+import { runAction } from './actions/index.ts'
 
 async function loadDsl(): Promise<string> {
   const res = await chrome.runtime.sendMessage({ type: 'getDsl' }).catch(() => null)
@@ -25,7 +25,7 @@ async function main(): Promise<void> {
     const key = fromEvent(e)
     if (!shouldHandle(key, boundIds, keyMatching)) return
     const r = matcher.step(key)
-    if (r.kind === 'match' && runScroll(r.action, site.options)) e.preventDefault()
+    if (r.kind === 'match' && runAction(r.action, site.options)) e.preventDefault()
   }
 
   // Invariant 1: the mode machine is the only thing that attaches or detaches the

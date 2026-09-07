@@ -10,6 +10,39 @@ declare namespace chrome {
     const onChanged: { addListener(cb: () => void): void }
   }
 
+  namespace tabs {
+    interface Tab {
+      id?: number
+      index: number
+      windowId: number
+      title?: string
+      url?: string
+      active: boolean
+    }
+    function query(info: {
+      windowId?: number
+      currentWindow?: boolean
+      active?: boolean
+    }): Promise<Tab[]>
+    function update(tabId: number, props: { active?: boolean; url?: string }): Promise<Tab>
+    function create(props: { url?: string; active?: boolean; windowId?: number }): Promise<Tab>
+    function remove(tabId: number): Promise<void>
+    function duplicate(tabId: number): Promise<Tab | undefined>
+    function reload(tabId: number): Promise<void>
+  }
+
+  namespace windows {
+    function create(props: { url?: string }): Promise<unknown>
+  }
+
+  namespace sessions {
+    function restore(sessionId?: string): Promise<unknown>
+  }
+
+  interface MessageSender {
+    tab?: tabs.Tab
+  }
+
   namespace runtime {
     function sendMessage(message: unknown): Promise<unknown>
     function getURL(path: string): string
@@ -17,7 +50,7 @@ declare namespace chrome {
       addListener(
         cb: (
           message: unknown,
-          sender: unknown,
+          sender: MessageSender,
           sendResponse: (response?: unknown) => void,
         ) => boolean | void,
       ): void

@@ -32,6 +32,14 @@ async function open(path: string): Promise<Page> {
   return page
 }
 
+async function activeTabUrl(): Promise<string> {
+  const [sw] = ctx.serviceWorkers()
+  return await sw!.evaluate(async () => {
+    const tabs = await chrome.tabs.query({ active: true })
+    return tabs[0]?.url ?? ''
+  })
+}
+
 async function setDsl(dsl: string): Promise<void> {
   const [sw] = ctx.serviceWorkers()
   await sw!.evaluate(async (src: string) => {
@@ -42,7 +50,8 @@ async function setDsl(dsl: string): Promise<void> {
 
 test.beforeAll(async () => {
   server = createServer((req, res) => {
-    const body = PAGES[req.url ?? ''] ?? '<body>not found</body>'
+    const path = (req.url ?? '').split('?')[0] ?? ''
+    const body = PAGES[path] ?? '<body>not found</body>'
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
     res.end(`<!doctype html><html>${body}</html>`)
   })
@@ -118,6 +127,32 @@ test('invariant 2: unbound modifier combos reach the page', async () => {
   await page.keyboard.press('Meta+k')
   await expect.poll(() => page.textContent('#out')).toBe('page-saw-it')
   expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  await page.close()
+})
+
+// Playwright's press('H') sends code=KeyH with shiftKey FALSE, which no real keyboard can
+// produce. Shifted bindings must be driven as 'Shift+<lowercase>'.
+test('shift+k switches to the next tab through the background channel', async () => {
+  const first = await open('/tall?1')
+  const second = await open('/tall?2')
+  await first.bringToFront()
+
+  await expect.poll(activeTabUrl).toContain('?1')
+  await first.keyboard.press('Shift+k')
+  await expect.poll(activeTabUrl).toContain('?2')
+
+  await first.close()
+  await second.close()
+})
+
+test('shift+h goes back in history', async () => {
+  const page = await open('/tall')
+  await page.goto(`${base}/textarea`)
+  await page.waitForFunction(() => document.documentElement.dataset.vimplug === 'on')
+  expect(page.url()).toContain('/textarea')
+
+  await page.keyboard.press('Shift+h')
+  await expect.poll(() => page.url()).toContain('/tall')
   await page.close()
 })
 

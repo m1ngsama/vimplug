@@ -1,5 +1,6 @@
 import { readDsl } from './storage.ts'
 import { registrationFor, isDisabled, REGISTRATION_ID } from './injection.ts'
+import { runTabAction } from './tabs.ts'
 import { disabledHosts } from '../shared/config.ts'
 
 async function sync(): Promise<void> {
@@ -18,8 +19,16 @@ function messageType(m: unknown): string | null {
   return typeof t === 'string' ? t : null
 }
 
-chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
+chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   const type = messageType(msg)
+
+  if (type === 'runAction') {
+    const id = String((msg as { id?: unknown }).id ?? '')
+    const tab = sender.tab
+    if (tab) void runTabAction(id, tab).then(ok => reply({ ok }))
+    else reply({ ok: false })
+    return true
+  }
 
   if (type === 'getDsl') {
     void readDsl().then(dsl => reply({ dsl }))
