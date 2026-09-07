@@ -87,6 +87,10 @@ python3 -m http.server 8000
 | 5 | invariant 1, resume | Blur the field, press `j` | Page scrolls again |
 | 6 | invariant 2 | On a page binding Cmd+K, press Cmd+K | The page's own handler runs |
 | 7 | invariant 3 | Add `site <host> { disable }`, reload | `document.documentElement.dataset.vimplug` is undefined and `j` does nothing |
+| 8 | hint mode | Press `f` on a page with links, then the label shown | That link opens |
+| 9 | hint teardown | Press `f`, then Esc | Every label disappears |
+| 10 | overlay input | Press `o`, type two words with a space | The space lands in the field, not swallowed |
+| 11 | overlay isolation | Press `?`, type `jjjj` | The page does not scroll |
 
 Check 7 is the one that differs by platform: Chrome never injects, while Safari injects
 `bootstrap.js` and stops there. Both must end with no listener and no DOM changes.

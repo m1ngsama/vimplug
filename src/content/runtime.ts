@@ -34,8 +34,14 @@ async function main(): Promise<void> {
   const ctx: ActionContext = {
     opts: site.options,
     enter: (m: Mode) => modes.enter(m),
-    startHint: (newTab: boolean) => {
-      const session = startHint(site.options.hintChars, newTab, openTarget)
+    startHint: (newTab: boolean, frames = false) => {
+      const targets = frames
+        ? Array.from(document.querySelectorAll('iframe')).filter(f => {
+            const r = f.getBoundingClientRect()
+            return r.width > 0 && r.height > 0
+          })
+        : undefined
+      const session = startHint(site.options.hintChars, newTab, openTarget, targets)
       if (!session) return
       hint = session
       modes.enter('hint')

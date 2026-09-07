@@ -24,6 +24,62 @@ exercise the built artifact, never a dev server.
 Load `dist/chrome` via `chrome://extensions` -> Load unpacked. For Safari see
 [docs/SAFARI.md](docs/SAFARI.md).
 
+## Keys
+
+Defaults. Every one of them is rebindable; `?` shows the bindings actually in force.
+
+| Keys | Action |
+| --- | --- |
+| `j` `k` `h` `l` | Scroll |
+| `d` `u` | Scroll half a page |
+| `f` | Hint clickable elements |
+| `F` | Hint, opening links in a new tab |
+| `o` | Open a URL or search |
+| `T` | Search open tabs |
+| `t` | New tab |
+| `J` `K` | Previous / next tab |
+| `H` `L` | Back / forward |
+| `r` `x` `X` | Reload, close, reopen tab |
+| `yt` | Duplicate tab |
+| `yy` | Copy the page URL |
+| `p` `P` | Open the clipboard URL here / in a new tab |
+| `gi` | Focus the first text field |
+| `gf` | Focus an iframe by hint |
+| `i` | Suspend vimplug until Esc |
+| `-` `=` `m` | Media volume down, up, mute |
+| `?` | Keyboard help |
+| `<Esc>` | Leave the current mode |
+
+## Configuration
+
+Bindings and options are one block of text, stored as written so comments survive edits.
+
+```
+map <C-d> scrollHalfDown
+
+map <C-[> escape
+map <Esc>  escape
+
+site youtube.com {
+  unmap j
+  unmap k
+}
+
+site mail.google.com {
+  disable
+}
+
+set hintChars = "asdfghjkl"
+set keyMatching = physical
+```
+
+`keyMatching = physical` (the default) matches the physical key position, so bindings
+survive a Chinese IME or a Dvorak layout. Set it to `logical` to match the produced
+character instead.
+
+Where two `site` blocks match one host, the more specific pattern wins; ties go to
+whichever appears last.
+
 ## Engine invariants
 
 Three properties hold by construction and are covered by regression tests. Changing any of

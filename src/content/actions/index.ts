@@ -17,7 +17,7 @@ export function openTarget(url: string, newTab: boolean): void {
 export interface ActionContext {
   opts: Options
   enter: (m: Mode) => void
-  startHint: (newTab: boolean) => void
+  startHint: (newTab: boolean, frames?: boolean) => void
   startOverlay: (kind: 'help' | 'open' | 'tabs') => void
 }
 
@@ -39,6 +39,11 @@ export function runAction(id: string, ctx: ActionContext): boolean {
 
   if (id === 'hint' || id === 'hintNewTab') {
     ctx.startHint(id === 'hintNewTab')
+    return true
+  }
+
+  if (id === 'hintFrame') {
+    ctx.startHint(false, true)
     return true
   }
 

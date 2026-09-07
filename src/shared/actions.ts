@@ -44,6 +44,8 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'openPrompt', description: 'Open a URL or search', scope: 'content', defaultKeys: ['o'] },
   { id: 'tabSearch', description: 'Search open tabs', scope: 'content', defaultKeys: ['T'] },
   { id: 'help', description: 'Show keyboard help', scope: 'content', defaultKeys: ['?'] },
+
+  { id: 'hintFrame', description: 'Focus an iframe by hint', scope: 'content', defaultKeys: ['gf'] },
 ]
 
 const IDS = new Set(ACTIONS.map(a => a.id))

@@ -31,7 +31,7 @@ const STYLE = `
 .h[data-off] { opacity: .25 }
 `
 
-const FOCUSABLE = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
+const FOCUSABLE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'IFRAME'])
 
 function activate(el: Element, newTab: boolean, open: (url: string, newTab: boolean) => void): void {
   const href = el.tagName === 'A' ? el.getAttribute('href') : null
@@ -50,8 +50,8 @@ export function startHint(
   chars: string,
   newTab: boolean,
   open: (url: string, newTab: boolean) => void,
+  targets: Element[] = collectTargets(document),
 ): HintSession | null {
-  const targets = collectTargets(document)
   if (targets.length === 0) return null
 
   const labels = generateLabels(targets.length, chars.toLowerCase())
