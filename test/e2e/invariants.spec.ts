@@ -278,6 +278,16 @@ test('o navigates to a bare domain as a url', async () => {
   await page.close()
 })
 
+test('hints filter by link text (vimkey #16)', async () => {
+  const page = await open('/links')
+  await page.keyboard.press('f')
+  await page.waitForTimeout(150)
+  // "t" narrows to two/three by text, "h" leaves only three, which fires at once.
+  await page.keyboard.type('th')
+  await expect.poll(() => page.title()).toBe('clicked')
+  await page.close()
+})
+
 test('the command palette runs an action by name', async () => {
   const page = await open('/tall')
   await page.keyboard.press('Shift+;')

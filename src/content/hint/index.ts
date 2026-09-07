@@ -1,5 +1,6 @@
 import { generateLabels } from './labels.ts'
 import { collectTargets } from './collect.ts'
+import { hintText, filterHints } from './text.ts'
 
 export type FeedResult = 'pending' | 'done' | 'none'
 
@@ -10,6 +11,7 @@ export interface HintSession {
 
 interface Item {
   label: string
+  text: string
   el: Element
   node: HTMLElement
 }
@@ -72,7 +74,7 @@ export function startHint(
     node.style.top = `${Math.max(0, r.top)}px`
     node.style.left = `${Math.max(0, r.left)}px`
     shadow.append(node)
-    return { label: labels[i]!, el, node }
+    return { label: labels[i]!, text: hintText(el), el, node }
   })
 
   document.body.append(host)
@@ -80,25 +82,35 @@ export function startHint(
   let typed = ''
   const cleanup = () => host.remove()
 
+  const fire = (item: Item) => {
+    cleanup()
+    activate(item.el, newTab, open)
+  }
+
   return {
     cancel: cleanup,
     feed(ch: string): FeedResult {
       typed += ch.toLowerCase()
-      const hit = items.find(i => i.label === typed)
-      if (hit) {
-        cleanup()
-        activate(hit.el, newTab, open)
-        return 'done'
-      }
-      const live = items.filter(i => i.label.startsWith(typed))
-      if (live.length === 0) {
+      const result = filterHints(items, typed)
+
+      if (result.kind === 'none') {
         cleanup()
         return 'none'
       }
-      for (const i of items) {
-        if (i.label.startsWith(typed)) i.node.removeAttribute('data-off')
-        else i.node.setAttribute('data-off', '')
+      if (result.kind === 'match') {
+        fire(items[result.index]!)
+        return 'done'
       }
+      if (result.indexes.length === 1) {
+        fire(items[result.indexes[0]!]!)
+        return 'done'
+      }
+
+      const live = new Set(result.indexes)
+      items.forEach((i, n) => {
+        if (live.has(n)) i.node.removeAttribute('data-off')
+        else i.node.setAttribute('data-off', '')
+      })
       return 'pending'
     },
   }
