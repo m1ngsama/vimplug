@@ -1,17 +1,19 @@
-export type Mode = 'normal' | 'insert' | 'hint' | 'command' | 'passthrough'
+export type Mode = 'normal' | 'insert' | 'hint' | 'command' | 'passthrough' | 'pending'
 
 // hint draws over the page and reads raw keys, so it needs the global listener. command
 // owns a real text input, so the listener must be off or it would eat what is typed.
 const NEEDS_KEYDOWN: Record<Mode, boolean> = {
   normal: true,
   hint: true,
+  pending: true,
   command: false,
   insert: false,
   passthrough: false,
 }
 
-// command is dismissible on screen, so it does not need a deadline. hint does.
-const TRANSIENT: ReadonlySet<Mode> = new Set<Mode>(['hint'])
+// hint and pending are invisible or near-invisible waits, so both need a deadline or a
+// mistyped key wedges the engine. command shows a dismissible panel and does not.
+const TRANSIENT: ReadonlySet<Mode> = new Set<Mode>(['hint', 'pending'])
 
 export function needsKeydown(m: Mode): boolean {
   return NEEDS_KEYDOWN[m]

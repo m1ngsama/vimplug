@@ -52,6 +52,9 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'find', description: 'Search within the page', scope: 'content', defaultKeys: ['/'] },
   { id: 'findNext', description: 'Next search match', scope: 'content', defaultKeys: ['n'] },
   { id: 'findPrev', description: 'Previous search match', scope: 'content', defaultKeys: ['N'] },
+
+  { id: 'setMark', description: 'Set a mark at this position', scope: 'content', defaultKeys: ['M'] },
+  { id: 'jumpMark', description: 'Jump to a mark', scope: 'content', defaultKeys: ['`'] },
 ]
 
 const IDS = new Set(ACTIONS.map(a => a.id))

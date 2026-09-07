@@ -8,6 +8,7 @@ import { runAction, openTarget, type ActionContext } from './actions/index.ts'
 import { startHint, type HintSession } from './hint/index.ts'
 import { startOverlay } from './overlay/index.ts'
 import { createFind, type FindSession } from './find/index.ts'
+import { isMarkChar, saveMark, jumpMark } from './marks.ts'
 import type { Overlay } from './overlay/shell.ts'
 
 async function loadDsl(): Promise<string> {
@@ -32,6 +33,7 @@ async function main(): Promise<void> {
   // assigned from the promise would arrive after focusin has already re-synced the mode.
   let overlayOpen = false
   const finder = createFind()
+  let awaitingMark: 'set' | 'jump' | null = null
 
   const ctx: ActionContext = {
     opts: site.options,
@@ -47,6 +49,10 @@ async function main(): Promise<void> {
       if (!session) return
       hint = session
       modes.enter('hint')
+    },
+    awaitMark: kind => {
+      awaitingMark = kind
+      modes.enter('pending')
     },
     find: dir => {
       if (!finder) return
@@ -78,6 +84,17 @@ async function main(): Promise<void> {
   }
 
   const onKeydown = (e: KeyboardEvent) => {
+    if (awaitingMark) {
+      e.preventDefault()
+      const kind = awaitingMark
+      awaitingMark = null
+      if (isMarkChar(e.key)) {
+        void (kind === 'set' ? saveMark(e.key) : jumpMark(e.key))
+      }
+      modes.enter('normal')
+      return
+    }
+
     if (hint) {
       e.preventDefault()
       e.stopPropagation()
@@ -133,6 +150,7 @@ async function main(): Promise<void> {
       hint?.cancel()
       hint = null
     }
+    if (prev === 'pending' && next !== 'pending') awaitingMark = null
   })
 
   // Our own overlay input takes focus; syncing on it would drop us back to normal and

@@ -8,6 +8,14 @@ test('modes owning a text input do not need a keydown listener', () => {
   assert.equal(needsKeydown('command'), false)
   assert.equal(needsKeydown('normal'), true)
   assert.equal(needsKeydown('hint'), true)
+  assert.equal(needsKeydown('pending'), true)
+})
+
+test('pending times out so a stray M cannot wedge the engine', async () => {
+  const m = new ModeMachine(20)
+  m.enter('pending')
+  await new Promise(r => setTimeout(r, 60))
+  assert.equal(m.current, 'normal')
 })
 
 test('starts in normal mode', () => {

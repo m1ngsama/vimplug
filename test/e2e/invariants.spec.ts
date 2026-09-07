@@ -318,6 +318,29 @@ test('find leaves no element behind in the page tree', async () => {
   await page.close()
 })
 
+test('M sets a mark and ` returns to it', async () => {
+  const page = await open('/tall')
+  await page.evaluate(() => window.scrollTo(0, 1200))
+  await page.keyboard.press('Shift+m')
+  await page.keyboard.press('a')
+  await page.waitForTimeout(200)
+
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.keyboard.press('`')
+  await page.keyboard.press('a')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1200)
+  await page.close()
+})
+
+test('a mark waiting for a letter releases on a bad key', async () => {
+  const page = await open('/tall')
+  await page.keyboard.press('Shift+m')
+  await page.keyboard.press('1')
+  await page.keyboard.press('j')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await page.close()
+})
+
 test('the command palette runs an action by name', async () => {
   const page = await open('/tall')
   await page.keyboard.press('Shift+;')

@@ -28,6 +28,7 @@ export interface ActionContext {
   startHint: (newTab: boolean, frames?: boolean) => void
   startOverlay: (kind: OverlayKind) => void
   find: (dir: 1 | -1 | 'open') => void
+  awaitMark: (mode: 'set' | 'jump') => void
 }
 
 export function runAction(id: string, ctx: ActionContext): boolean {
@@ -64,6 +65,11 @@ export function runAction(id: string, ctx: ActionContext): boolean {
 
   if (id === 'find' || id === 'findNext' || id === 'findPrev') {
     ctx.find(id === 'find' ? 'open' : id === 'findNext' ? 1 : -1)
+    return true
+  }
+
+  if (id === 'setMark' || id === 'jumpMark') {
+    ctx.awaitMark(id === 'setMark' ? 'set' : 'jump')
     return true
   }
 
