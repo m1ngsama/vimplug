@@ -50,11 +50,17 @@ async function main(): Promise<void> {
       if (overlayOpen) return
       overlayOpen = true
       modes.enter('command')
-      void startOverlay(kind, site.bindings.normal, site.options.searchEngine, () => {
-        overlay = null
-        overlayOpen = false
-        modes.enter('normal')
-      }).then(o => {
+      void startOverlay(
+        kind,
+        site.bindings.normal,
+        site.options.searchEngine,
+        () => {
+          overlay = null
+          overlayOpen = false
+          modes.enter('normal')
+        },
+        id => runAction(id, ctx),
+      ).then(o => {
         overlay = o
       })
     },

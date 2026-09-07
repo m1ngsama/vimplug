@@ -1,11 +1,12 @@
 import { openOverlay, type Overlay } from './shell.ts'
 import { helpRows } from './help.ts'
+import { paletteRows } from './palette.ts'
 import type { Row } from './filter.ts'
 import type { Binding } from '../../shared/matcher.ts'
 import { clipboardTarget } from '../actions/clipboard.ts'
 import { openTarget } from '../actions/index.ts'
 
-export type OverlayKind = 'help' | 'open' | 'tabs'
+export type OverlayKind = 'help' | 'open' | 'tabs' | 'palette'
 
 async function listTabs(): Promise<Row[]> {
   const res = await chrome.runtime.sendMessage({ type: 'listTabs' }).catch(() => null)
@@ -20,7 +21,18 @@ export async function startOverlay(
   bindings: Binding[],
   searchEngine: string,
   onClose: () => void,
+  runById: (id: string) => void,
 ): Promise<Overlay> {
+  if (kind === 'palette') {
+    return openOverlay({
+      placeholder: 'Run an action',
+      rows: paletteRows(bindings),
+      freeText: false,
+      onPick: runById,
+      onClose,
+    })
+  }
+
   if (kind === 'help') {
     return openOverlay({
       placeholder: 'Filter keys',

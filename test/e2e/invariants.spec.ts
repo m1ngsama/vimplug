@@ -278,6 +278,16 @@ test('o navigates to a bare domain as a url', async () => {
   await page.close()
 })
 
+test('the command palette runs an action by name', async () => {
+  const page = await open('/tall')
+  await page.keyboard.press('Shift+;')
+  await page.waitForTimeout(200)
+  await page.keyboard.type('half a page down')
+  await page.keyboard.press('Enter')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await page.close()
+})
+
 test('invariant 3: a disabled host never activates the engine', async () => {
   await setDsl('site 127.0.0.1 {\n  disable\n}')
   const page = await ctx.newPage()

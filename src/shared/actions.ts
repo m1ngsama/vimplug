@@ -46,6 +46,8 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'help', description: 'Show keyboard help', scope: 'content', defaultKeys: ['?'] },
 
   { id: 'hintFrame', description: 'Focus an iframe by hint', scope: 'content', defaultKeys: ['gf'] },
+
+  { id: 'commandPalette', description: 'Run any action by name', scope: 'content', defaultKeys: [':'] },
 ]
 
 const IDS = new Set(ACTIONS.map(a => a.id))

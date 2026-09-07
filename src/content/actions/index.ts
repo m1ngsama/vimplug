@@ -6,8 +6,16 @@ import { runClipboard } from './clipboard.ts'
 import { runFocusInput } from './focus-input.ts'
 import { runMedia } from './media.ts'
 import type { Mode } from '../mode.ts'
+import type { OverlayKind } from '../overlay/index.ts'
 
 const SCOPE = new Map(ACTIONS.map(a => [a.id, a.scope]))
+
+const OVERLAY_FOR: Record<string, OverlayKind | undefined> = {
+  help: 'help',
+  openPrompt: 'open',
+  tabSearch: 'tabs',
+  commandPalette: 'palette',
+}
 
 export function openTarget(url: string, newTab: boolean): void {
   if (newTab) void chrome.runtime.sendMessage({ type: 'openUrl', url }).catch(() => {})
@@ -18,7 +26,7 @@ export interface ActionContext {
   opts: Options
   enter: (m: Mode) => void
   startHint: (newTab: boolean, frames?: boolean) => void
-  startOverlay: (kind: 'help' | 'open' | 'tabs') => void
+  startOverlay: (kind: OverlayKind) => void
 }
 
 export function runAction(id: string, ctx: ActionContext): boolean {
@@ -47,8 +55,9 @@ export function runAction(id: string, ctx: ActionContext): boolean {
     return true
   }
 
-  if (id === 'help' || id === 'openPrompt' || id === 'tabSearch') {
-    ctx.startOverlay(id === 'help' ? 'help' : id === 'openPrompt' ? 'open' : 'tabs')
+  const overlayKind = OVERLAY_FOR[id]
+  if (overlayKind) {
+    ctx.startOverlay(overlayKind)
     return true
   }
 
