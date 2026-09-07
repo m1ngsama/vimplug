@@ -13,6 +13,21 @@ test('declares no static content_scripts', () => {
   }
 })
 
+test('background is a classic service worker: safari rejects type module', () => {
+  for (const t of ['chrome', 'safari'] as const) {
+    const bg = buildManifest(t).background as Record<string, unknown>
+    assert.equal(bg.service_worker, 'background.js')
+    assert.equal(bg.type, undefined)
+  }
+})
+
+test('safari omits open_in_tab, chrome keeps it', () => {
+  const safari = buildManifest('safari').options_ui as Record<string, unknown>
+  const chrome = buildManifest('chrome').options_ui as Record<string, unknown>
+  assert.equal(safari.open_in_tab, undefined)
+  assert.equal(chrome.open_in_tab, true)
+})
+
 test('requests scripting and storage permissions', () => {
   const perms = buildManifest('chrome').permissions as string[]
   assert.ok(perms.includes('scripting'))

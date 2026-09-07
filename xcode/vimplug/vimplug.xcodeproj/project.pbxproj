@@ -1,0 +1,613 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		589F4A8E304EDEEB009FF1CD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589F4A8D304EDEEB009FF1CD /* AppDelegate.swift */; };
+		589F4A92304EDEEB009FF1CD /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A90304EDEEB009FF1CD /* Main.html */; };
+		589F4A94304EDEEB009FF1CD /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A93304EDEEB009FF1CD /* Icon.png */; };
+		589F4A96304EDEEB009FF1CD /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A95304EDEEB009FF1CD /* Style.css */; };
+		589F4A98304EDEEB009FF1CD /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A97304EDEEB009FF1CD /* Script.js */; };
+		589F4A9A304EDEEB009FF1CD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589F4A99304EDEEB009FF1CD /* ViewController.swift */; };
+		589F4A9D304EDEEB009FF1CD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A9B304EDEEB009FF1CD /* Main.storyboard */; };
+		589F4A9F304EDEEC009FF1CD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 589F4A9E304EDEEC009FF1CD /* Assets.xcassets */; };
+		589F4AA6304EDEEC009FF1CD /* vimplug Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 589F4AA5304EDEEC009FF1CD /* vimplug Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		589F4AAB304EDEEC009FF1CD /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589F4AAA304EDEEC009FF1CD /* SafariWebExtensionHandler.swift */; };
+		589F4ABC304EDEEC009FF1CD /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 589F4AB7304EDEEC009FF1CD /* background.js */; };
+		589F4ABD304EDEEC009FF1CD /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = 589F4AB8304EDEEC009FF1CD /* options.js */; };
+		589F4ABE304EDEEC009FF1CD /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 589F4AB9304EDEEC009FF1CD /* manifest.json */; };
+		589F4ABF304EDEEC009FF1CD /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 589F4ABA304EDEEC009FF1CD /* options.html */; };
+		589F4AC0304EDEEC009FF1CD /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 589F4ABB304EDEEC009FF1CD /* content.js */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		589F4AA7304EDEEC009FF1CD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 589F4A82304EDEEB009FF1CD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 589F4AA4304EDEEC009FF1CD;
+			remoteInfo = "vimplug Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		589F4AB2304EDEEC009FF1CD /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				589F4AA6304EDEEC009FF1CD /* vimplug Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		589F4A8A304EDEEB009FF1CD /* vimplug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = vimplug.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		589F4A8D304EDEEB009FF1CD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		589F4A91304EDEEB009FF1CD /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		589F4A93304EDEEB009FF1CD /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		589F4A95304EDEEB009FF1CD /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		589F4A97304EDEEB009FF1CD /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		589F4A99304EDEEB009FF1CD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		589F4A9C304EDEEB009FF1CD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		589F4A9E304EDEEC009FF1CD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		589F4AA0304EDEEC009FF1CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		589F4AA5304EDEEC009FF1CD /* vimplug Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "vimplug Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		589F4AAA304EDEEC009FF1CD /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		589F4AAC304EDEEC009FF1CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		589F4AB7304EDEEC009FF1CD /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../../dist/safari/background.js; sourceTree = "<group>"; };
+		589F4AB8304EDEEC009FF1CD /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = ../../../dist/safari/options.js; sourceTree = "<group>"; };
+		589F4AB9304EDEEC009FF1CD /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../dist/safari/manifest.json; sourceTree = "<group>"; };
+		589F4ABA304EDEEC009FF1CD /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../../dist/safari/options.html; sourceTree = "<group>"; };
+		589F4ABB304EDEEC009FF1CD /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../../dist/safari/content.js; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		589F4A87304EDEEB009FF1CD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		589F4AA2304EDEEC009FF1CD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		589F4A81304EDEEB009FF1CD = {
+			isa = PBXGroup;
+			children = (
+				589F4A8C304EDEEB009FF1CD /* vimplug */,
+				589F4AA9304EDEEC009FF1CD /* vimplug Extension */,
+				589F4A8B304EDEEB009FF1CD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		589F4A8B304EDEEB009FF1CD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				589F4A8A304EDEEB009FF1CD /* vimplug.app */,
+				589F4AA5304EDEEC009FF1CD /* vimplug Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		589F4A8C304EDEEB009FF1CD /* vimplug */ = {
+			isa = PBXGroup;
+			children = (
+				589F4A8D304EDEEB009FF1CD /* AppDelegate.swift */,
+				589F4A99304EDEEB009FF1CD /* ViewController.swift */,
+				589F4A9B304EDEEB009FF1CD /* Main.storyboard */,
+				589F4A9E304EDEEC009FF1CD /* Assets.xcassets */,
+				589F4AA0304EDEEC009FF1CD /* Info.plist */,
+				589F4A8F304EDEEB009FF1CD /* Resources */,
+			);
+			path = vimplug;
+			sourceTree = "<group>";
+		};
+		589F4A8F304EDEEB009FF1CD /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				589F4A90304EDEEB009FF1CD /* Main.html */,
+				589F4A93304EDEEB009FF1CD /* Icon.png */,
+				589F4A95304EDEEB009FF1CD /* Style.css */,
+				589F4A97304EDEEB009FF1CD /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		589F4AA9304EDEEC009FF1CD /* vimplug Extension */ = {
+			isa = PBXGroup;
+			children = (
+				589F4AB6304EDEEC009FF1CD /* Resources */,
+				589F4AAA304EDEEC009FF1CD /* SafariWebExtensionHandler.swift */,
+				589F4AAC304EDEEC009FF1CD /* Info.plist */,
+			);
+			path = "vimplug Extension";
+			sourceTree = "<group>";
+		};
+		589F4AB6304EDEEC009FF1CD /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				589F4AB7304EDEEC009FF1CD /* background.js */,
+				589F4AB8304EDEEC009FF1CD /* options.js */,
+				589F4AB9304EDEEC009FF1CD /* manifest.json */,
+				589F4ABA304EDEEC009FF1CD /* options.html */,
+				589F4ABB304EDEEC009FF1CD /* content.js */,
+			);
+			name = Resources;
+			path = "vimplug Extension";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		589F4A89304EDEEB009FF1CD /* vimplug */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 589F4AB3304EDEEC009FF1CD /* Build configuration list for PBXNativeTarget "vimplug" */;
+			buildPhases = (
+				589F4A86304EDEEB009FF1CD /* Sources */,
+				589F4A87304EDEEB009FF1CD /* Frameworks */,
+				589F4A88304EDEEB009FF1CD /* Resources */,
+				589F4AB2304EDEEC009FF1CD /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				589F4AA8304EDEEC009FF1CD /* PBXTargetDependency */,
+			);
+			name = vimplug;
+			packageProductDependencies = (
+			);
+			productName = vimplug;
+			productReference = 589F4A8A304EDEEB009FF1CD /* vimplug.app */;
+			productType = "com.apple.product-type.application";
+		};
+		589F4AA4304EDEEC009FF1CD /* vimplug Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 589F4AAF304EDEEC009FF1CD /* Build configuration list for PBXNativeTarget "vimplug Extension" */;
+			buildPhases = (
+				589F4AA1304EDEEC009FF1CD /* Sources */,
+				589F4AA2304EDEEC009FF1CD /* Frameworks */,
+				589F4AA3304EDEEC009FF1CD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "vimplug Extension";
+			packageProductDependencies = (
+			);
+			productName = "vimplug Extension";
+			productReference = 589F4AA5304EDEEC009FF1CD /* vimplug Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		589F4A82304EDEEB009FF1CD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					589F4A89304EDEEB009FF1CD = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					589F4AA4304EDEEC009FF1CD = {
+						CreatedOnToolsVersion = 26.3;
+					};
+				};
+			};
+			buildConfigurationList = 589F4A85304EDEEB009FF1CD /* Build configuration list for PBXProject "vimplug" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 589F4A81304EDEEB009FF1CD;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 589F4A8B304EDEEB009FF1CD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				589F4A89304EDEEB009FF1CD /* vimplug */,
+				589F4AA4304EDEEC009FF1CD /* vimplug Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		589F4A88304EDEEB009FF1CD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				589F4A94304EDEEB009FF1CD /* Icon.png in Resources */,
+				589F4A9D304EDEEB009FF1CD /* Main.storyboard in Resources */,
+				589F4A98304EDEEB009FF1CD /* Script.js in Resources */,
+				589F4A92304EDEEB009FF1CD /* Main.html in Resources */,
+				589F4A9F304EDEEC009FF1CD /* Assets.xcassets in Resources */,
+				589F4A96304EDEEB009FF1CD /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		589F4AA3304EDEEC009FF1CD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				589F4ABC304EDEEC009FF1CD /* background.js in Resources */,
+				589F4ABE304EDEEC009FF1CD /* manifest.json in Resources */,
+				589F4ABD304EDEEC009FF1CD /* options.js in Resources */,
+				589F4ABF304EDEEC009FF1CD /* options.html in Resources */,
+				589F4AC0304EDEEC009FF1CD /* content.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		589F4A86304EDEEB009FF1CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				589F4A9A304EDEEB009FF1CD /* ViewController.swift in Sources */,
+				589F4A8E304EDEEB009FF1CD /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		589F4AA1304EDEEC009FF1CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				589F4AAB304EDEEC009FF1CD /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		589F4AA8304EDEEC009FF1CD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 589F4AA4304EDEEC009FF1CD /* vimplug Extension */;
+			targetProxy = 589F4AA7304EDEEC009FF1CD /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		589F4A90304EDEEB009FF1CD /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				589F4A91304EDEEB009FF1CD /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		589F4A9B304EDEEB009FF1CD /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				589F4A9C304EDEEB009FF1CD /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		589F4AAD304EDEEC009FF1CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.7;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		589F4AAE304EDEEC009FF1CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.7;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		589F4AB0304EDEEC009FF1CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "vimplug Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "vimplug Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = space.m1ng.vimplug.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		589F4AB1304EDEEC009FF1CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "vimplug Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "vimplug Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = space.m1ng.vimplug.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		589F4AB4304EDEEC009FF1CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = vimplug/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = vimplug;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = space.m1ng.vimplug;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		589F4AB5304EDEEC009FF1CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = vimplug/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = vimplug;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = space.m1ng.vimplug;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		589F4A85304EDEEB009FF1CD /* Build configuration list for PBXProject "vimplug" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				589F4AAD304EDEEC009FF1CD /* Debug */,
+				589F4AAE304EDEEC009FF1CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		589F4AAF304EDEEC009FF1CD /* Build configuration list for PBXNativeTarget "vimplug Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				589F4AB0304EDEEC009FF1CD /* Debug */,
+				589F4AB1304EDEEC009FF1CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		589F4AB3304EDEEC009FF1CD /* Build configuration list for PBXNativeTarget "vimplug" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				589F4AB4304EDEEC009FF1CD /* Debug */,
+				589F4AB5304EDEEC009FF1CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 589F4A82304EDEEB009FF1CD /* Project object */;
+}

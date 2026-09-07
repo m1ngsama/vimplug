@@ -8,8 +8,10 @@ export function buildManifest(target: Target): Record<string, unknown> {
     description: 'Keyboard-driven browser control.',
     permissions: ['scripting', 'storage', 'tabs'],
     host_permissions: ['<all_urls>'],
-    background: { service_worker: 'background.js', type: 'module' },
-    options_ui: { page: 'options.html', open_in_tab: true },
+    // Safari rejects `type: module` on service workers and ignores open_in_tab.
+    background: { service_worker: 'background.js' },
+    options_ui:
+      target === 'safari' ? { page: 'options.html' } : { page: 'options.html', open_in_tab: true },
     ...(target === 'safari'
       ? { browser_specific_settings: { safari: { strict_min_version: '16.4' } } }
       : {}),
