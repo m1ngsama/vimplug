@@ -8,6 +8,7 @@ export interface Options {
   keyMatching: KeyMatching
   sequenceTimeout: number
   scrollStep: number
+  searchEngine: string
 }
 
 export interface SiteResolution {
@@ -23,6 +24,7 @@ const DEFAULT_OPTIONS: Options = {
   keyMatching: 'physical',
   sequenceTimeout: 1000,
   scrollStep: 60,
+  searchEngine: 'https://www.google.com/search?q=%s',
 }
 
 export const DEFAULT_DSL: string = ACTIONS.flatMap(a =>
@@ -44,6 +46,7 @@ function applyOption(o: Options, option: string, value: string): void {
     o.keyMatching = value
   else if (option === 'sequenceTimeout') o.sequenceTimeout = Number(value) || o.sequenceTimeout
   else if (option === 'scrollStep') o.scrollStep = Number(value) || o.scrollStep
+  else if (option === 'searchEngine') o.searchEngine = value
 }
 
 function apply(

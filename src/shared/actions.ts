@@ -24,6 +24,10 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'restoreTab', description: 'Reopen the last closed tab', scope: 'background', defaultKeys: ['X'] },
   { id: 'duplicateTab', description: 'Duplicate the tab', scope: 'background', defaultKeys: ['yt'] },
   { id: 'newTab', description: 'Open a new tab', scope: 'background', defaultKeys: ['t'] },
+
+  { id: 'copyUrl', description: 'Copy the page URL', scope: 'content', defaultKeys: ['yy'] },
+  { id: 'openClipboard', description: 'Open the clipboard URL here', scope: 'content', defaultKeys: ['p'] },
+  { id: 'openClipboardNewTab', description: 'Open the clipboard URL in a new tab', scope: 'content', defaultKeys: ['P'] },
 ]
 
 const IDS = new Set(ACTIONS.map(a => a.id))

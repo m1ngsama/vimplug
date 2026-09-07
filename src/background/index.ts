@@ -22,6 +22,13 @@ function messageType(m: unknown): string | null {
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   const type = messageType(msg)
 
+  if (type === 'openUrl') {
+    const url = String((msg as { url?: unknown }).url ?? '')
+    if (url) void chrome.tabs.create({ url, windowId: sender.tab?.windowId })
+    reply({ ok: true })
+    return true
+  }
+
   if (type === 'runAction') {
     const id = String((msg as { id?: unknown }).id ?? '')
     const tab = sender.tab
