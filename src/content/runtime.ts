@@ -4,7 +4,8 @@ import { ModeMachine, needsKeydown, type Mode } from './mode.ts'
 import { fromEvent } from './event-keys.ts'
 import { boundKeyIds, shouldHandle } from './dispatch.ts'
 import { deepActiveElement, modeForFocus } from './focus.ts'
-import { runAction } from './actions/index.ts'
+import { runAction, openTarget, type ActionContext } from './actions/index.ts'
+import { startHint, type HintSession } from './hint/index.ts'
 
 async function loadDsl(): Promise<string> {
   const res = await chrome.runtime.sendMessage({ type: 'getDsl' }).catch(() => null)
@@ -21,11 +22,34 @@ async function main(): Promise<void> {
   const boundIds = boundKeyIds(site.bindings.normal, keyMatching)
   const modes = new ModeMachine()
 
+  let hint: HintSession | null = null
+
+  const ctx: ActionContext = {
+    opts: site.options,
+    enter: (m: Mode) => modes.enter(m),
+    startHint: (newTab: boolean) => {
+      const session = startHint(site.options.hintChars, newTab, openTarget)
+      if (!session) return
+      hint = session
+      modes.enter('hint')
+    },
+  }
+
   const onKeydown = (e: KeyboardEvent) => {
+    if (hint) {
+      e.preventDefault()
+      e.stopPropagation()
+      if (e.key === 'Escape') modes.enter('normal')
+      else if (e.key.length === 1 && hint.feed(e.key) !== 'pending') {
+        hint = null
+        modes.enter('normal')
+      }
+      return
+    }
+
     const key = fromEvent(e)
     if (!shouldHandle(key, boundIds, keyMatching)) return
     const r = matcher.step(key)
-    const ctx = { opts: site.options, enter: (m: Mode) => modes.enter(m) }
     if (r.kind === 'match' && runAction(r.action, ctx)) e.preventDefault()
   }
 
@@ -58,10 +82,15 @@ async function main(): Promise<void> {
     attached = false
     matcher.reset()
   }
-  modes.onChange(next => {
+  modes.onChange((next, prev) => {
     if (needsKeydown(next)) attach()
     else detach()
     setHatch(next === 'passthrough')
+    // Covers the mode machine's own timeout, so a stale overlay cannot outlive hint mode.
+    if (prev === 'hint' && next !== 'hint') {
+      hint?.cancel()
+      hint = null
+    }
   })
 
   const syncMode = () => modes.enter(modeForFocus(deepActiveElement(document)))

@@ -37,6 +37,9 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'volumeUp', description: 'Raise media volume', scope: 'content', defaultKeys: ['='] },
   { id: 'volumeDown', description: 'Lower media volume', scope: 'content', defaultKeys: ['-'] },
   { id: 'toggleMute', description: 'Mute or unmute media', scope: 'content', defaultKeys: ['m'] },
+
+  { id: 'hint', description: 'Show hints for clickable elements', scope: 'content', defaultKeys: ['f'] },
+  { id: 'hintNewTab', description: 'Show hints, opening links in a new tab', scope: 'content', defaultKeys: ['F'] },
 ]
 
 const IDS = new Set(ACTIONS.map(a => a.id))

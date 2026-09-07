@@ -11,6 +11,11 @@ const PAGES: Record<string, string> = {
   '/textarea': '<body style="height:5000px"><textarea id="t"></textarea></body>',
   '/editable': '<body style="height:5000px"><div id="e" contenteditable></div></body>',
   '/shadow': '<body style="height:5000px"><div id="h"></div></body>',
+  '/links': `<body style="height:5000px">
+      <a id="a1" href="/tall">one</a>
+      <a id="a2" href="/textarea">two</a>
+      <button id="b1" onclick="document.title='clicked'">three</button>
+    </body>`,
   '/cmdk': `<body style="height:5000px"><div id="out"></div><script>
       document.addEventListener('keydown', e => {
         if (e.metaKey && e.key === 'k') {
@@ -182,6 +187,44 @@ test('d scrolls half a viewport', async () => {
   const half = await page.evaluate(() => window.innerHeight / 2)
   await page.keyboard.press('d')
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(half - 5)
+  await page.close()
+})
+
+test('f injects a hint overlay host', async () => {
+  const page = await open('/links')
+  const before = await page.evaluate(() => document.body.childElementCount)
+  await page.keyboard.press('f')
+  await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+  await page.keyboard.press('Escape')
+  await page.close()
+})
+
+test('f then a label activates that element', async () => {
+  const page = await open('/links')
+  await page.keyboard.press('f')
+  await page.waitForTimeout(150)
+  // Three targets over the default alphabet means single-character labels a, s, d.
+  await page.keyboard.press('d')
+  await expect.poll(() => page.title()).toBe('clicked')
+  await page.close()
+})
+
+test('f then Escape leaves no overlay behind', async () => {
+  const page = await open('/links')
+  const before = await page.evaluate(() => document.body.childElementCount)
+  await page.keyboard.press('f')
+  await page.waitForTimeout(150)
+  await page.keyboard.press('Escape')
+  await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before)
+  await page.close()
+})
+
+test('invariant 1 holds for hint mode: f does not fire while typing', async () => {
+  const page = await open('/textarea')
+  await page.focus('#t')
+  await page.keyboard.type('ffff')
+  expect(await page.inputValue('#t')).toBe('ffff')
+  expect(await page.evaluate(() => document.body.childElementCount)).toBe(1)
   await page.close()
 })
 

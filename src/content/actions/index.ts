@@ -17,6 +17,7 @@ export function openTarget(url: string, newTab: boolean): void {
 export interface ActionContext {
   opts: Options
   enter: (m: Mode) => void
+  startHint: (newTab: boolean) => void
 }
 
 export function runAction(id: string, ctx: ActionContext): boolean {
@@ -32,6 +33,11 @@ export function runAction(id: string, ctx: ActionContext): boolean {
 
   if (id === 'copyUrl' || id === 'openClipboard' || id === 'openClipboardNewTab') {
     void runClipboard(id, opts.searchEngine, openTarget)
+    return true
+  }
+
+  if (id === 'hint' || id === 'hintNewTab') {
+    ctx.startHint(id === 'hintNewTab')
     return true
   }
 
