@@ -4,3 +4,5 @@ dist/
 .DS_Store
 xcode/**/xcuserdata/
 xcode/**/build/
+test-results/
+playwright-report/

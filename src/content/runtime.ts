@@ -51,6 +51,8 @@ async function main(): Promise<void> {
 
   syncMode()
   if (needsKeydown(modes.current)) attach()
+
+  document.documentElement.dataset.vimplug = 'on'
 }
 
 void main()
