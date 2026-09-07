@@ -1,11 +1,39 @@
-import type { Options } from '../../shared/config.ts'
+export interface ScrollDelta {
+  top: number
+  left: number
+}
 
-export function runScroll(action: string, o: Options): boolean {
-  const d = o.scrollStep
-  if (action === 'scrollDown') window.scrollBy({ top: d, behavior: 'instant' })
-  else if (action === 'scrollUp') window.scrollBy({ top: -d, behavior: 'instant' })
-  else if (action === 'scrollLeft') window.scrollBy({ left: -d, behavior: 'instant' })
-  else if (action === 'scrollRight') window.scrollBy({ left: d, behavior: 'instant' })
-  else return false
+export function scrollDelta(
+  action: string,
+  opts: { scrollStep: number },
+  viewportHeight: number,
+): ScrollDelta | null {
+  const d = opts.scrollStep
+  const half = viewportHeight / 2
+  switch (action) {
+    case 'scrollDown':
+      return { top: d, left: 0 }
+    case 'scrollUp':
+      return { top: -d, left: 0 }
+    case 'scrollRight':
+      return { top: 0, left: d }
+    case 'scrollLeft':
+      return { top: 0, left: -d }
+    case 'scrollHalfDown':
+      return { top: half, left: 0 }
+    case 'scrollHalfUp':
+      return { top: -half, left: 0 }
+    default:
+      return null
+  }
+}
+
+export function runScroll(
+  action: string,
+  opts: { scrollStep: number; scrollSmooth: boolean },
+): boolean {
+  const delta = scrollDelta(action, opts, window.innerHeight)
+  if (!delta) return false
+  window.scrollBy({ ...delta, behavior: opts.scrollSmooth ? 'smooth' : 'instant' })
   return true
 }

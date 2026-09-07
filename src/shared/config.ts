@@ -8,6 +8,7 @@ export interface Options {
   keyMatching: KeyMatching
   sequenceTimeout: number
   scrollStep: number
+  scrollSmooth: boolean
   searchEngine: string
 }
 
@@ -24,6 +25,7 @@ const DEFAULT_OPTIONS: Options = {
   keyMatching: 'physical',
   sequenceTimeout: 1000,
   scrollStep: 60,
+  scrollSmooth: true,
   searchEngine: 'https://www.google.com/search?q=%s',
 }
 
@@ -46,6 +48,7 @@ function applyOption(o: Options, option: string, value: string): void {
     o.keyMatching = value
   else if (option === 'sequenceTimeout') o.sequenceTimeout = Number(value) || o.sequenceTimeout
   else if (option === 'scrollStep') o.scrollStep = Number(value) || o.scrollStep
+  else if (option === 'scrollSmooth') o.scrollSmooth = value !== 'false'
   else if (option === 'searchEngine') o.searchEngine = value
 }
 
