@@ -48,6 +48,10 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'hintFrame', description: 'Focus an iframe by hint', scope: 'content', defaultKeys: ['gf'] },
 
   { id: 'commandPalette', description: 'Run any action by name', scope: 'content', defaultKeys: [':'] },
+
+  { id: 'find', description: 'Search within the page', scope: 'content', defaultKeys: ['/'] },
+  { id: 'findNext', description: 'Next search match', scope: 'content', defaultKeys: ['n'] },
+  { id: 'findPrev', description: 'Previous search match', scope: 'content', defaultKeys: ['N'] },
 ]
 
 const IDS = new Set(ACTIONS.map(a => a.id))

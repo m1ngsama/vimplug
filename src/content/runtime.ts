@@ -7,6 +7,7 @@ import { deepActiveElement, modeForFocus } from './focus.ts'
 import { runAction, openTarget, type ActionContext } from './actions/index.ts'
 import { startHint, type HintSession } from './hint/index.ts'
 import { startOverlay } from './overlay/index.ts'
+import { createFind, type FindSession } from './find/index.ts'
 import type { Overlay } from './overlay/shell.ts'
 
 async function loadDsl(): Promise<string> {
@@ -30,6 +31,7 @@ async function main(): Promise<void> {
   // Set before the overlay is built: its input takes focus synchronously, so a handle
   // assigned from the promise would arrive after focusin has already re-synced the mode.
   let overlayOpen = false
+  const finder = createFind()
 
   const ctx: ActionContext = {
     opts: site.options,
@@ -46,6 +48,14 @@ async function main(): Promise<void> {
       hint = session
       modes.enter('hint')
     },
+    find: dir => {
+      if (!finder) return
+      if (dir !== 'open') {
+        finder.step(dir)
+        return
+      }
+      ctx.startOverlay('find')
+    },
     startOverlay: kind => {
       if (overlayOpen) return
       overlayOpen = true
@@ -60,6 +70,7 @@ async function main(): Promise<void> {
           modes.enter('normal')
         },
         id => runAction(id, ctx),
+        query => finder?.search(query),
       ).then(o => {
         overlay = o
       })

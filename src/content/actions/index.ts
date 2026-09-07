@@ -27,6 +27,7 @@ export interface ActionContext {
   enter: (m: Mode) => void
   startHint: (newTab: boolean, frames?: boolean) => void
   startOverlay: (kind: OverlayKind) => void
+  find: (dir: 1 | -1 | 'open') => void
 }
 
 export function runAction(id: string, ctx: ActionContext): boolean {
@@ -58,6 +59,11 @@ export function runAction(id: string, ctx: ActionContext): boolean {
   const overlayKind = OVERLAY_FOR[id]
   if (overlayKind) {
     ctx.startOverlay(overlayKind)
+    return true
+  }
+
+  if (id === 'find' || id === 'findNext' || id === 'findPrev') {
+    ctx.find(id === 'find' ? 'open' : id === 'findNext' ? 1 : -1)
     return true
   }
 

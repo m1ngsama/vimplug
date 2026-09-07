@@ -6,7 +6,7 @@ import type { Binding } from '../../shared/matcher.ts'
 import { clipboardTarget } from '../actions/clipboard.ts'
 import { openTarget } from '../actions/index.ts'
 
-export type OverlayKind = 'help' | 'open' | 'tabs' | 'palette'
+export type OverlayKind = 'help' | 'open' | 'tabs' | 'palette' | 'find'
 
 async function listTabs(): Promise<Row[]> {
   const res = await chrome.runtime.sendMessage({ type: 'listTabs' }).catch(() => null)
@@ -22,7 +22,19 @@ export async function startOverlay(
   searchEngine: string,
   onClose: () => void,
   runById: (id: string) => void,
+  onFind?: (query: string) => void,
 ): Promise<Overlay> {
+  if (kind === 'find') {
+    return openOverlay({
+      placeholder: 'Find in page',
+      rows: [],
+      freeText: true,
+      onInput: onFind,
+      onPick: () => {},
+      onClose,
+    })
+  }
+
   if (kind === 'palette') {
     return openOverlay({
       placeholder: 'Run an action',

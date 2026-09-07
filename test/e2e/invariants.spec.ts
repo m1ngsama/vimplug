@@ -11,6 +11,11 @@ const PAGES: Record<string, string> = {
   '/textarea': '<body style="height:5000px"><textarea id="t"></textarea></body>',
   '/editable': '<body style="height:5000px"><div id="e" contenteditable></div></body>',
   '/shadow': '<body style="height:5000px"><div id="h"></div></body>',
+  '/find': `<body>
+      <div style="height:2000px">top</div>
+      <p id="needle">findmethistext</p>
+      <div style="height:2000px">bottom</div>
+    </body>`,
   '/links': `<body style="height:5000px">
       <a id="a1" href="/tall">one</a>
       <a id="a2" href="/textarea">two</a>
@@ -285,6 +290,31 @@ test('hints filter by link text (vimkey #16)', async () => {
   // "t" narrows to two/three by text, "h" leaves only three, which fires at once.
   await page.keyboard.type('th')
   await expect.poll(() => page.title()).toBe('clicked')
+  await page.close()
+})
+
+test('/ finds text and scrolls it into view (vimkey #24)', async () => {
+  const page = await open('/find')
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+
+  await page.keyboard.press('/')
+  await page.waitForTimeout(200)
+  await page.keyboard.type('findmethistext')
+
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
+  await page.keyboard.press('Escape')
+  await page.close()
+})
+
+test('find leaves no element behind in the page tree', async () => {
+  const page = await open('/find')
+  const before = await page.evaluate(() => document.body.innerHTML.length)
+  await page.keyboard.press('/')
+  await page.waitForTimeout(200)
+  await page.keyboard.type('findme')
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(150)
+  expect(await page.evaluate(() => document.body.innerHTML.length)).toBe(before)
   await page.close()
 })
 

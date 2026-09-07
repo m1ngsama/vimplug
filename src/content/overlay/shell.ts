@@ -10,6 +10,7 @@ export interface OverlayConfig {
   freeText: boolean
   onPick(value: string, query: string, shift: boolean): void
   onClose(): void
+  onInput?(query: string): void
 }
 
 const STYLE = `
@@ -98,7 +99,10 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
     )
   }
 
-  input.addEventListener('input', render)
+  input.addEventListener('input', () => {
+    render()
+    cfg.onInput?.(input.value)
+  })
 
   // Only navigation and submit keys are intercepted. Everything else, spaces included,
   // reaches the input untouched.
