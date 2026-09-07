@@ -55,6 +55,8 @@ export const ACTIONS: readonly ActionDef[] = [
 
   { id: 'setMark', description: 'Set a mark at this position', scope: 'content', defaultKeys: ['M'] },
   { id: 'jumpMark', description: 'Jump to a mark', scope: 'content', defaultKeys: ['`'] },
+
+  { id: 'visualMode', description: 'Select text with the keyboard', scope: 'content', defaultKeys: ['v'] },
 ]
 
 const IDS = new Set(ACTIONS.map(a => a.id))

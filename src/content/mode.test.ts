@@ -9,6 +9,7 @@ test('modes owning a text input do not need a keydown listener', () => {
   assert.equal(needsKeydown('normal'), true)
   assert.equal(needsKeydown('hint'), true)
   assert.equal(needsKeydown('pending'), true)
+  assert.equal(needsKeydown('visual'), true)
 })
 
 test('pending times out so a stray M cannot wedge the engine', async () => {
@@ -52,6 +53,13 @@ test('command has no deadline because its overlay is visible and dismissible', a
   m.enter('command')
   await new Promise(r => setTimeout(r, 60))
   assert.equal(m.current, 'command')
+})
+
+test('visual has no deadline because the selection is visible', async () => {
+  const m = new ModeMachine(20)
+  m.enter('visual')
+  await new Promise(r => setTimeout(r, 60))
+  assert.equal(m.current, 'visual')
 })
 
 test('normal and insert never time out', async () => {

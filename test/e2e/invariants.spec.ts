@@ -341,6 +341,30 @@ test('a mark waiting for a letter releases on a bad key', async () => {
   await page.close()
 })
 
+test('v selects text and y yanks it', async () => {
+  const page = await open('/find')
+  await ctx.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base })
+
+  await page.keyboard.press('v')
+  for (let i = 0; i < 6; i += 1) await page.keyboard.press('l')
+  expect(await page.evaluate(() => window.getSelection()?.toString().length ?? 0)).toBe(6)
+
+  await page.keyboard.press('y')
+  await expect
+    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+    .toHaveLength(6)
+  await page.close()
+})
+
+test('v then Escape clears the selection', async () => {
+  const page = await open('/find')
+  await page.keyboard.press('v')
+  await page.keyboard.press('l')
+  await page.keyboard.press('Escape')
+  expect(await page.evaluate(() => window.getSelection()?.toString() ?? '')).toBe('')
+  await page.close()
+})
+
 test('the command palette runs an action by name', async () => {
   const page = await open('/tall')
   await page.keyboard.press('Shift+;')

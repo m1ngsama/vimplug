@@ -29,6 +29,7 @@ export interface ActionContext {
   startOverlay: (kind: OverlayKind) => void
   find: (dir: 1 | -1 | 'open') => void
   awaitMark: (mode: 'set' | 'jump') => void
+  startVisual: () => void
 }
 
 export function runAction(id: string, ctx: ActionContext): boolean {
@@ -70,6 +71,11 @@ export function runAction(id: string, ctx: ActionContext): boolean {
 
   if (id === 'setMark' || id === 'jumpMark') {
     ctx.awaitMark(id === 'setMark' ? 'set' : 'jump')
+    return true
+  }
+
+  if (id === 'visualMode') {
+    ctx.startVisual()
     return true
   }
 

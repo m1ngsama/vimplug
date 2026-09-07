@@ -9,6 +9,7 @@ import { startHint, type HintSession } from './hint/index.ts'
 import { startOverlay } from './overlay/index.ts'
 import { createFind, type FindSession } from './find/index.ts'
 import { isMarkChar, saveMark, jumpMark } from './marks.ts'
+import { beginVisual, moveVisual, yankVisual, clearVisual } from './visual.ts'
 import type { Overlay } from './overlay/shell.ts'
 
 async function loadDsl(): Promise<string> {
@@ -49,6 +50,9 @@ async function main(): Promise<void> {
       if (!session) return
       hint = session
       modes.enter('hint')
+    },
+    startVisual: () => {
+      if (beginVisual()) modes.enter('visual')
     },
     awaitMark: kind => {
       awaitingMark = kind
@@ -92,6 +96,21 @@ async function main(): Promise<void> {
         void (kind === 'set' ? saveMark(e.key) : jumpMark(e.key))
       }
       modes.enter('normal')
+      return
+    }
+
+    if (modes.current === 'visual') {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        clearVisual()
+        modes.enter('normal')
+      } else if (e.key === 'y') {
+        e.preventDefault()
+        void yankVisual()
+        modes.enter('normal')
+      } else if (moveVisual(e.key)) {
+        e.preventDefault()
+      }
       return
     }
 
