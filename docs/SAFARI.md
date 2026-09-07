@@ -65,6 +65,32 @@ Safari accepts `scripting.registerContentScripts` but silently ignores `excludeM
 instead loads `bootstrap.js`, which confirms the site is enabled before importing the
 engine, and does nothing if it cannot confirm. See `src/background/injection.ts`.
 
+## Manual checklist
+
+Safari extensions cannot be driven by Playwright, so the automated invariant suite covers
+Chrome only. These steps mirror `test/e2e/invariants.spec.ts` one for one and must be run
+by hand against Safari before a release.
+
+Serve the fixtures over HTTP — content scripts do not match `about:blank` or `data:` URLs:
+
+```sh
+pnpm build:safari
+python3 -m http.server 8000
+```
+
+| # | Mirrors | Steps | Expected |
+| --- | --- | --- | --- |
+| 1 | `j scrolls the page` | Open a long page, press `j` | Page scrolls down |
+| 2 | invariant 1, textarea | Focus a `<textarea>`, type `jjjj` | Field reads `jjjj`, page does not scroll |
+| 3 | invariant 1, contenteditable | Focus a `contenteditable`, type `jjjj` | Text inserted, page does not scroll |
+| 4 | invariant 1, shadow DOM | Focus an `<input>` inside an open shadow root, type `jjjj` | Page does not scroll |
+| 5 | invariant 1, resume | Blur the field, press `j` | Page scrolls again |
+| 6 | invariant 2 | On a page binding Cmd+K, press Cmd+K | The page's own handler runs |
+| 7 | invariant 3 | Add `site <host> { disable }`, reload | `document.documentElement.dataset.vimplug` is undefined and `j` does nothing |
+
+Check 7 is the one that differs by platform: Chrome never injects, while Safari injects
+`bootstrap.js` and stops there. Both must end with no listener and no DOM changes.
+
 ## Known gaps
 
 - No icons yet, so the converter cannot populate the app icon set.
