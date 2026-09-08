@@ -9,10 +9,27 @@ test('finds every occurrence', () => {
   ])
 })
 
-test('matching is case insensitive', () => {
-  assert.deepEqual(collectMatches('Hello hello', 'HELLO'), [
+// smartcase, as in vim and Vimium: an all-lowercase query is the common case and should
+// not make you think about case; typing a capital is a deliberate act.
+test('an all-lowercase query ignores case', () => {
+  assert.deepEqual(collectMatches('Hello hello', 'hello'), [
     { start: 0, end: 5 },
     { start: 6, end: 11 },
+  ])
+})
+
+test('any uppercase in the query makes the match case sensitive', () => {
+  assert.deepEqual(collectMatches('Hello hello', 'Hello'), [{ start: 0, end: 5 }])
+})
+
+test('a fully uppercase query matches only itself', () => {
+  assert.deepEqual(collectMatches('Hello hello HELLO', 'HELLO'), [{ start: 12, end: 17 }])
+})
+
+test('digits and punctuation do not make a query case sensitive', () => {
+  assert.deepEqual(collectMatches('Item-1 item-1', 'item-1'), [
+    { start: 0, end: 6 },
+    { start: 7, end: 13 },
   ])
 })
 
