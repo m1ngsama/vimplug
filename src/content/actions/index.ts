@@ -14,6 +14,7 @@ const OVERLAY_FOR: Record<string, OverlayKind | undefined> = {
   openPrompt: 'open',
   tabSearch: 'tabs',
   commandPalette: 'palette',
+  openBookmark: 'bookmarks',
 }
 
 export function openTarget(url: string, newTab: boolean): void {

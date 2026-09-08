@@ -42,6 +42,28 @@ declare namespace chrome {
     function setBadgeBackgroundColor(details: { color: string }): Promise<void>
   }
 
+  namespace history {
+    interface HistoryItem {
+      url?: string
+      title?: string
+      visitCount?: number
+    }
+    function search(query: {
+      text: string
+      maxResults?: number
+      startTime?: number
+    }): Promise<HistoryItem[]>
+  }
+
+  namespace bookmarks {
+    interface BookmarkTreeNode {
+      id: string
+      title: string
+      url?: string
+    }
+    function search(query: { query: string } | string): Promise<BookmarkTreeNode[]>
+  }
+
   namespace windows {
     function create(props: { url?: string }): Promise<unknown>
   }

@@ -121,6 +121,10 @@ python3 -m http.server 8000
 | 21 | held scrolling | Hold `j` | The page accelerates smoothly and stops when released |
 | 22 | export and import | Export from the Text view, edit the file, import it back | The edited configuration is in force |
 
+| 23 | pane scrolling | Open Gmail or any app whose page does not scroll, press `j` | The content pane scrolls |
+| 24 | counts | Press `5j` | The page moves five steps, not one |
+| 25 | omnibar | Press `o`, type part of an open tab's title | That tab is offered and Enter switches to it |
+
 Check 20 has no automated counterpart on either platform: Playwright drives pages, not the
 browser's own toolbar. The pieces underneath it are unit tested.
 

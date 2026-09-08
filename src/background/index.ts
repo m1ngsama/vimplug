@@ -1,6 +1,7 @@
 import { readDsl, writeDsl } from '../shared/storage.ts'
 import { registrationFor, isDisabled, hostOf, REGISTRATION_ID } from './injection.ts'
 import { runTabAction } from './tabs.ts'
+import { rankSuggestions, type Suggestion } from './omnibar.ts'
 import { disabledHosts } from '../shared/config.ts'
 import { toggleSite } from '../shared/dsl/edits.ts'
 
@@ -45,6 +46,37 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onStartup.addListener(() => void sync())
 chrome.storage.onChanged.addListener(() => void sync())
 
+async function collect(query: string, bookmarksOnly: boolean): Promise<Suggestion[]> {
+  const marks = await chrome.bookmarks.search({ query }).catch(() => [])
+  const fromMarks: Suggestion[] = marks.map(b => ({
+    kind: 'bookmark',
+    title: b.title,
+    url: b.url ?? '',
+  }))
+  if (bookmarksOnly) return fromMarks
+
+  const [tabs, hist] = await Promise.all([
+    chrome.tabs.query({}).catch(() => []),
+    chrome.history.search({ text: query, maxResults: 60 }).catch(() => []),
+  ])
+
+  return [
+    ...tabs.map((t): Suggestion => ({
+      kind: 'tab',
+      title: t.title ?? '',
+      url: t.url ?? '',
+      tabId: t.id,
+    })),
+    ...fromMarks,
+    ...hist.map((h): Suggestion => ({
+      kind: 'history',
+      title: h.title ?? '',
+      url: h.url ?? '',
+      visits: h.visitCount,
+    })),
+  ]
+}
+
 function messageType(m: unknown): string | null {
   if (typeof m !== 'object' || m === null) return null
   const t = (m as { type?: unknown }).type
@@ -53,6 +85,13 @@ function messageType(m: unknown): string | null {
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   const type = messageType(msg)
+
+  if (type === 'suggest') {
+    const query = String((msg as { query?: unknown }).query ?? '')
+    const only = (msg as { only?: unknown }).only === 'bookmark'
+    void collect(query, only).then(rows => reply({ rows: rankSuggestions(rows, query).slice(0, 20) }))
+    return true
+  }
 
   if (type === 'listTabs') {
     void chrome.tabs.query({}).then(tabs =>

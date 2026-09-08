@@ -210,6 +210,13 @@ async function main(): Promise<void> {
 
   // Our own overlay input takes focus; syncing on it would drop us back to normal and
   // re-attach the global listener over the field the user is typing in.
+  // A key held when the window loses focus never delivers its keyup, and the axis would
+  // keep accelerating against a page nobody is looking at.
+  window.addEventListener('blur', () => scroller.releaseAll())
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) scroller.releaseAll()
+  })
+
   const syncMode = () => {
     if (overlayOpen) return
     modes.enter(modeForFocus(deepActiveElement(document)))

@@ -66,6 +66,20 @@ async function activeTabUrl(): Promise<string> {
   })
 }
 
+// Overlays and hints render on the next frame; a fixed pause is a guess that fails on a
+// loaded machine, which is exactly when the whole suite runs.
+async function pressOverlay(page: Page, key: string): Promise<void> {
+  await page.keyboard.press(key)
+  await page.waitForSelector('[data-vimplug-ui]', { state: 'attached' })
+}
+
+
+async function pressHint(page: Page, key: string): Promise<void> {
+  const before = await page.evaluate(() => document.body.childElementCount)
+  await page.keyboard.press(key)
+  await page.waitForFunction(n => document.body.childElementCount > n, before)
+}
+
 async function setDsl(dsl: string): Promise<void> {
   const [sw] = ctx.serviceWorkers()
   await sw!.evaluate(async (src: string) => {
@@ -85,8 +99,11 @@ test.beforeAll(async () => {
   const addr = server.address()
   base = `http://127.0.0.1:${typeof addr === 'object' && addr ? addr.port : 0}`
 
+  // channel:'chromium' picks the full browser rather than the headless shell, which is
+  // the build that loads MV3 extensions. Headless keeps the suite from stealing focus.
   ctx = await chromium.launchPersistentContext('', {
-    headless: false,
+    channel: 'chromium',
+    headless: true,
     args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`],
   })
   if (ctx.serviceWorkers().length === 0) await ctx.waitForEvent('serviceworker')
@@ -154,8 +171,7 @@ test('gg returns to the top and G goes to the bottom', async () => {
 
 test('a hint activates a control that only listens for pointer events', async () => {
   const page = await open('/pointer')
-  await page.keyboard.press('f')
-  await page.waitForTimeout(150)
+  await pressHint(page, 'f')
   await page.keyboard.press('f')
   await expect.poll(() => page.title()).toBe('pointer-seen')
   await page.close()
@@ -340,9 +356,8 @@ test('f injects a hint overlay host', async () => {
 
 test('f then a label activates that element', async () => {
   const page = await open('/links')
-  await page.keyboard.press('f')
-  await page.waitForTimeout(150)
-  // Three targets over the default alphabet means single-character labels a, s, d.
+  await pressHint(page, 'f')
+  // Three targets over the default alphabet means single-character labels f, j, d.
   await page.keyboard.press('d')
   await expect.poll(() => page.title()).toBe('clicked')
   await page.close()
@@ -351,8 +366,7 @@ test('f then a label activates that element', async () => {
 test('f then Escape leaves no overlay behind', async () => {
   const page = await open('/links')
   const before = await page.evaluate(() => document.body.childElementCount)
-  await page.keyboard.press('f')
-  await page.waitForTimeout(150)
+  await pressHint(page, 'f')
   await page.keyboard.press('Escape')
   await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before)
   await page.close()
@@ -410,8 +424,7 @@ test('? opens the help overlay and Esc closes it', async () => {
 
 test('typing in an overlay does not reach the engine', async () => {
   const page = await open('/tall')
-  await page.keyboard.press('Shift+/')
-  await page.waitForTimeout(200)
+  await pressOverlay(page, 'Shift+/')
   await page.keyboard.type('jjjj')
   await page.waitForTimeout(150)
   expect(await page.evaluate(() => window.scrollY)).toBe(0)
@@ -423,8 +436,7 @@ test('o accepts spaces and searches (vimkey #26)', async () => {
   await setDsl(`${DEFAULT_DSL}\nset searchEngine = ${base}/search?q=%s`)
   const page = await open('/tall')
 
-  await page.keyboard.press('o')
-  await page.waitForTimeout(200)
+  await pressOverlay(page, 'o')
   await page.keyboard.type('hello world')
   await page.keyboard.press('Enter')
 
@@ -435,8 +447,7 @@ test('o accepts spaces and searches (vimkey #26)', async () => {
 
 test('o navigates to a bare domain as a url', async () => {
   const page = await open('/tall')
-  await page.keyboard.press('o')
-  await page.waitForTimeout(200)
+  await pressOverlay(page, 'o')
   await page.keyboard.type(`127.0.0.1:${new URL(base).port}/textarea`)
   await page.keyboard.press('Enter')
   await expect.poll(() => page.url()).toContain('/textarea')
@@ -445,8 +456,7 @@ test('o navigates to a bare domain as a url', async () => {
 
 test('hints filter by link text (vimkey #16)', async () => {
   const page = await open('/links')
-  await page.keyboard.press('f')
-  await page.waitForTimeout(150)
+  await pressHint(page, 'f')
   // "t" narrows to two/three by text, "h" leaves only three, which fires at once.
   await page.keyboard.type('th')
   await expect.poll(() => page.title()).toBe('clicked')
@@ -525,10 +535,33 @@ test('v then Escape clears the selection', async () => {
   await page.close()
 })
 
+test('o suggests open tabs and switching to one activates it', async () => {
+  const other = await open('/textarea')
+  const page = await open('/tall')
+  await page.bringToFront()
+
+  await pressOverlay(page, 'o')
+  await page.keyboard.type('textarea')
+  await page.waitForTimeout(400)
+  await page.keyboard.press('Enter')
+
+  await expect.poll(activeTabUrl).toContain('/textarea')
+  await page.close()
+  await other.close()
+})
+
+test('o still opens a plain url when nothing matches', async () => {
+  const page = await open('/tall')
+  await pressOverlay(page, 'o')
+  await page.keyboard.type(`127.0.0.1:${new URL(base).port}/find`)
+  await page.keyboard.press('Enter')
+  await expect.poll(() => page.url()).toContain('/find')
+  await page.close()
+})
+
 test('the command palette runs an action by name', async () => {
   const page = await open('/tall')
-  await page.keyboard.press('Shift+;')
-  await page.waitForTimeout(200)
+  await pressOverlay(page, 'Shift+;')
   await page.keyboard.type('half a page down')
   await page.keyboard.press('Enter')
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)

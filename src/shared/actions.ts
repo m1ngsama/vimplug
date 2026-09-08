@@ -50,6 +50,7 @@ export const ACTIONS: readonly ActionDef[] = [
 
   { id: 'openPrompt', description: 'Open a URL or search', group: 'Open', scope: 'content', defaultKeys: ['o'] },
   { id: 'tabSearch', description: 'Search open tabs', group: 'Tabs', scope: 'content', defaultKeys: ['T'] },
+  { id: 'openBookmark', description: 'Search bookmarks', group: 'Open', scope: 'content', defaultKeys: ['b'] },
   { id: 'help', description: 'Show keyboard help', group: 'Modes', scope: 'content', defaultKeys: ['?'] },
 
   { id: 'hintFrame', description: 'Focus an iframe by hint', group: 'Open', scope: 'content', defaultKeys: ['gf'] },

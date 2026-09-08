@@ -2,15 +2,20 @@ import { filterRows, type Row } from './filter.ts'
 
 export interface Overlay {
   close(): void
+  setRows(rows: Row[]): void
 }
 
 interface OverlayConfig {
   placeholder: string
   rows: Row[]
-  freeText: boolean
   onPick(value: string, query: string, shift: boolean): void
   onClose(): void
   onInput?(query: string): void
+  // Live sources rank their own results, so the shell must not filter them again.
+  live?: boolean
+  // Applied at render time against the live input, so a row standing for what was typed
+  // is never a keystroke behind the async results it sits among.
+  compose?(rows: Row[], query: string): Row[]
 }
 
 const STYLE = `
@@ -75,8 +80,10 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
     cfg.onClose()
   }
 
+  let rows = cfg.rows
   const render = () => {
-    shown = filterRows(cfg.rows, input.value)
+    const base = cfg.live ? rows : filterRows(rows, input.value)
+    shown = cfg.compose ? cfg.compose(base, input.value) : base
     cursor = Math.min(cursor, Math.max(0, shown.length - 1))
     list.replaceChildren(
       ...shown.map((r, i) => {
@@ -127,10 +134,9 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
     if (e.key === 'Enter') {
       e.preventDefault()
       const row = shown[cursor]
-      const value = cfg.freeText && input.value.trim() ? input.value : (row?.value ?? '')
-      if (!value) return
+      if (!row) return
       close()
-      cfg.onPick(value, input.value, e.shiftKey)
+      cfg.onPick(row.value, input.value, e.shiftKey)
     }
   })
 
@@ -141,5 +147,13 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
   render()
   input.focus()
 
-  return { close }
+  return {
+    close,
+    setRows(next: Row[]) {
+      if (closed) return
+      rows = next
+      cursor = 0
+      render()
+    },
+  }
 }

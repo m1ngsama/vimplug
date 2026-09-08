@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { clipboardTarget } from './clipboard.ts'
+import { clipboardTarget, looksLikeUrl } from './clipboard.ts'
 
 const SEARCH = 'https://www.google.com/search?q=%s'
 
@@ -48,4 +48,13 @@ test('empty input yields an empty target', () => {
 
 test('search queries are percent encoded', () => {
   assert.equal(clipboardTarget('a&b=c', SEARCH), 'https://www.google.com/search?q=a%26b%3Dc')
+})
+
+test('looksLikeUrl separates navigation from search', () => {
+  assert.equal(looksLikeUrl('https://x.com'), true)
+  assert.equal(looksLikeUrl('example.com'), true)
+  assert.equal(looksLikeUrl('localhost:3000'), true)
+  assert.equal(looksLikeUrl('how to cook rice'), false)
+  assert.equal(looksLikeUrl('textarea'), false)
+  assert.equal(looksLikeUrl(''), false)
 })

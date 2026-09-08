@@ -30,5 +30,4 @@ jobs:
 
       - run: pnpm exec playwright install --with-deps chromium
 
-      # MV3 extensions do not load in the headless shell, so the suite runs headed.
-      - run: xvfb-run --auto-servernum pnpm exec playwright test
+      - run: pnpm exec playwright test

@@ -4,6 +4,11 @@ const LOCALHOST = /^localhost(:\d+)?([/?#].*)?$/i
 // Dev servers are almost never TLS, so loopback keeps http the way the omnibox does.
 const LOOPBACK = /^(localhost|127(\.\d{1,3}){3}|0\.0\.0\.0|\[::1\])(:\d+)?([/?#].*)?$/i
 
+export function looksLikeUrl(text: string): boolean {
+  const t = text.trim()
+  return t !== '' && (HAS_PROTOCOL.test(t) || LOOPBACK.test(t) || BARE_HOST.test(t) || LOCALHOST.test(t))
+}
+
 export function clipboardTarget(text: string, searchEngine: string): string {
   const t = text.trim()
   if (t.length === 0) return ''
