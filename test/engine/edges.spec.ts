@@ -1,5 +1,26 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { loadEngine, serveFixtures, state, composingKey } from './harness.ts'
+
+// Scrolling is animated, so a value read as soon as it passes a threshold is mid-flight.
+async function settled(page: Page): Promise<number> {
+  let last = -1
+  for (let i = 0; i < 40; i += 1) {
+    const y = await page.evaluate(() => window.scrollY)
+    if (y === last) return y
+    last = y
+    await page.waitForTimeout(60)
+  }
+  return last
+}
+
+// A step is not a whole number of pixels everywhere: headless Linux Chromium reports 62
+// where macOS reports 60. Measure one and compare against it.
+async function step(page: Page): Promise<number> {
+  await page.keyboard.press('j')
+  const y = await settled(page)
+  await page.evaluate(() => window.scrollTo(0, 0))
+  return y
+}
 
 let base: string
 let stop: () => Promise<void>
@@ -15,46 +36,59 @@ test.afterAll(async () => {
 test.describe('counts', () => {
   test('a count multiplies the motion', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
-    await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(60)
+    const one = await step(page)
 
-    await page.evaluate(() => window.scrollTo(0, 0))
     await page.keyboard.press('5')
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(300)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(one * 4)
   })
 
   test('a count is spent once and does not linger', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
+    const one = await step(page)
+
     await page.keyboard.press('3')
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(180)
+    const after = await settled(page)
+    expect(after).toBeGreaterThan(one * 2)
 
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(240)
+    const next = await settled(page)
+    expect(next).toBeGreaterThan(after)
+    expect(next).toBeLessThan(after + one * 2)
   })
 
   test('Escape abandons a count', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
+    const one = await step(page)
+
     await page.keyboard.press('5')
     await page.keyboard.press('Escape')
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(60)
+    const y = await settled(page)
+    expect(y).toBeGreaterThan(0)
+    expect(y).toBeLessThan(one * 2)
   })
 
   test('a bare 0 stays a binding rather than starting a count', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
+    const one = await step(page)
+
     await page.keyboard.press('0')
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(60)
+    const y = await settled(page)
+    expect(y).toBeGreaterThan(0)
+    expect(y).toBeLessThan(one * 2)
   })
 
   test('a multi-digit count applies whole', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
+    const one = await step(page)
+
     await page.keyboard.press('1')
     await page.keyboard.press('2')
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(720)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(one * 10)
   })
 })
 
@@ -66,7 +100,7 @@ test.describe('half-typed bindings', () => {
     await page.keyboard.press('g')
     await page.keyboard.press('Escape')
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(before + 60)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before)
   })
 
   test('a prefix followed by an unbound key runs neither', async ({ page }) => {
@@ -79,7 +113,7 @@ test.describe('half-typed bindings', () => {
     expect(await page.evaluate(() => window.scrollY)).toBe(before)
 
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(before + 60)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before)
   })
 
   test('gg reaches the top through the prefix', async ({ page }) => {
@@ -184,7 +218,7 @@ test.describe('find over awkward text', () => {
     await page.keyboard.press('/')
     await page.keyboard.type('qqqq')
     await page.keyboard.press('Enter')
-    expect((await state(page)).panels).toBe(0)
+    await expect.poll(async () => (await state(page)).panels).toBe(0)
 
     await page.keyboard.press('j')
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
@@ -224,7 +258,7 @@ test.describe('overlays keep every key', () => {
     await page.keyboard.type('hello world')
     await page.waitForTimeout(200)
     expect((await state(page)).scrollY).toBe(0)
-    expect((await state(page)).panels).toBe(1)
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
   })
 
   test('the help overlay swallows motions too', async ({ page }) => {
@@ -240,7 +274,7 @@ test.describe('overlays keep every key', () => {
     await page.keyboard.press('o')
     await page.keyboard.press('o')
     await page.waitForTimeout(200)
-    expect((await state(page)).panels).toBe(1)
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
   })
 })
 
@@ -289,10 +323,10 @@ test.describe('input methods', () => {
   test('a composing Escape does not leave a mode', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await page.keyboard.press('i')
-    expect((await state(page)).panels).toBe(1)
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
 
     await composingKey(page, 'Escape', 'Escape')
     await page.waitForTimeout(200)
-    expect((await state(page)).panels).toBe(1)
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
   })
 })

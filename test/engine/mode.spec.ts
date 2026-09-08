@@ -16,7 +16,8 @@ test.describe('find mode', () => {
   test('/ opens the panel and takes the keystrokes with it', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')
-    expect(await state(page)).toMatchObject({ panels: 1, focusInOverlay: true })
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
+    await expect.poll(async () => (await state(page)).focusInOverlay).toBe(true)
 
     await page.keyboard.type('jjjj', { delay: 20 })
     await page.waitForTimeout(300)
@@ -30,7 +31,7 @@ test.describe('find mode', () => {
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
 
     await page.keyboard.press('Enter')
-    expect((await state(page)).panels).toBe(0)
+    await expect.poll(async () => (await state(page)).panels).toBe(0)
 
     const committed = await page.evaluate(() => window.scrollY)
     await page.keyboard.press('j')
@@ -61,7 +62,7 @@ test.describe('find mode', () => {
 
     await page.keyboard.press('Escape')
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(before)
-    expect((await state(page)).panels).toBe(0)
+    await expect.poll(async () => (await state(page)).panels).toBe(0)
   })
 
   // Incremental: every prefix has to miss too, so the first character must be absent.
@@ -79,7 +80,8 @@ test.describe('a page fighting for focus', () => {
     await loadEngine(page, `${base}/focusfight`)
     await page.keyboard.press('/')
     await page.waitForTimeout(300)
-    expect(await state(page)).toMatchObject({ panels: 1, focusInOverlay: true })
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
+    await expect.poll(async () => (await state(page)).focusInOverlay).toBe(true)
   })
 
   test('what is typed reaches the panel, not the page field', async ({ page }) => {
@@ -89,7 +91,7 @@ test.describe('a page fighting for focus', () => {
     await page.keyboard.type('findme', { delay: 20 })
     await page.waitForTimeout(200)
     expect(await page.inputValue('#trap')).toBe('')
-    expect((await state(page)).focusInOverlay).toBe(true)
+    await expect.poll(async () => (await state(page)).focusInOverlay).toBe(true)
   })
 
   test('the overlay gives focus back when it closes', async ({ page }) => {
@@ -142,13 +144,13 @@ test.describe('mode indicator', () => {
   // Closed shadow root: the host is assertable, the text is not.
   test('normal mode shows nothing', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
-    expect((await state(page)).panels).toBe(0)
+    await expect.poll(async () => (await state(page)).panels).toBe(0)
   })
 
   test('i shows an indicator and Escape takes it away', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await page.keyboard.press('i')
-    expect((await state(page)).panels).toBe(1)
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
 
     await page.keyboard.press('Escape')
     await expect.poll(async () => (await state(page)).panels).toBe(0)
@@ -157,7 +159,7 @@ test.describe('mode indicator', () => {
   test('visual mode shows an indicator', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('v')
-    expect((await state(page)).panels).toBe(1)
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
 
     await page.keyboard.press('Escape')
     await expect.poll(async () => (await state(page)).panels).toBe(0)
@@ -181,7 +183,7 @@ test.describe('an action that cannot run must not swallow the key', () => {
     })
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')
-    expect((await state(page)).panels).toBe(1)
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
 
     await page.keyboard.type('jjjj', { delay: 20 })
     await page.waitForTimeout(300)
