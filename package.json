@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "node --test 'src/**/*.test.ts'",
-    "test:e2e": "pnpm build:chrome && playwright test",
+    "test:e2e": "pnpm build:chrome && playwright test --project=extension",
+    "test:engine": "pnpm build:safari && playwright test --project=engine-webkit --project=engine-chromium",
     "check": "tsc --noEmit",
     "icons": "node scripts/icons.ts",
     "build:chrome": "TARGET=chrome vite build && TARGET=chrome node scripts/manifest.ts && node scripts/check-size.ts chrome",
