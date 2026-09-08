@@ -62,6 +62,29 @@ export const PAGES: Record<string, string> = {
       <a id="a2" href="/textarea">two</a>
       <button id="b1" onclick="document.title='clicked'">three</button>
     </body>`,
+  '/shadow': '<body style="height:5000px"><div id="h"></div></body>',
+  // The shape of a site that focuses its own search box on load. vimplug must go quiet.
+  '/steals': `<body style="height:5000px"><input id="s">
+      <script>document.getElementById('s').focus()</script></body>`,
+  '/cmdk': `<body style="height:5000px"><div id="out"></div><script>
+      document.addEventListener('keydown', e => {
+        if (e.metaKey && e.key === 'k') {
+          e.preventDefault()
+          document.getElementById('out').textContent = 'page-saw-it'
+        }
+      })</script></body>`,
+  // A match split across text nodes, and characters a regex would read as syntax.
+  '/awkward': `<body>
+      <div style="height:2000px">top</div>
+      <p id="split">wo<span>rd</span>break</p>
+      <p id="meta">cost is $5.00 (approx) [sic] a+b*c</p>
+      <div style="height:2000px">bottom</div>
+    </body>`,
+  '/pane': `<body style="margin:0;height:100vh;overflow:hidden">
+      <div id="pane" style="height:100vh;overflow-y:auto" tabindex="0">
+        <div style="height:5000px">pane content</div>
+      </div>
+    </body>`,
 }
 
 export async function serveFixtures(): Promise<{ base: string; stop(): Promise<void> }> {
