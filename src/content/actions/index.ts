@@ -24,9 +24,8 @@ export function openTarget(url: string, newTab: boolean): void {
   else location.href = url
 }
 
-// Every method reports whether it actually ran. The runtime only calls preventDefault on a
-// true, so an action that cannot do its job leaves the key to the page instead of
-// swallowing it and stranding the engine in whatever mode it was already in.
+// Each method reports whether it ran: the runtime only calls preventDefault on a true, so
+// a failed action cannot swallow the key and strand the engine in the mode it was in.
 export interface ActionContext {
   opts: Options
   enter: (m: Mode) => void

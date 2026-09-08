@@ -26,13 +26,12 @@ test.describe('find mode', () => {
   test('Enter commits the search and returns to normal mode', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')
-    await page.keyboard.type('needlexyz')
+    await page.keyboard.type('findmethistext')
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
 
     await page.keyboard.press('Enter')
     expect((await state(page)).panels).toBe(0)
 
-    // Back in normal mode, so an ordinary binding works again.
     const committed = await page.evaluate(() => window.scrollY)
     await page.keyboard.press('j')
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(committed)
@@ -41,7 +40,7 @@ test.describe('find mode', () => {
   test('a committed search keeps its highlights so n can step', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')
-    await page.keyboard.type('needlexyz')
+    await page.keyboard.type('findmethistext')
     await page.keyboard.press('Enter')
     await page.waitForTimeout(150)
 
@@ -57,7 +56,7 @@ test.describe('find mode', () => {
     const before = await page.evaluate(() => window.scrollY)
 
     await page.keyboard.press('/')
-    await page.keyboard.type('needlexyz')
+    await page.keyboard.type('findmethistext')
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
 
     await page.keyboard.press('Escape')
@@ -65,9 +64,7 @@ test.describe('find mode', () => {
     expect((await state(page)).panels).toBe(0)
   })
 
-  // The search is incremental, so every prefix of the query has to miss too. 'q' appears
-  // nowhere in the fixture; a query merely absent as a whole would still scroll on its
-  // first character.
+  // Incremental: every prefix has to miss too, so the first character must be absent.
   test('a query matching nothing leaves the page where it was', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')
@@ -78,8 +75,6 @@ test.describe('find mode', () => {
 })
 
 test.describe('IME composition', () => {
-  // Pinyin for a word is a run of latin letters. Each one arrives as a keydown carrying
-  // keyCode 229 while the IME composes, and every one of them is also a vim binding.
   test('keys sent while an IME is composing never run as commands', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     for (const [key, code] of [
@@ -117,8 +112,7 @@ test.describe('IME composition', () => {
 })
 
 test.describe('mode indicator', () => {
-  // The badge lives in a closed shadow root, so the test asserts the host appears and goes
-  // rather than reading the text. indicator.test.ts covers which label each mode gets.
+  // Closed shadow root: the host is assertable, the text is not.
   test('normal mode shows nothing', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     expect((await state(page)).panels).toBe(0)
@@ -153,14 +147,9 @@ test.describe('mode indicator', () => {
 })
 
 test.describe('an action that cannot run must not swallow the key', () => {
-  // The engine only calls preventDefault when an action reports that it ran. Reporting
-  // success while doing nothing leaves the mode in normal with the listener still
-  // attached, so every following keystroke is a command.
   test('/ with no Custom Highlight API still opens the panel', async ({ page }) => {
     await page.addInitScript(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (CSS as any).highlights
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (window as any).Highlight
     })
     await loadEngine(page, `${base}/find`)
