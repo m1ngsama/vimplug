@@ -40,3 +40,10 @@ test('requests scripting and storage permissions', () => {
   assert.ok(perms.includes('storage'))
   assert.ok(perms.includes('tabs'))
 })
+
+test('both targets declare the icon set the stores and Safari need', () => {
+  for (const t of ['chrome', 'safari'] as const) {
+    const icons = buildManifest(t).icons as Record<string, string>
+    assert.deepEqual(Object.keys(icons).sort(), ['128', '16', '32', '48'])
+  }
+})

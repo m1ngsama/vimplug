@@ -10,6 +10,7 @@
     "test": "node --test 'src/**/*.test.ts'",
     "test:e2e": "pnpm build:chrome && playwright test",
     "check": "tsc --noEmit",
+    "icons": "node scripts/icons.ts",
     "build:chrome": "TARGET=chrome vite build && TARGET=chrome node scripts/manifest.ts && node scripts/check-size.ts chrome",
     "build:safari": "TARGET=safari vite build && TARGET=safari node scripts/manifest.ts && node scripts/check-size.ts safari",
     "build": "pnpm build:chrome && pnpm build:safari"

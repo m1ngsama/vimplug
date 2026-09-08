@@ -2,6 +2,7 @@ import { test, expect, chromium, type BrowserContext, type Page } from '@playwri
 import { createServer, type Server } from 'node:http'
 import { resolve } from 'node:path'
 import { DEFAULT_DSL } from '../../src/shared/config.ts'
+import { ACTIONS } from '../../src/shared/actions.ts'
 
 const EXT = resolve('dist/chrome')
 
@@ -15,6 +16,15 @@ const PAGES: Record<string, string> = {
       <div style="height:2000px">top</div>
       <p id="needle">findmethistext</p>
       <div style="height:2000px">bottom</div>
+    </body>`,
+  // A control that only reacts to the pointer sequence, like YouTube's skip-ad button.
+  '/pointer': `<body style="height:5000px">
+      <button id="p">skip</button>
+      <script>
+        document.getElementById('p').addEventListener('pointerdown', () => {
+          document.title = 'pointer-seen'
+        })
+      </script>
     </body>`,
   '/links': `<body style="height:5000px">
       <a id="a1" href="/tall">one</a>
@@ -121,6 +131,27 @@ test('holding j accelerates rather than moving at a fixed rate', async () => {
   const firstRate = early / 150
   const laterRate = (late - early) / 400
   expect(laterRate).toBeGreaterThan(firstRate * 1.5)
+  await page.close()
+})
+
+test('gg returns to the top and G goes to the bottom', async () => {
+  const page = await open('/tall')
+
+  await page.keyboard.press('Shift+g')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(3000)
+
+  await page.keyboard.press('g')
+  await page.keyboard.press('g')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+  await page.close()
+})
+
+test('a hint activates a control that only listens for pointer events', async () => {
+  const page = await open('/pointer')
+  await page.keyboard.press('f')
+  await page.waitForTimeout(150)
+  await page.keyboard.press('f')
+  await expect.poll(() => page.title()).toBe('pointer-seen')
   await page.close()
 })
 
@@ -422,7 +453,7 @@ async function openOptions(): Promise<Page> {
 test('the options page lists a keycap for every action', async () => {
   await setDsl(DEFAULT_DSL)
   const page = await openOptions()
-  expect(await page.locator('.cap').count()).toBe(37)
+  expect(await page.locator('.cap').count()).toBe(ACTIONS.length)
   expect(await page.locator('.cap', { hasText: 'j' }).first().textContent()).toBe('j')
   await page.close()
 })

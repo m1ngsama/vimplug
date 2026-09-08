@@ -17,6 +17,10 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'scrollRight', description: 'Scroll right', group: 'Scroll', scope: 'content', defaultKeys: ['l'] },
   { id: 'scrollHalfDown', description: 'Scroll half a page down', group: 'Scroll', scope: 'content', defaultKeys: ['d'] },
   { id: 'scrollHalfUp', description: 'Scroll half a page up', group: 'Scroll', scope: 'content', defaultKeys: ['u'] },
+  { id: 'scrollToTop', description: 'Scroll to the top', group: 'Scroll', scope: 'content', defaultKeys: ['gg'] },
+  { id: 'scrollToBottom', description: 'Scroll to the bottom', group: 'Scroll', scope: 'content', defaultKeys: ['G'] },
+  { id: 'scrollToStart', description: 'Scroll to the left edge', group: 'Scroll', scope: 'content', defaultKeys: ['0'] },
+  { id: 'scrollToEnd', description: 'Scroll to the right edge', group: 'Scroll', scope: 'content', defaultKeys: ['$'] },
   { id: 'escape', description: 'Leave the current mode', group: 'Modes', scope: 'content', defaultKeys: ['<Esc>'] },
 
   { id: 'goBack', description: 'Go back', group: 'Navigation', scope: 'content', defaultKeys: ['H'] },

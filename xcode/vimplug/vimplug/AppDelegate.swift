@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  vimplug
 //
-//  Created by m1ng on 9/7/26.
+//  Created by m1ng on 9/8/26.
 //
 
 import Cocoa

@@ -6,6 +6,12 @@ export function buildManifest(target: Target): Record<string, unknown> {
     name: 'vimplug',
     version: '0.0.1',
     description: 'Keyboard-driven browser control.',
+    icons: {
+      '16': 'icon-16.png',
+      '32': 'icon-32.png',
+      '48': 'icon-48.png',
+      '128': 'icon-128.png',
+    },
     permissions: ['scripting', 'storage', 'tabs'],
     host_permissions: ['<all_urls>'],
     // Safari rejects `type: module` on service workers and ignores open_in_tab.

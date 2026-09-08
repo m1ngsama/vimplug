@@ -32,6 +32,7 @@ function iifeEntry(name: string, entry: string): Plugin {
 
 export default defineConfig({
   define,
+  publicDir: 'assets',
   build: {
     outDir,
     emptyOutDir: true,

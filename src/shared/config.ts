@@ -22,7 +22,7 @@ export interface SiteResolution {
 type SiteStmt = Extract<Stmt, { kind: 'site' }>
 
 const DEFAULT_OPTIONS: Options = {
-  hintChars: 'asdfghjkl',
+  hintChars: 'fjdkslagh',
   keyMatching: 'physical',
   sequenceTimeout: 1000,
   scrollStep: 60,

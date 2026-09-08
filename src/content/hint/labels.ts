@@ -1,21 +1,19 @@
-// Fixed-width labels: no label is a prefix of another, so a hint fires the moment its
-// last character arrives with no timeout and no ambiguity.
+// Labels are prefix-free but not fixed width: the shortest available label is expanded
+// only when more are needed, so the first targets keep one-character hints even on a page
+// with dozens of them. Prefix-free is what lets a hint fire the moment its last character
+// arrives, with no timeout and no ambiguity.
 export function generateLabels(count: number, chars: string): string[] {
   const n = chars.length
-  if (count <= 0 || n === 0) return []
+  if (count <= 0 || n < 2) return []
 
-  let width = 1
-  for (let capacity = n; capacity < count; capacity *= n) width += 1
+  const labels = chars.split('')
+  while (labels.length < count) {
+    const shortest = Math.min(...labels.map(l => l.length))
+    let idx = labels.length - 1
+    while (labels[idx]!.length !== shortest) idx -= 1
 
-  const out: string[] = []
-  for (let i = 0; i < count; i += 1) {
-    let rest = i
-    let label = ''
-    for (let pos = 0; pos < width; pos += 1) {
-      label = chars[rest % n] + label
-      rest = Math.floor(rest / n)
-    }
-    out.push(label)
+    const parent = labels.splice(idx, 1)[0]!
+    for (const c of chars) labels.push(parent + c)
   }
-  return out
+  return labels.slice(0, count)
 }

@@ -35,6 +35,30 @@ const STYLE = `
 
 const FOCUSABLE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'IFRAME'])
 
+// Many players and frameworks act on the pointer sequence and ignore a bare click(), so
+// hints replay what a real mouse does before clicking. YouTube's skip-ad button is one.
+function realClick(el: Element): void {
+  const r = el.getBoundingClientRect()
+  const base = {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    view: window,
+    clientX: r.left + r.width / 2,
+    clientY: r.top + r.height / 2,
+  }
+  const down = { ...base, button: 0, buttons: 1 }
+
+  el.dispatchEvent(new PointerEvent('pointerover', base))
+  el.dispatchEvent(new MouseEvent('mouseover', base))
+  el.dispatchEvent(new PointerEvent('pointerdown', down))
+  el.dispatchEvent(new MouseEvent('mousedown', down))
+  ;(el as HTMLElement).focus?.()
+  el.dispatchEvent(new PointerEvent('pointerup', base))
+  el.dispatchEvent(new MouseEvent('mouseup', base))
+  ;(el as HTMLElement).click()
+}
+
 function activate(el: Element, newTab: boolean, open: (url: string, newTab: boolean) => void): void {
   const href = el.tagName === 'A' ? el.getAttribute('href') : null
   if (newTab && href) {
@@ -45,7 +69,7 @@ function activate(el: Element, newTab: boolean, open: (url: string, newTab: bool
     ;(el as HTMLElement).focus()
     return
   }
-  ;(el as HTMLElement).click()
+  realClick(el)
 }
 
 export function startHint(
