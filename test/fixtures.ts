@@ -80,6 +80,19 @@ const PAGES: Record<string, string> = {
       <p id="two">beta marker</p>
       <div style="height:1500px">end</div>
     </body>`,
+  // Two blocks whose text would run together into "cd" if nothing separated them.
+  '/blocks': `<body style="height:3000px">
+      <div style="height:1200px">top</div>
+      <p>abc</p>
+      <p>def</p>
+      <div style="height:1200px">tail</div>
+    </body>`,
+  // Text in a closed menu. Present in the DOM, not on screen.
+  '/hidden': `<body style="height:3000px">
+      <div style="height:1200px">top</div>
+      <div style="display:none">hiddenword</div>
+      <p>visible</p>
+    </body>`,
   // A match split across text nodes, and characters a regex would read as syntax.
   '/awkward': `<body>
       <div style="height:2000px">top</div>
