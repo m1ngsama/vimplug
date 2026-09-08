@@ -1,4 +1,5 @@
 import { filterRows, type Row } from './filter.ts'
+import { applyTheme, type Tokens } from '../../shared/theme.ts'
 
 export interface Overlay {
   close(): void
@@ -16,6 +17,7 @@ interface OverlayConfig {
   // Applied at render time against the live input, so a row standing for what was typed
   // is never a keystroke behind the async results it sits among.
   compose?(rows: Row[], query: string): Row[]
+  theme: Tokens
 }
 
 const STYLE = `
@@ -23,11 +25,11 @@ const STYLE = `
 .wrap {
   position: fixed; inset: 0; z-index: 2147483647;
   display: flex; justify-content: center; align-items: flex-start;
-  padding-top: 12vh; background: rgba(0,0,0,.28);
+  padding-top: 12vh; background: var(--vp-scrim);
   font: 14px/1.5 ui-sans-serif, -apple-system, system-ui, sans-serif;
 }
 .panel {
-  width: min(680px, 92vw); background: #fbfaf8; color: #21201c;
+  width: min(680px, 92vw); background: var(--vp-bg); color: var(--vp-fg);
   border-radius: 10px; box-shadow: 0 18px 48px rgba(0,0,0,.32); overflow: hidden;
 }
 input {
@@ -36,17 +38,11 @@ input {
   background: transparent; color: inherit;
 }
 ul { list-style: none; margin: 0; padding: 0; max-height: 46vh; overflow-y: auto;
-     border-top: 1px solid #e6e2dc }
+     border-top: 1px solid var(--vp-border) }
 li { padding: 8px 16px; cursor: pointer }
-li[aria-selected="true"] { background: #eceae5 }
-.sub { display: block; font-size: 12px; color: #6b675f;
+li[aria-selected="true"] { background: color-mix(in srgb, var(--vp-accent) 22%, var(--vp-bg)) }
+.sub { display: block; font-size: 12px; color: var(--vp-muted);
        overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-@media (prefers-color-scheme: dark) {
-  .panel { background: #21201c; color: #f5f4f1 }
-  ul { border-top-color: #3a3833 }
-  li[aria-selected="true"] { background: #333029 }
-  .sub { color: #a39f96 }
-}
 `
 
 export function openOverlay(cfg: OverlayConfig): Overlay {
@@ -67,6 +63,7 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
   panel.append(input, list)
   wrap.append(panel)
   shadow.append(style, wrap)
+  applyTheme(host, cfg.theme)
   document.body.append(host)
 
   let shown: Row[] = cfg.rows

@@ -55,7 +55,7 @@ async function main(): Promise<void> {
   // Set before the overlay is built: its input takes focus synchronously, so a handle
   // assigned from the promise would arrive after focusin has already re-synced the mode.
   let overlayOpen = false
-  const finder = createFind()
+  const finder = createFind(theme)
   let awaitingMark: 'set' | 'jump' | null = null
 
   // The runtime owns key identity so actions never need to know which key ran them.
@@ -114,6 +114,7 @@ async function main(): Promise<void> {
           modes.enter('normal')
         },
         id => dispatch(id, null),
+        theme,
         query => finder?.search(query),
       ).then(o => {
         overlay = o

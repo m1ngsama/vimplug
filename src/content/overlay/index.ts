@@ -3,6 +3,7 @@ import { helpRows } from './help.ts'
 import { paletteRows } from './palette.ts'
 import type { Row } from './filter.ts'
 import type { Binding } from '../../shared/matcher.ts'
+import type { Tokens } from '../../shared/theme.ts'
 import { clipboardTarget, looksLikeUrl } from '../actions/clipboard.ts'
 import { openTarget } from '../actions/index.ts'
 
@@ -46,6 +47,7 @@ export async function startOverlay(
   searchEngine: string,
   onClose: () => void,
   runById: (id: string) => void,
+  theme: Tokens,
   onFind?: (query: string) => void,
 ): Promise<Overlay> {
   if (kind === 'find') {
@@ -55,6 +57,7 @@ export async function startOverlay(
       onInput: onFind,
       onPick: () => {},
       onClose,
+      theme,
     })
   }
 
@@ -64,6 +67,7 @@ export async function startOverlay(
       rows: paletteRows(bindings),
       onPick: runById,
       onClose,
+      theme,
     })
   }
 
@@ -73,6 +77,7 @@ export async function startOverlay(
       rows: helpRows(bindings),
       onPick: () => {},
       onClose,
+      theme,
     })
   }
 
@@ -84,6 +89,7 @@ export async function startOverlay(
         void chrome.runtime.sendMessage({ type: 'activateTab', id: Number(value) }).catch(() => {})
       },
       onClose,
+      theme,
     })
   }
 
@@ -122,6 +128,7 @@ export async function startOverlay(
     },
     onPick: (value, _query, shift) => pick(value, shift),
     onClose,
+    theme,
   })
 
   void suggest('', bookmarksOnly ? 'bookmark' : undefined).then(rows => overlay.setRows(rows))

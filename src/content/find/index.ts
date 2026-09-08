@@ -1,14 +1,16 @@
 import { collectMatches, stepIndex } from './matches.ts'
+import { applyTheme, TOKEN_VARS, type Tokens } from '../../shared/theme.ts'
 
 const ALL = 'vimplug-find'
 const CURRENT = 'vimplug-find-current'
 const STYLE_ID = 'vimplug-find-style'
 
-// The Custom Highlight API paints without touching the document tree. The one style rule
-// we add only targets our named highlights, so it cannot disturb the page's own CSS.
+// The Custom Highlight API paints without touching the document tree, and the one rule we
+// add targets only our named highlights. The theme tokens are the exception: see
+// ensureStyle.
 const STYLE = `
-::highlight(${ALL}) { background: #ffe08a; color: #21201c }
-::highlight(${CURRENT}) { background: #ff9f45; color: #21201c }
+::highlight(${ALL}) { background: var(--vp-match); color: var(--vp-accent-fg) }
+::highlight(${CURRENT}) { background: var(--vp-match-cur); color: var(--vp-accent-fg) }
 `
 
 interface Piece {
@@ -53,7 +55,7 @@ export interface FindSession {
   clear(): void
 }
 
-export function createFind(): FindSession | null {
+export function createFind(theme: Tokens): FindSession | null {
   const highlights = (
     CSS as unknown as { highlights?: Map<string, unknown> & { delete(k: string): void } }
   ).highlights
@@ -65,6 +67,10 @@ export function createFind(): FindSession | null {
 
   const ensureStyle = () => {
     if (style) return
+    // Highlight pseudo-elements inherit from the element they mark, so the tokens have to
+    // reach the page root. This is the one place the engine touches the page's own style;
+    // clear() takes it back off.
+    applyTheme(document.documentElement, theme)
     style = document.createElement('style')
     style.id = STYLE_ID
     style.textContent = STYLE
@@ -116,6 +122,9 @@ export function createFind(): FindSession | null {
       highlights.delete(CURRENT)
       style?.remove()
       style = null
+      for (const cssVar of Object.values(TOKEN_VARS)) {
+        document.documentElement.style.removeProperty(cssVar)
+      }
     },
   }
 }
