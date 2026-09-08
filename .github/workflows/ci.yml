@@ -28,6 +28,7 @@ jobs:
       # Verification runs against the built artifact, never a dev server.
       - run: pnpm build
 
-      - run: pnpm exec playwright install --with-deps chromium
+      # webkit carries the engine suite: Safari cannot be automated, but it is WebKit.
+      - run: pnpm exec playwright install --with-deps chromium webkit
 
       - run: pnpm exec playwright test
