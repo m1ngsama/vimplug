@@ -93,7 +93,18 @@ In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection, `y` copies 
 Clicking the toolbar button turns vimplug off for the site you are on, and on again. The
 button reads `off` where it is disabled.
 
+`/` searches as you type. `<CR>` commits the search: the panel closes, the matches stay,
+and `n` and `N` step through them. `<Esc>` cancels instead, putting the page back where it
+was before the search moved it. Once a search is committed, `<Esc>` in normal mode clears
+the highlights, the way `:noh` does.
+
+Keys pressed while an input method is composing belong to the input method, never to
+vimplug, so typing a word in Chinese, Japanese or Korean cannot fire a command.
+
 ## Configuration
+
+**Safari.** Settings > Extensions > vimplug > Settings. **Chrome.** Right-click the
+toolbar button > Options, or find vimplug on `chrome://extensions`.
 
 The settings page has two views over one configuration. **Keys** lists every action with
 its key; click a key and press the one you want. **Text** is the same configuration as
@@ -175,13 +186,21 @@ Highlight API, so nothing the engine draws touches the page's own markup or styl
 pnpm check         # tsc --noEmit
 pnpm test          # unit tests, no build step
 pnpm build         # produces dist/chrome and dist/safari
+pnpm test:engine   # mode semantics against dist/safari, in WebKit and Chromium
 pnpm test:e2e      # builds, then drives the artifact in a real Chromium
 pnpm icons         # regenerates the icon set
 ```
 
 Unit tests run on Node's built-in test runner straight from TypeScript, so there is no
-test framework and no compile step. End-to-end tests load `dist/chrome` into Chromium and
-exercise the built artifact, never a dev server.
+test framework and no compile step. Every browser test exercises a build artifact, never a
+dev server.
+
+Safari cannot be driven by Playwright, and safaridriver cannot load extensions at all. But
+Safari is WebKit, so `pnpm test:engine` injects `dist/safari/content.js` into Playwright's
+WebKit behind a small `chrome.*` shim. That covers everything the engine does with the
+DOM, focus, event order and input methods. It cannot cover the extension plumbing —
+`registerContentScripts`, the disabled-site bootstrap, the background worker, the toolbar
+button — which stays manual on Safari and automated on Chrome via `pnpm test:e2e`.
 
 `content.js` must stay under 30KB gzip. `pnpm build` fails if it does not.
 
