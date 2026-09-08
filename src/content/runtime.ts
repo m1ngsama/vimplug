@@ -213,8 +213,13 @@ async function main(): Promise<void> {
 
     const r = matcher.step(key)
     if (r.kind === 'none') count.reset()
-    if (r.kind === 'match' && dispatch(r.action, keyId(key, keyMatching), count.take()))
+    if (r.kind === 'match' && dispatch(r.action, keyId(key, keyMatching), count.take())) {
       e.preventDefault()
+      // A key we acted on is not the page's too. Sites bind bare letters: MDN and GitHub
+      // both take `/` to their own search box, and preventDefault cannot undo a focus()
+      // they called themselves.
+      e.stopImmediatePropagation()
+    }
   }
 
   const onKeyup = (e: KeyboardEvent) => scroller.release(keyId(fromEvent(e), keyMatching))
