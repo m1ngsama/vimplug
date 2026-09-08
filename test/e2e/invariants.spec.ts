@@ -714,8 +714,7 @@ test('find takes its colours off the page root and gives them back', async () =>
     .poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')))
     .toBe('#a3be8c')
 
-  // Escape closes the panel; a second one retires the search itself.
-  await page.keyboard.press('Escape')
+  // Escape cancels outright: the panel closes and the search is retired with it.
   await page.keyboard.press('Escape')
   await expect
     .poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')))

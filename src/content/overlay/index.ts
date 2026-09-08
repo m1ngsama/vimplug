@@ -1,4 +1,4 @@
-import { openOverlay, type Overlay } from './shell.ts'
+import { openOverlay, type Overlay, type CloseReason } from './shell.ts'
 import { helpRows } from './help.ts'
 import { paletteRows } from './palette.ts'
 import type { Row } from './filter.ts'
@@ -45,7 +45,7 @@ export async function startOverlay(
   kind: OverlayKind,
   bindings: Binding[],
   searchEngine: string,
-  onClose: () => void,
+  onClose: (reason: CloseReason) => void,
   runById: (id: string) => void,
   theme: Tokens,
   onFind?: (query: string) => void,
@@ -56,6 +56,8 @@ export async function startOverlay(
       rows: [],
       onInput: onFind,
       onPick: () => {},
+      // Enter commits: the panel closes and the matches stay for n and N.
+      onSubmit: () => {},
       onClose,
       theme,
     })

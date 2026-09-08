@@ -24,15 +24,18 @@ export function openTarget(url: string, newTab: boolean): void {
   else location.href = url
 }
 
+// Every method reports whether it actually ran. The runtime only calls preventDefault on a
+// true, so an action that cannot do its job leaves the key to the page instead of
+// swallowing it and stranding the engine in whatever mode it was already in.
 export interface ActionContext {
   opts: Options
   enter: (m: Mode) => void
-  startHint: (newTab: boolean, frames?: boolean, copy?: boolean) => void
-  startOverlay: (kind: OverlayKind) => void
-  find: (dir: 1 | -1 | 'open') => void
-  clearFind: () => void
-  awaitMark: (mode: 'set' | 'jump') => void
-  startVisual: () => void
+  startHint: (newTab: boolean, frames?: boolean, copy?: boolean) => boolean
+  startOverlay: (kind: OverlayKind) => boolean
+  find: (dir: 1 | -1 | 'open') => boolean
+  clearFind: () => boolean
+  awaitMark: (mode: 'set' | 'jump') => boolean
+  startVisual: () => boolean
 }
 
 export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
@@ -57,37 +60,26 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
     return true
   }
 
-  if (id === 'hint' || id === 'hintNewTab' || id === 'hintCopyUrl') {
-    ctx.startHint(id === 'hintNewTab', false, id === 'hintCopyUrl')
-    return true
-  }
+  if (id === 'hint' || id === 'hintNewTab' || id === 'hintCopyUrl')
+    return ctx.startHint(id === 'hintNewTab', false, id === 'hintCopyUrl')
 
-  if (id === 'hintFrame') {
-    ctx.startHint(false, true)
-    return true
-  }
+  if (id === 'hintFrame') return ctx.startHint(false, true)
 
   const overlayKind = OVERLAY_FOR[id]
-  if (overlayKind) {
-    ctx.startOverlay(overlayKind)
-    return true
+  if (overlayKind) return ctx.startOverlay(overlayKind)
+
+  if (id === 'find') return ctx.find('open')
+
+  if (id === 'findNext' || id === 'findPrev') {
+    let stepped = false
+    for (let i = 0; i < count; i += 1) stepped = ctx.find(id === 'findNext' ? 1 : -1) || stepped
+    return stepped
   }
 
-  if (id === 'find' || id === 'findNext' || id === 'findPrev') {
-    if (id === 'find') ctx.find('open')
-    else for (let i = 0; i < count; i += 1) ctx.find(id === 'findNext' ? 1 : -1)
-    return true
-  }
+  if (id === 'setMark' || id === 'jumpMark')
+    return ctx.awaitMark(id === 'setMark' ? 'set' : 'jump')
 
-  if (id === 'setMark' || id === 'jumpMark') {
-    ctx.awaitMark(id === 'setMark' ? 'set' : 'jump')
-    return true
-  }
-
-  if (id === 'visualMode') {
-    ctx.startVisual()
-    return true
-  }
+  if (id === 'visualMode') return ctx.startVisual()
 
   if (id === 'passthrough') {
     ctx.enter('passthrough')
