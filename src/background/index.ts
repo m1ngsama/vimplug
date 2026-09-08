@@ -1,6 +1,6 @@
 import { readDsl, writeDsl } from '../shared/storage.ts'
 import { registrationFor, isDisabled, hostOf, REGISTRATION_ID } from './injection.ts'
-import { runTabAction } from './tabs.ts'
+import { runTabAction, noteActiveTab } from './tabs.ts'
 import { rankSuggestions, type Suggestion } from './omnibar.ts'
 import { disabledHosts } from '../shared/config.ts'
 import { toggleSite } from '../shared/dsl/edits.ts'
@@ -33,6 +33,7 @@ chrome.action.onClicked.addListener(tab => {
 })
 
 chrome.tabs.onActivated.addListener(info => {
+  noteActiveTab(info.tabId)
   void chrome.tabs.get(info.tabId).then(refreshBadge)
 })
 chrome.tabs.onUpdated.addListener((_id, change, tab) => {

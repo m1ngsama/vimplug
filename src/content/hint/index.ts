@@ -59,8 +59,17 @@ function realClick(el: Element): void {
   ;(el as HTMLElement).click()
 }
 
-function activate(el: Element, newTab: boolean, open: (url: string, newTab: boolean) => void): void {
+function activate(
+  el: Element,
+  newTab: boolean,
+  open: (url: string, newTab: boolean) => void,
+  copy = false,
+): void {
   const href = el.tagName === 'A' ? el.getAttribute('href') : null
+  if (copy) {
+    if (href) void navigator.clipboard.writeText(new URL(href, location.href).href)
+    return
+  }
   if (newTab && href) {
     open(new URL(href, location.href).href, true)
     return
@@ -78,6 +87,7 @@ export function startHint(
   open: (url: string, newTab: boolean) => void,
   onInvalid: () => void,
   targets: Element[] = collectTargets(document),
+  copy = false,
 ): HintSession | null {
   if (targets.length === 0) return null
 
@@ -120,7 +130,7 @@ export function startHint(
 
   const fire = (item: Item) => {
     cleanup()
-    activate(item.el, newTab, open)
+    activate(item.el, newTab, open, copy)
   }
 
   return {

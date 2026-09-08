@@ -80,7 +80,7 @@ test('an uppercase letter carries shift', () => {
 })
 
 test('toNotation round-trips through parseKeys', () => {
-  for (const n of ['j', 'F', '<C-d>', '<M-k>', '<Esc>', '<Space>', '1', '[', '?', '-', '`']) {
+  for (const n of ['j', 'F', '<C-d>', '<M-k>', '<Esc>', '<Space>', '1', '[', '?', '-', '`', ',', '.', '<lt>']) {
     const key = parseKeys(n)![0]!
     assert.deepEqual(parseKeys(toNotation(key))![0], key, `round trip failed for ${n}`)
   }

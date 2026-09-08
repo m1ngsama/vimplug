@@ -4,6 +4,8 @@ import { runHistory } from './history.ts'
 import { runClipboard } from './clipboard.ts'
 import { runFocusInput } from './focus-input.ts'
 import { runMedia } from './media.ts'
+import { runUrl } from './url.ts'
+import { runPager } from './pager.ts'
 import type { Mode } from '../mode.ts'
 import type { OverlayKind } from '../overlay/index.ts'
 
@@ -25,7 +27,7 @@ export function openTarget(url: string, newTab: boolean): void {
 export interface ActionContext {
   opts: Options
   enter: (m: Mode) => void
-  startHint: (newTab: boolean, frames?: boolean) => void
+  startHint: (newTab: boolean, frames?: boolean, copy?: boolean) => void
   startOverlay: (kind: OverlayKind) => void
   find: (dir: 1 | -1 | 'open') => void
   awaitMark: (mode: 'set' | 'jump') => void
@@ -40,7 +42,13 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
     return true
   }
 
-  if (runHistory(id, count) || runMedia(id, opts.volumeStep * count) || runFocusInput(id))
+  if (
+    runHistory(id, count) ||
+    runMedia(id, opts.volumeStep * count) ||
+    runFocusInput(id) ||
+    runUrl(id) ||
+    runPager(id)
+  )
     return true
 
   if (id === 'copyUrl' || id === 'openClipboard' || id === 'openClipboardNewTab') {
@@ -48,8 +56,8 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
     return true
   }
 
-  if (id === 'hint' || id === 'hintNewTab') {
-    ctx.startHint(id === 'hintNewTab')
+  if (id === 'hint' || id === 'hintNewTab' || id === 'hintCopyUrl') {
+    ctx.startHint(id === 'hintNewTab', false, id === 'hintCopyUrl')
     return true
   }
 

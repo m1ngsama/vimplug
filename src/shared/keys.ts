@@ -101,6 +101,13 @@ function blank(): Key {
 }
 
 function parseAngle(body: string): Key | null {
+  // `<` opens the modifier notation, so a literal one is escaped the way vim escapes it.
+  // This lives here rather than in NAMED so it cannot hijack how a plain comma is written
+  // back out.
+  if (body.toLowerCase() === 'lt') {
+    return { ...blank(), code: 'Comma', key: '<', shift: true }
+  }
+
   const whole = NAMED[body.toLowerCase()]
   if (whole) return { ...blank(), code: whole, key: whole }
 
@@ -173,7 +180,9 @@ const REV_NAMED = new Map(Object.entries(NAMED).map(([name, code]) => [code, nam
 const REV_PUNCT = new Map(Object.entries(PUNCT).map(([ch, code]) => [code, ch]))
 const REV_SHIFTED = new Map(Object.entries(SHIFTED).map(([ch, code]) => [code, ch]))
 
-function baseOf(k: Key): { text: string; named: boolean } {
+// shiftImplied covers escapes that already stand for the shifted key, so the notation
+// does not gain a redundant S- that then fails to parse back.
+function baseOf(k: Key): { text: string; named: boolean; shiftImplied?: boolean } {
   const named = REV_NAMED.get(k.code)
   if (named) return { text: DISPLAY[named] ?? named, named: true }
 
@@ -182,6 +191,8 @@ function baseOf(k: Key): { text: string; named: boolean } {
 
   const digit = /^Digit([0-9])$/.exec(k.code)?.[1]
   if (digit) return { text: (k.shift ? REV_SHIFTED.get(k.code) : digit) ?? digit, named: false }
+
+  if (k.shift && k.code === 'Comma') return { text: 'lt', named: true, shiftImplied: true }
 
   const punct = k.shift ? REV_SHIFTED.get(k.code) : REV_PUNCT.get(k.code)
   if (punct) return { text: punct, named: false }
@@ -196,7 +207,7 @@ export function toNotation(k: Key): string {
   if (k.ctrl) mods += 'C-'
   if (k.meta) mods += 'M-'
   if (k.alt) mods += 'A-'
-  if (k.shift && base.named) mods += 'S-'
+  if (k.shift && base.named && !base.shiftImplied) mods += 'S-'
 
   if (mods === '' && !base.named) return base.text
   return `<${mods}${base.text}>`

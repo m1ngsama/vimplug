@@ -113,14 +113,12 @@ python3 -m http.server 8000
 | 14 | find teardown | Press Esc after a find | Highlighting clears and the page markup is unchanged |
 | 15 | marks | Scroll down, press `Ma`, scroll to top, press `` `a `` | The original position is restored |
 | 16 | visual | Press `v`, then `l` a few times, then `y` | Text is selected and copied |
-
 | 17 | settings, rebind | Open settings, click the key beside "Scroll down", press `d` | The key updates and `d` scrolls on any page |
 | 18 | settings, comments | Add a `#` comment in Text, rebind something in Keys, return to Text | The comment is still there |
 | 19 | settings, disable | Add a host under "Disabled sites", reload that host | vimplug does nothing there |
 | 20 | toolbar toggle | Click the toolbar button on any site | The badge reads `off`, the page reloads, and keys do nothing; clicking again restores it |
 | 21 | held scrolling | Hold `j` | The page accelerates smoothly and stops when released |
 | 22 | export and import | Export from the Text view, edit the file, import it back | The edited configuration is in force |
-
 | 23 | pane scrolling | Open Gmail or any app whose page does not scroll, press `j` | The content pane scrolls |
 | 24 | counts | Press `5j` | The page moves five steps, not one |
 | 25 | omnibar | Press `o`, type part of an open tab's title | That tab is offered and Enter switches to it |
@@ -136,6 +134,6 @@ Check 7 is the one that differs by platform: Chrome never injects, while Safari 
 
 ## Known gaps
 
-- No icons yet, so the converter cannot populate the app icon set.
 - Safari extensions cannot be driven by Playwright. The automated invariant tests run
   against Chrome only; the Safari equivalents are a manual checklist.
+- iOS and iPadOS are not supported.

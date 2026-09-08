@@ -29,6 +29,7 @@ declare namespace chrome {
     function remove(tabId: number): Promise<void>
     function duplicate(tabId: number): Promise<Tab | undefined>
     function reload(tabId: number): Promise<void>
+    function move(tabId: number, props: { index: number }): Promise<Tab | Tab[]>
     function get(tabId: number): Promise<Tab>
     const onActivated: { addListener(cb: (info: { tabId: number }) => void): void }
     const onUpdated: {

@@ -44,13 +44,20 @@ Defaults. Every one is rebindable; `?` shows the bindings actually in force.
 | `o` | Open a URL or search |
 | `T` | Search open tabs |
 | `t` | New tab |
+| `b` | Search bookmarks |
+| `yf` | Copy a link URL by hint |
 | `J` `K` | Previous, next tab |
+| `^` | Back to the tab you were just on |
+| `<` `>` | Move the tab left, right |
+| `g0` `g$` | First, last tab |
 | `H` `L` | Back, forward |
 | `r` `x` `X` | Reload, close, reopen tab |
 | `yt` | Duplicate tab |
 | `yy` | Copy the page URL |
 | `p` `P` | Open the clipboard URL here, in a new tab |
 | `gi` | Focus the first text field |
+| `gu` `gU` | Up one URL level, site root |
+| `[[` `]]` | Previous page, next page |
 | `gf` | Focus an iframe by hint |
 | `i` | Suspend vimplug until Esc |
 | `-` `=` `m` | Media volume down, up, mute |
@@ -62,6 +69,16 @@ Defaults. Every one is rebindable; `?` shows the bindings actually in force.
 | `<Esc>` | Leave the current mode |
 
 `m` keeps vimkey's mute, so marks use `M` and `` ` `` rather than vim's `m`.
+
+Most keys take a count: `5j` scrolls five steps, `3K` moves three tabs on. A bare `0` stays
+a binding of its own, so a count cannot start with it.
+
+`o` searches your open tabs, bookmarks and history alongside plain URLs and searches. What
+you typed is always one of the rows, so Enter never has to guess between navigating and
+searching.
+
+Scrolling acts on the pane under the cursor, not only the document, so `j` works in apps
+whose page does not itself scroll.
 
 While hints are showing, characters that are not a hint label narrow the hints by link
 text, and the last remaining candidate fires on its own.
