@@ -14,6 +14,7 @@ import { startOverlay } from './overlay/index.ts'
 import { createFind, type FindSession } from './find/index.ts'
 import { isMarkChar, saveMark, jumpMark } from './marks.ts'
 import { beginVisual, moveVisual, yankVisual, clearVisual } from './visual.ts'
+import { createIndicator } from './indicator.ts'
 import type { Overlay } from './overlay/shell.ts'
 
 async function loadDsl(): Promise<string> {
@@ -44,6 +45,7 @@ async function main(): Promise<void> {
     site.options,
     window.matchMedia('(prefers-color-scheme: dark)').matches,
   )
+  const indicator = createIndicator(theme)
   const scroller = new Scroller(
     () => site.options,
     () => deepActiveElement(document),
@@ -250,6 +252,7 @@ async function main(): Promise<void> {
     if (needsKeydown(next)) attach()
     else detach()
     setHatch(next === 'passthrough')
+    indicator.show(next)
     // Covers the mode machine's own timeout, so a stale overlay cannot outlive hint mode.
     if (prev === 'hint' && next !== 'hint') {
       hint?.cancel()
