@@ -17,12 +17,12 @@ export function hintText(el: Element): string {
   return raw.trim().replace(/\s+/g, ' ').toLowerCase().slice(0, MAX)
 }
 
-export interface HintItem {
+interface HintItem {
   label: string
   text: string
 }
 
-export type FilterResult =
+type FilterResult =
   | { kind: 'match'; index: number }
   | { kind: 'filter'; indexes: number[] }
   | { kind: 'none' }

@@ -62,7 +62,7 @@ async function main(): Promise<void> {
             return r.width > 0 && r.height > 0
           })
         : undefined
-      const session = startHint(site.options.hintChars, newTab, openTarget, targets)
+      const session = startHint(site.options.hintChars, newTab, openTarget, () => modes.enter('normal'), targets)
       if (!session) return
       hint = session
       modes.enter('hint')

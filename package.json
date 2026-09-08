@@ -1,6 +1,6 @@
 {
   "name": "vimplug",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "private": true,
   "type": "module",
   "engines": {
@@ -13,7 +13,8 @@
     "icons": "node scripts/icons.ts",
     "build:chrome": "TARGET=chrome vite build && TARGET=chrome node scripts/manifest.ts && node scripts/check-size.ts chrome",
     "build:safari": "TARGET=safari vite build && TARGET=safari node scripts/manifest.ts && node scripts/check-size.ts safari",
-    "build": "pnpm build:chrome && pnpm build:safari"
+    "build": "pnpm build:chrome && pnpm build:safari",
+    "package": "pnpm build && rm -f dist/vimplug-chrome.zip && cd dist/chrome && zip -qr ../vimplug-chrome.zip ."
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
@@ -25,5 +26,11 @@
     "onlyBuiltDependencies": [
       "esbuild"
     ]
+  },
+  "license": "GPL-3.0-or-later",
+  "description": "Keyboard-driven browser control for Safari and Chrome.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m1ngsama/vimplug.git"
   }
 }

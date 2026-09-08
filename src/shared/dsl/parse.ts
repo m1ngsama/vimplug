@@ -15,12 +15,12 @@ export type Stmt =
   | { kind: 'disable'; span: Span }
   | { kind: 'site'; pattern: string; body: Stmt[]; span: Span }
 
-export interface ParseError {
+interface ParseError {
   line: number
   message: string
 }
 
-export interface ParseResult {
+interface ParseResult {
   stmts: Stmt[]
   errors: ParseError[]
 }

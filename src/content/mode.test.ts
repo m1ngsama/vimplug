@@ -41,11 +41,11 @@ test('does not notify when entering the current mode', () => {
   assert.equal(calls, 0)
 })
 
-test('transient modes fall back to normal after their timeout', async () => {
+test('hint has no deadline: its labels are on screen and it has clear exits', async () => {
   const m = new ModeMachine(20)
   m.enter('hint')
   await new Promise(r => setTimeout(r, 60))
-  assert.equal(m.current, 'normal')
+  assert.equal(m.current, 'hint')
 })
 
 test('command has no deadline because its overlay is visible and dismissible', async () => {
@@ -71,7 +71,7 @@ test('normal and insert never time out', async () => {
 
 test('leaving a transient mode cancels its timeout', async () => {
   const m = new ModeMachine(20)
-  m.enter('hint')
+  m.enter('pending')
   m.enter('insert')
   await new Promise(r => setTimeout(r, 60))
   assert.equal(m.current, 'insert')

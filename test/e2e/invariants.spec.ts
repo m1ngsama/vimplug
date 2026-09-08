@@ -290,6 +290,32 @@ test('f then Escape leaves no overlay behind', async () => {
   await page.close()
 })
 
+test('hints stay put until acted on, they do not time out', async () => {
+  const page = await open('/links')
+  const before = await page.evaluate(() => document.body.childElementCount)
+
+  await page.keyboard.press('f')
+  await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+
+  await page.waitForTimeout(6000)
+  expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+
+  await page.keyboard.press('Escape')
+  await page.close()
+})
+
+test('hints are retired by a scroll, which is what invalidates their positions', async () => {
+  const page = await open('/links')
+  const before = await page.evaluate(() => document.body.childElementCount)
+
+  await page.keyboard.press('f')
+  await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+
+  await page.mouse.wheel(0, 400)
+  await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before)
+  await page.close()
+})
+
 test('invariant 1 holds for hint mode: f does not fire while typing', async () => {
   const page = await open('/textarea')
   await page.focus('#t')

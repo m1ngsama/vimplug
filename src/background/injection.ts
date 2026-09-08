@@ -1,6 +1,6 @@
 import type { Target } from '../shared/manifest-def.ts'
 
-export interface Registration {
+interface Registration {
   id: string
   js: string[]
   matches: string[]

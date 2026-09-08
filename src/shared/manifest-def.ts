@@ -1,10 +1,10 @@
 export type Target = 'chrome' | 'safari'
 
-export function buildManifest(target: Target): Record<string, unknown> {
+export function buildManifest(target: Target, version: string): Record<string, unknown> {
   return {
     manifest_version: 3,
     name: 'vimplug',
-    version: '0.0.1',
+    version,
     description: 'Keyboard-driven browser control.',
     icons: {
       '16': 'icon-16.png',

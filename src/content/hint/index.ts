@@ -2,7 +2,7 @@ import { generateLabels } from './labels.ts'
 import { collectTargets } from './collect.ts'
 import { hintText, filterHints } from './text.ts'
 
-export type FeedResult = 'pending' | 'done' | 'none'
+type FeedResult = 'pending' | 'done' | 'none'
 
 export interface HintSession {
   feed(ch: string): FeedResult
@@ -76,6 +76,7 @@ export function startHint(
   chars: string,
   newTab: boolean,
   open: (url: string, newTab: boolean) => void,
+  onInvalid: () => void,
   targets: Element[] = collectTargets(document),
 ): HintSession | null {
   if (targets.length === 0) return null
@@ -104,7 +105,18 @@ export function startHint(
   document.body.append(host)
 
   let typed = ''
-  const cleanup = () => host.remove()
+
+  // Labels are positioned against the viewport, so anything that moves the page makes
+  // them point at the wrong things. That, not a timer, is when hints stop being valid.
+  const invalidate = () => onInvalid()
+  window.addEventListener('scroll', invalidate, { passive: true })
+  window.addEventListener('resize', invalidate, { passive: true })
+
+  const cleanup = () => {
+    window.removeEventListener('scroll', invalidate)
+    window.removeEventListener('resize', invalidate)
+    host.remove()
+  }
 
   const fire = (item: Item) => {
     cleanup()

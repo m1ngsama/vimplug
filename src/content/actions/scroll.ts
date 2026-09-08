@@ -1,6 +1,6 @@
 import { advance, settled, type AxisState, type ScrollOptions } from './scroll-physics.ts'
 
-export interface ScrollDelta {
+interface ScrollDelta {
   top: number
   left: number
 }

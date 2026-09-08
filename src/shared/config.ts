@@ -13,7 +13,7 @@ export interface Options {
   searchEngine: string
 }
 
-export interface SiteResolution {
+interface SiteResolution {
   disabled: boolean
   options: Options
   bindings: Record<BindMode, Binding[]>
@@ -44,7 +44,7 @@ function matches(pattern: string, host: string): boolean {
   return pattern === host
 }
 
-export interface OptionDef {
+interface OptionDef {
   key: keyof Options
   type: 'text' | 'number' | 'boolean' | 'choice'
   choices?: string[]

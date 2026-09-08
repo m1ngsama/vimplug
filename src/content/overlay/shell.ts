@@ -4,7 +4,7 @@ export interface Overlay {
   close(): void
 }
 
-export interface OverlayConfig {
+interface OverlayConfig {
   placeholder: string
   rows: Row[]
   freeText: boolean

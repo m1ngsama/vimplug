@@ -1,4 +1,4 @@
-export interface MarkPosition {
+interface MarkPosition {
   x: number
   y: number
 }

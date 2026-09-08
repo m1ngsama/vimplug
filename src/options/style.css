@@ -71,7 +71,7 @@ body {
 
 .status { font-size: 12px; color: var(--muted); min-width: 6ch }
 
-main { max-width: 820px; padding: 28px 24px 80px }
+main { max-width: 760px; padding: 26px 24px 80px }
 
 h2 {
   margin: 34px 0 10px;
@@ -86,10 +86,10 @@ p.note { margin: 0 0 18px; max-width: 62ch; color: var(--muted) }
 
 .row {
   display: grid;
-  grid-template-columns: 7.5rem 1fr auto;
+  grid-template-columns: 5rem 1fr auto;
   align-items: center;
-  gap: 14px;
-  padding: 7px 0;
+  gap: 16px;
+  padding: 5px 0;
   border-bottom: 1px solid var(--edge);
 }
 

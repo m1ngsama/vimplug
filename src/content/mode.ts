@@ -12,10 +12,11 @@ const NEEDS_KEYDOWN: Record<Mode, boolean> = {
   passthrough: false,
 }
 
-// hint and pending are invisible or near-invisible waits, so both need a deadline or a
-// mistyped key wedges the engine. command and visual both show what they are doing, so
-// they wait for the user instead.
-const TRANSIENT: ReadonlySet<Mode> = new Set<Mode>(['hint', 'pending'])
+// Only pending is an invisible wait, and only invisible waits need a deadline: a mistyped
+// key after M would otherwise wedge the engine with nothing on screen to explain it.
+// hint, command and visual all show what they are doing and wait for the user. Hints are
+// retired by what actually invalidates them, a scroll or a resize, not by a clock.
+const TRANSIENT: ReadonlySet<Mode> = new Set<Mode>(['pending'])
 
 export function needsKeydown(m: Mode): boolean {
   return NEEDS_KEYDOWN[m]

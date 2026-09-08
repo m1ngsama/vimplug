@@ -6,7 +6,7 @@ export interface Binding {
   notation?: string
 }
 
-export type MatchResult =
+type MatchResult =
   | { kind: 'none' }
   | { kind: 'pending' }
   | { kind: 'match'; action: string }

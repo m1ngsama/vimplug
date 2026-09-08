@@ -2,31 +2,36 @@
 
 Keyboard-driven browser control for Safari and Chrome.
 
-## Requirements
+Scroll, follow links, switch tabs, search a page and select text without leaving the home
+row. Every key is rebindable, and the configuration is one block of text you can read,
+version and carry between machines.
 
-- Safari 16.4+ (macOS 13.3+), or Chrome/Edge
-- Node 26+, pnpm
+<img src="docs/settings.png" alt="The settings page, listing each action beside the key that runs it" width="720">
 
-## Development
+## Why this exists
+
+Vimium is excellent and does not run on Safari. Vimkey did, but it is closed source and no
+longer maintained: its issue tracker holds years of unanswered reports, several of them
+about the extension eating keystrokes meant for the page.
+
+vimplug is a rewrite, not a fork — the original source was never published. It reaches key
+parity with vimkey, adds what Vimium users expect, and treats the reports vimkey never
+answered as the specification for what must not go wrong.
+
+## Install
+
+**Chrome or Edge.** Build, then load `dist/chrome` at `chrome://extensions` with developer
+mode on.
 
 ```sh
-pnpm install
-pnpm check         # tsc --noEmit
-pnpm test          # unit tests, no build step
-pnpm build         # produces dist/chrome and dist/safari
-pnpm test:e2e      # builds, then drives the artifact in a real Chromium
+pnpm install && pnpm build
 ```
 
-Unit tests run on Node's built-in test runner straight from TypeScript, so there is no
-test framework and no compile step. End-to-end tests load `dist/chrome` into Chromium and
-exercise the built artifact, never a dev server.
-
-Load `dist/chrome` via `chrome://extensions` -> Load unpacked. For Safari see
-[docs/SAFARI.md](docs/SAFARI.md).
+**Safari.** See [docs/SAFARI.md](docs/SAFARI.md). Safari 16.4+ (macOS 13.3+) is required.
 
 ## Keys
 
-Defaults. Every one of them is rebindable; `?` shows the bindings actually in force.
+Defaults. Every one is rebindable; `?` shows the bindings actually in force.
 
 | Keys | Action |
 | --- | --- |
@@ -39,33 +44,33 @@ Defaults. Every one of them is rebindable; `?` shows the bindings actually in fo
 | `o` | Open a URL or search |
 | `T` | Search open tabs |
 | `t` | New tab |
-| `J` `K` | Previous / next tab |
-| `H` `L` | Back / forward |
+| `J` `K` | Previous, next tab |
+| `H` `L` | Back, forward |
 | `r` `x` `X` | Reload, close, reopen tab |
 | `yt` | Duplicate tab |
 | `yy` | Copy the page URL |
-| `p` `P` | Open the clipboard URL here / in a new tab |
+| `p` `P` | Open the clipboard URL here, in a new tab |
 | `gi` | Focus the first text field |
 | `gf` | Focus an iframe by hint |
 | `i` | Suspend vimplug until Esc |
 | `-` `=` `m` | Media volume down, up, mute |
-| `?` | Keyboard help |
-| `<Esc>` | Leave the current mode |
-| `:` | Run any action by name |
 | `/` `n` `N` | Find in page, next, previous |
 | `M` `` ` `` | Set a mark, jump to it |
 | `v` | Visual mode |
+| `:` | Run any action by name |
+| `?` | Keyboard help |
+| `<Esc>` | Leave the current mode |
 
-`m` stays vimkey's mute, so marks use `M` and `` ` `` instead of vim's `m`.
+`m` keeps vimkey's mute, so marks use `M` and `` ` `` rather than vim's `m`.
 
-During `f`, characters that are not a hint label narrow the hints by link text, and the
-last remaining candidate fires on its own.
+While hints are showing, characters that are not a hint label narrow the hints by link
+text, and the last remaining candidate fires on its own.
 
 In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection, `y` copies it, and
 `<Esc>` cancels.
 
 Clicking the toolbar button turns vimplug off for the site you are on, and on again. The
-button shows `off` where it is disabled.
+button reads `off` where it is disabled.
 
 ## Configuration
 
@@ -73,8 +78,6 @@ The settings page has two views over one configuration. **Keys** lists every act
 its key; click a key and press the one you want. **Text** is the same configuration as
 text. The Keys view edits that text in place through the parser's source spans, so your
 comments and layout survive a rebind.
-
-Bindings and options are one block of text, stored as written so comments survive edits.
 
 ```
 map <C-d> scrollHalfDown
@@ -91,7 +94,7 @@ site mail.google.com {
   disable
 }
 
-set hintChars = "asdfghjkl"
+set hintChars = "fjdkslagh"
 set keyMatching = physical
 ```
 
@@ -108,7 +111,7 @@ an older file keeps working.
 
 ## Engine invariants
 
-Three properties hold by construction and are covered by regression tests. Changing any of
+Four properties hold by construction and are covered by regression tests. Changing any of
 them is a behaviour change, not a refactor.
 
 1. **No keydown listener exists in insert mode.** The mode machine is the only thing that
@@ -117,15 +120,31 @@ them is a behaviour change, not a refactor.
    with the page.
 3. **A disabled host never activates the engine.** Chrome excludes it from injection
    outright; Safari loads a fail-closed bootstrap that confirms the host first.
+4. **One engine per frame.** Saving settings re-registers content scripts and can deliver
+   the engine to a loading page twice, which would double every keystroke.
 
-A fourth property holds for the same reason: **one engine per frame.** Saving settings
-re-registers content scripts and can deliver the engine to a loading page twice, which
-would double every keystroke. A flag in the extension's isolated world prevents it.
+Hints and overlays render inside a shadow root and find highlights use the CSS Custom
+Highlight API, so nothing the engine draws touches the page's own markup or styles.
 
-## Budget
+## Development
+
+```sh
+pnpm check         # tsc --noEmit
+pnpm test          # unit tests, no build step
+pnpm build         # produces dist/chrome and dist/safari
+pnpm test:e2e      # builds, then drives the artifact in a real Chromium
+pnpm icons         # regenerates the icon set
+```
+
+Unit tests run on Node's built-in test runner straight from TypeScript, so there is no
+test framework and no compile step. End-to-end tests load `dist/chrome` into Chromium and
+exercise the built artifact, never a dev server.
 
 `content.js` must stay under 30KB gzip. `pnpm build` fails if it does not.
 
 ## License
 
-Not yet decided.
+GPL-3.0-or-later. See [LICENSE](LICENSE).
+
+vimkey is closed source, which is the reason this project exists; a copyleft license keeps
+any fork of vimplug from ending up the same way.

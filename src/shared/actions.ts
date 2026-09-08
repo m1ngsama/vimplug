@@ -1,8 +1,8 @@
-export type ActionScope = 'content' | 'background'
+type ActionScope = 'content' | 'background'
 
 export type ActionGroup = 'Scroll' | 'Navigation' | 'Tabs' | 'Open' | 'Media' | 'Modes'
 
-export interface ActionDef {
+interface ActionDef {
   id: string
   description: string
   scope: ActionScope

@@ -1,4 +1,4 @@
-export type SelectionCommand = [alter: string, direction: string, granularity: string]
+type SelectionCommand = [alter: string, direction: string, granularity: string]
 
 const MOVES: Record<string, SelectionCommand> = {
   l: ['extend', 'forward', 'character'],
