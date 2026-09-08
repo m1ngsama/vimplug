@@ -1,22 +1,15 @@
 import { advance, settled, type AxisState, type ScrollOptions } from './scroll-physics.ts'
+import { resolveScrollBox, windowBox, type ScrollBox } from './scroll-target.ts'
 
 interface ScrollDelta {
   top: number
   left: number
 }
 
-export interface Viewport {
-  height: number
-  scrollX: number
-  scrollY: number
-  maxX: number
-  maxY: number
-}
-
 export function scrollDelta(
   action: string,
   opts: { scrollStep: number },
-  v: Viewport,
+  v: Omit<ScrollBox, 'by'>,
 ): ScrollDelta | null {
   const d = opts.scrollStep
   const half = v.height / 2
@@ -60,16 +53,7 @@ const HELD: Record<string, { axis: 'y' | 'x'; dir: -1 | 1 } | undefined> = {
 
 const idle = (): AxisState => ({ current: 0, target: 0, dir: 0, heldMs: 0, movingMs: 0 })
 
-function viewport(): Viewport {
-  const doc = document.documentElement
-  return {
-    height: window.innerHeight,
-    scrollX: window.scrollX,
-    scrollY: window.scrollY,
-    maxX: Math.max(0, doc.scrollWidth - window.innerWidth),
-    maxY: Math.max(0, doc.scrollHeight - window.innerHeight),
-  }
-}
+
 
 export class Scroller {
   #axes: Record<'x' | 'y', AxisState> = { x: idle(), y: idle() }
@@ -82,13 +66,27 @@ export class Scroller {
   // stripping cannot do, and the unit tests run straight from TypeScript.
   readonly #opts: () => ScrollOptions
 
-  constructor(opts: () => ScrollOptions) {
+  readonly #focused: () => Element | null
+  #box: ScrollBox = windowBox()
+
+  constructor(opts: () => ScrollOptions, focused: () => Element | null = () => null) {
     this.#opts = opts
+    this.#focused = focused
   }
 
   // keyId null means a one-shot press with no key to release, such as the command palette.
   press(action: string, keyId: string | null): boolean {
-    const delta = scrollDelta(action, this.#opts(), viewport())
+    // The box is chosen per press, from the direction being asked for, so a pane that has
+    // hit its edge hands the scroll on to the region around it.
+    const probe = scrollDelta(action, this.#opts(), windowBox())
+    if (!probe) return false
+    const axis: 'x' | 'y' = probe.left !== 0 ? 'x' : 'y'
+    const dir: -1 | 1 = (probe.left || probe.top) >= 0 ? 1 : -1
+    if (settled(this.#axes.x) && settled(this.#axes.y)) {
+      this.#box = resolveScrollBox(this.#focused(), axis, dir)
+    }
+
+    const delta = scrollDelta(action, this.#opts(), this.#box)
     if (!delta) return false
 
     // An OS key repeat must not stack impulses; the held ramp already covers it.
@@ -157,7 +155,7 @@ export class Scroller {
         const want = Math.round(done ? axis.target : axis.current)
         const shift = want - this.#applied[key]
         if (shift !== 0) {
-          window.scrollBy({ [key === 'y' ? 'top' : 'left']: shift, behavior: 'instant' })
+          this.#box.by(key === 'x' ? shift : 0, key === 'y' ? shift : 0)
           this.#applied[key] = want
         }
       }

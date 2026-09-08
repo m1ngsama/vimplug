@@ -1,9 +1,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { scrollDelta, type Viewport } from './scroll.ts'
+import { scrollDelta } from './scroll.ts'
 
 const opts = { scrollStep: 60 }
-const view = (over: Partial<Viewport> = {}): Viewport => ({
+const view = (over: Record<string, number> = {}) => ({
   height: 800,
   scrollX: 0,
   scrollY: 0,

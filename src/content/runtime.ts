@@ -37,7 +37,10 @@ async function main(): Promise<void> {
   const matcher = new Matcher(site.bindings.normal, keyMatching)
   const boundIds = boundKeyIds(site.bindings.normal, keyMatching)
   const modes = new ModeMachine()
-  const scroller = new Scroller(() => site.options)
+  const scroller = new Scroller(
+    () => site.options,
+    () => deepActiveElement(document),
+  )
 
   let hint: HintSession | null = null
 

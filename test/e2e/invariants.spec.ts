@@ -26,6 +26,12 @@ const PAGES: Record<string, string> = {
         })
       </script>
     </body>`,
+  // The shape of Gmail, Slack and most docs sites: the page does not scroll, a pane does.
+  '/pane': `<body style="margin:0;height:100vh;overflow:hidden">
+      <div id="pane" style="height:100vh;overflow-y:auto" tabindex="0">
+        <div style="height:5000px">pane content</div>
+      </div>
+    </body>`,
   '/links': `<body style="height:5000px">
       <a id="a1" href="/tall">one</a>
       <a id="a2" href="/textarea">two</a>
@@ -152,6 +158,37 @@ test('a hint activates a control that only listens for pointer events', async ()
   await page.waitForTimeout(150)
   await page.keyboard.press('f')
   await expect.poll(() => page.title()).toBe('pointer-seen')
+  await page.close()
+})
+
+test('j scrolls the pane under focus, not the unscrollable document', async () => {
+  const page = await open('/pane')
+  await page.evaluate(() => document.getElementById('pane')!.focus())
+
+  await page.keyboard.press('j')
+  await expect
+    .poll(() => page.evaluate(() => document.getElementById('pane')!.scrollTop))
+    .toBeGreaterThan(0)
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  await page.close()
+})
+
+test('a pane is found from the viewport centre when nothing has focus', async () => {
+  const page = await open('/pane')
+  await page.keyboard.press('j')
+  await expect
+    .poll(() => page.evaluate(() => document.getElementById('pane')!.scrollTop))
+    .toBeGreaterThan(0)
+  await page.close()
+})
+
+test('G reaches the bottom of the pane, not of the document', async () => {
+  const page = await open('/pane')
+  await page.evaluate(() => document.getElementById('pane')!.focus())
+  await page.keyboard.press('Shift+g')
+  await expect
+    .poll(() => page.evaluate(() => document.getElementById('pane')!.scrollTop))
+    .toBeGreaterThan(3000)
   await page.close()
 })
 
