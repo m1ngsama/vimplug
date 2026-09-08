@@ -54,6 +54,19 @@ const PAGES: Record<string, string> = {
         }, true)
       </script>
     </body>`,
+  // Refocuses on a timer, regardless of events, so hiding focus events is not enough.
+  '/refocus': `<body style="height:5000px">
+      <input id="trap">
+      <script>setInterval(() => document.getElementById('trap').focus(), 50)</script>
+    </body>`,
+  // Two matches far apart, so n has somewhere to go.
+  '/twice': `<body>
+      <div style="height:1500px">top</div>
+      <p id="one">alpha marker</p>
+      <div style="height:1500px">mid</div>
+      <p id="two">beta marker</p>
+      <div style="height:1500px">end</div>
+    </body>`,
   // A match split across text nodes, and characters a regex would read as syntax.
   '/awkward': `<body>
       <div style="height:2000px">top</div>
