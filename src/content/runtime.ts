@@ -158,8 +158,11 @@ async function main(): Promise<void> {
     true,
   )
 
+  const fromInputMethod = (e: KeyboardEvent): boolean =>
+    composing || justEnded || e.isComposing || e.keyCode === 229
+
   const onKeydown = (e: KeyboardEvent) => {
-    if (composing || justEnded || e.isComposing || e.keyCode === 229) return
+    if (fromInputMethod(e)) return
 
     if (awaitingMark) {
       e.preventDefault()
@@ -222,7 +225,8 @@ async function main(): Promise<void> {
   const setHatch = (on: boolean) => {
     if (on && !escapeHatch) {
       escapeHatch = e => {
-        if (e.key === 'Escape') modes.enter('normal')
+        // Escape ends an IME candidate list too, and that one is not a request to leave.
+        if (e.key === 'Escape' && !fromInputMethod(e)) modes.enter('normal')
       }
       document.addEventListener('keydown', escapeHatch, true)
     } else if (!on && escapeHatch) {
