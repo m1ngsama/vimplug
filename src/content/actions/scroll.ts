@@ -58,7 +58,7 @@ const HELD: Record<string, { axis: 'y' | 'x'; dir: -1 | 1 } | undefined> = {
   scrollLeft: { axis: 'x', dir: -1 },
 }
 
-const idle = (): AxisState => ({ current: 0, target: 0, dir: 0, heldMs: 0 })
+const idle = (): AxisState => ({ current: 0, target: 0, dir: 0, heldMs: 0, movingMs: 0 })
 
 function viewport(): Viewport {
   const doc = document.documentElement
@@ -95,6 +95,12 @@ export class Scroller {
     if (keyId !== null && this.#held.has(keyId)) return true
 
     if (ABSOLUTE.has(action)) this.#cancelMotion()
+
+    // A motion starting from rest gets the full ease-in; one joining a move already under
+    // way must not restart it, or every repeat of d would stutter back to zero speed.
+    for (const key of ['x', 'y'] as const) {
+      if (settled(this.#axes[key])) this.#axes[key].movingMs = 0
+    }
 
     this.#axes.y.target += delta.top
     this.#axes.x.target += delta.left

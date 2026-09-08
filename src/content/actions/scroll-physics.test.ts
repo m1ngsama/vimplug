@@ -10,6 +10,7 @@ const idle = (over: Partial<AxisState> = {}): AxisState => ({
   target: 0,
   dir: 0,
   heldMs: 0,
+  movingMs: 0,
   ...over,
 })
 
@@ -77,4 +78,40 @@ test('a held axis reverses direction without a discontinuity', () => {
 test('a zero-length frame changes nothing', () => {
   const s = idle({ target: 60, dir: 1 })
   assert.deepEqual(advance(s, 0, smooth), s)
+})
+
+test('a long move eases over more time than a short one', () => {
+  const short = advance(idle({ target: 60 }), 16, smooth)
+  const long = advance(idle({ target: 2000 }), 16, smooth)
+
+  const shortFraction = short.current / 60
+  const longFraction = long.current / 2000
+  assert.ok(longFraction < shortFraction, `${longFraction} should be gentler than ${shortFraction}`)
+})
+
+test('easing time is capped so a jump to the end of a long page stays brisk', () => {
+  let s = idle({ target: 20000 })
+  for (let i = 0; i < 45; i += 1) s = advance(s, 16, smooth)
+  assert.ok(s.current > 20000 * 0.9, `only reached ${s.current} after 720ms`)
+})
+
+test('held scrolling keeps a small follow lag, so it stays responsive', () => {
+  let s = idle({ dir: 1 })
+  for (let i = 0; i < 40; i += 1) s = advance(s, 16, smooth)
+  assert.ok(s.target - s.current < 100, `lag grew to ${s.target - s.current}`)
+})
+
+test('motion eases in rather than peaking on its first frame', () => {
+  const first = advance(idle({ target: 2000 }), 16, smooth)
+  const later = advance(idle({ target: 2000, movingMs: 500 }), 16, smooth)
+  assert.ok(first.current < later.current / 5, `${first.current} vs ${later.current}`)
+})
+
+test('the ease-in is spent within a fifth of a second', () => {
+  let s = idle({ target: 2000 })
+  for (let i = 0; i < 12; i += 1) s = advance(s, 16, smooth)
+  const step = advance(s, 16, smooth).current - s.current
+  const settledStep =
+    advance({ ...s, movingMs: 5000 }, 16, smooth).current - s.current
+  assert.ok(Math.abs(step - settledStep) < 1, 'still ramping after 200ms')
 })
