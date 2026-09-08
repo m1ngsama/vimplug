@@ -79,8 +79,9 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
 
   if (type === 'runAction') {
     const id = String((msg as { id?: unknown }).id ?? '')
+    const count = Number((msg as { count?: unknown }).count ?? 1) || 1
     const tab = sender.tab
-    if (tab) void runTabAction(id, tab).then(ok => reply({ ok }))
+    if (tab) void runTabAction(id, tab, count).then(ok => reply({ ok }))
     else reply({ ok: false })
     return true
   }

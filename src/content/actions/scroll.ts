@@ -75,7 +75,7 @@ export class Scroller {
   }
 
   // keyId null means a one-shot press with no key to release, such as the command palette.
-  press(action: string, keyId: string | null): boolean {
+  press(action: string, keyId: string | null, count = 1): boolean {
     // The box is chosen per press, from the direction being asked for, so a pane that has
     // hit its edge hands the scroll on to the region around it.
     const probe = scrollDelta(action, this.#opts(), windowBox())
@@ -86,8 +86,11 @@ export class Scroller {
       this.#box = resolveScrollBox(this.#focused(), axis, dir)
     }
 
-    const delta = scrollDelta(action, this.#opts(), this.#box)
-    if (!delta) return false
+    const raw = scrollDelta(action, this.#opts(), this.#box)
+    if (!raw) return false
+    // A count multiplies a relative move. It cannot multiply a jump to the top.
+    const scale = ABSOLUTE.has(action) ? 1 : count
+    const delta = { top: raw.top * scale, left: raw.left * scale }
 
     // An OS key repeat must not stack impulses; the held ramp already covers it.
     if (keyId !== null && this.#held.has(keyId)) return true

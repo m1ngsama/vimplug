@@ -31,15 +31,16 @@ export interface ActionContext {
   startVisual: () => void
 }
 
-export function runAction(id: string, ctx: ActionContext): boolean {
+export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
   const { opts } = ctx
 
   if (SCOPE.get(id) === 'background') {
-    void chrome.runtime.sendMessage({ type: 'runAction', id }).catch(() => {})
+    void chrome.runtime.sendMessage({ type: 'runAction', id, count }).catch(() => {})
     return true
   }
 
-  if (runHistory(id) || runMedia(id, opts.volumeStep) || runFocusInput(id)) return true
+  if (runHistory(id, count) || runMedia(id, opts.volumeStep * count) || runFocusInput(id))
+    return true
 
   if (id === 'copyUrl' || id === 'openClipboard' || id === 'openClipboardNewTab') {
     void runClipboard(id, opts.searchEngine, openTarget)
@@ -63,7 +64,8 @@ export function runAction(id: string, ctx: ActionContext): boolean {
   }
 
   if (id === 'find' || id === 'findNext' || id === 'findPrev') {
-    ctx.find(id === 'find' ? 'open' : id === 'findNext' ? 1 : -1)
+    if (id === 'find') ctx.find('open')
+    else for (let i = 0; i < count; i += 1) ctx.find(id === 'findNext' ? 1 : -1)
     return true
   }
 

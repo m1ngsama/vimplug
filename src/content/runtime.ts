@@ -7,6 +7,7 @@ import { deepActiveElement, modeForFocus } from './focus.ts'
 import { runAction, openTarget, type ActionContext } from './actions/index.ts'
 import { Scroller } from './actions/scroll.ts'
 import { keyId } from '../shared/keys.ts'
+import { CountBuffer } from '../shared/count.ts'
 import { startHint, type HintSession } from './hint/index.ts'
 import { startOverlay } from './overlay/index.ts'
 import { createFind, type FindSession } from './find/index.ts'
@@ -37,6 +38,7 @@ async function main(): Promise<void> {
   const matcher = new Matcher(site.bindings.normal, keyMatching)
   const boundIds = boundKeyIds(site.bindings.normal, keyMatching)
   const modes = new ModeMachine()
+  const count = new CountBuffer()
   const scroller = new Scroller(
     () => site.options,
     () => deepActiveElement(document),
@@ -52,8 +54,8 @@ async function main(): Promise<void> {
   let awaitingMark: 'set' | 'jump' | null = null
 
   // The runtime owns key identity so actions never need to know which key ran them.
-  const dispatch = (id: string, key: string | null): boolean =>
-    scroller.press(id, key) || runAction(id, ctx)
+  const dispatch = (id: string, key: string | null, times = 1): boolean =>
+    scroller.press(id, key, times) || runAction(id, ctx, times)
 
   const ctx: ActionContext = {
     opts: site.options,
@@ -146,8 +148,18 @@ async function main(): Promise<void> {
 
     const key = fromEvent(e)
     if (!shouldHandle(key, boundIds, keyMatching)) return
+
+    // A digit only starts a count when no binding is half-typed, so g0 could still reach
+    // the matcher if it were ever bound.
+    if (!matcher.pending && count.feed(key)) {
+      e.preventDefault()
+      return
+    }
+
     const r = matcher.step(key)
-    if (r.kind === 'match' && dispatch(r.action, keyId(key, keyMatching))) e.preventDefault()
+    if (r.kind === 'none') count.reset()
+    if (r.kind === 'match' && dispatch(r.action, keyId(key, keyMatching), count.take()))
+      e.preventDefault()
   }
 
   const onKeyup = (e: KeyboardEvent) => scroller.release(keyId(fromEvent(e), keyMatching))

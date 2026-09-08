@@ -192,6 +192,37 @@ test('G reaches the bottom of the pane, not of the document', async () => {
   await page.close()
 })
 
+test('a count multiplies a scroll: 5j goes five steps', async () => {
+  const page = await open('/tall')
+  await page.keyboard.press('j')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(60)
+
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.keyboard.press('5')
+  await page.keyboard.press('j')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(300)
+  await page.close()
+})
+
+test('a count is spent once and does not linger', async () => {
+  const page = await open('/tall')
+  await page.keyboard.press('3')
+  await page.keyboard.press('j')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(180)
+
+  await page.keyboard.press('j')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(240)
+  await page.close()
+})
+
+test('a bare 0 stays a binding rather than starting a count', async () => {
+  const page = await open('/tall')
+  await page.keyboard.press('0')
+  await page.keyboard.press('j')
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(60)
+  await page.close()
+})
+
 test('invariant 1: typing in a textarea does not scroll', async () => {
   const page = await open('/textarea')
   await page.focus('#t')
