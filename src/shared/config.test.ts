@@ -103,3 +103,25 @@ test('every action in the registry resolves to a binding from the shipped defaul
 test('the shipped defaults contain no parse errors at all', () => {
   assert.deepEqual(parse(DEFAULT_DSL).errors, [])
 })
+
+test('theme defaults to system and every colour override defaults to empty', () => {
+  const o = resolveForHost('', 'a.com').options
+  assert.equal(o.theme, 'system')
+  assert.equal(o.themeAccent, '')
+  assert.equal(o.themeBg, '')
+})
+
+test('a scheme name outside the list is rejected like any other choice', () => {
+  assert.equal(resolveForHost('set theme = nonsense', 'a.com').options.theme, 'system')
+  assert.equal(resolveForHost('set theme = nord', 'a.com').options.theme, 'nord')
+})
+
+test('a colour override is taken verbatim', () => {
+  assert.equal(resolveForHost('set themeAccent = "#ff0000"', 'a.com').options.themeAccent, '#ff0000')
+})
+
+test('a theme can be set for one site only', () => {
+  const src = 'set theme = nord\nsite a.com {\n  set theme = gruvbox-dark\n}'
+  assert.equal(resolveForHost(src, 'a.com').options.theme, 'gruvbox-dark')
+  assert.equal(resolveForHost(src, 'b.com').options.theme, 'nord')
+})

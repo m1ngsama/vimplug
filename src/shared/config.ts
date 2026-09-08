@@ -2,6 +2,7 @@ import { ACTIONS } from './actions.ts'
 import { parseKeys, type KeyMatching } from './keys.ts'
 import type { Binding } from './matcher.ts'
 import { parse, type BindMode, type Stmt } from './dsl/parse.ts'
+import { SCHEME_NAMES } from './theme.ts'
 
 export interface Options {
   hintChars: string
@@ -11,6 +12,18 @@ export interface Options {
   scrollSmooth: boolean
   volumeStep: number
   searchEngine: string
+
+  theme: string
+  themeBg: string
+  themeFg: string
+  themeMuted: string
+  themeBorder: string
+  themeAccent: string
+  themeAccentFg: string
+  themeMatch: string
+  themeMatchCurrent: string
+  themeGround: string
+  themeScrim: string
 }
 
 interface SiteResolution {
@@ -29,6 +42,19 @@ const DEFAULT_OPTIONS: Options = {
   scrollSmooth: true,
   volumeStep: 0.1,
   searchEngine: 'https://www.google.com/search?q=%s',
+
+  // An empty override means "not overridden", so clearing one restores the scheme value.
+  theme: 'system',
+  themeBg: '',
+  themeFg: '',
+  themeMuted: '',
+  themeBorder: '',
+  themeAccent: '',
+  themeAccentFg: '',
+  themeMatch: '',
+  themeMatchCurrent: '',
+  themeGround: '',
+  themeScrim: '',
 }
 
 export const DEFAULT_DSL: string = ACTIONS.flatMap(a =>
@@ -46,7 +72,7 @@ function matches(pattern: string, host: string): boolean {
 
 interface OptionDef {
   key: keyof Options
-  type: 'text' | 'number' | 'boolean' | 'choice'
+  type: 'text' | 'number' | 'boolean' | 'choice' | 'color'
   choices?: string[]
 }
 
@@ -60,6 +86,18 @@ export const OPTION_SCHEMA: readonly OptionDef[] = [
   { key: 'sequenceTimeout', type: 'number' },
   { key: 'volumeStep', type: 'number' },
   { key: 'searchEngine', type: 'text' },
+
+  { key: 'theme', type: 'choice', choices: SCHEME_NAMES },
+  { key: 'themeAccent', type: 'color' },
+  { key: 'themeAccentFg', type: 'color' },
+  { key: 'themeBg', type: 'color' },
+  { key: 'themeFg', type: 'color' },
+  { key: 'themeMuted', type: 'color' },
+  { key: 'themeBorder', type: 'color' },
+  { key: 'themeMatch', type: 'color' },
+  { key: 'themeMatchCurrent', type: 'color' },
+  { key: 'themeGround', type: 'color' },
+  { key: 'themeScrim', type: 'color' },
 ]
 
 const BY_KEY = new Map(OPTION_SCHEMA.map(d => [d.key as string, d]))
