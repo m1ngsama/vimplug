@@ -96,7 +96,8 @@ button reads `off` where it is disabled.
 `/` searches as you type. `<CR>` commits the search: the panel closes, the matches stay,
 and `n` and `N` step through them. `<Esc>` cancels instead, putting the page back where it
 was before the search moved it. Once a search is committed, `<Esc>` in normal mode clears
-the highlights, the way `:noh` does.
+the highlights, the way `:noh` does. Queries are smartcase: `/error` ignores case, `/Error`
+does not.
 
 Keys pressed while an input method is composing belong to the input method, never to
 vimplug, so typing a word in Chinese, Japanese or Korean cannot fire a command.

@@ -116,6 +116,42 @@ test.describe('IME composition', () => {
   })
 })
 
+test.describe('mode indicator', () => {
+  // The badge lives in a closed shadow root, so the test asserts the host appears and goes
+  // rather than reading the text. indicator.test.ts covers which label each mode gets.
+  test('normal mode shows nothing', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    expect((await state(page)).panels).toBe(0)
+  })
+
+  test('i shows an indicator and Escape takes it away', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('i')
+    expect((await state(page)).panels).toBe(1)
+
+    await page.keyboard.press('Escape')
+    await expect.poll(async () => (await state(page)).panels).toBe(0)
+  })
+
+  test('visual mode shows an indicator', async ({ page }) => {
+    await loadEngine(page, `${base}/find`)
+    await page.keyboard.press('v')
+    expect((await state(page)).panels).toBe(1)
+
+    await page.keyboard.press('Escape')
+    await expect.poll(async () => (await state(page)).panels).toBe(0)
+  })
+
+  test('the indicator is themed rather than borrowing the page styles', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('i')
+    const accent = await page.evaluate(
+      () => (document.body.lastElementChild as HTMLElement).style.getPropertyValue('--vp-accent'),
+    )
+    expect(accent).not.toBe('')
+  })
+})
+
 test.describe('an action that cannot run must not swallow the key', () => {
   // The engine only calls preventDefault when an action reports that it ran. Reporting
   // success while doing nothing leaves the mode in normal with the listener still
