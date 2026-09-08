@@ -7,7 +7,11 @@ const path = `dist/${target}/content.js`
 
 const gz = gzipSync(readFileSync(path)).byteLength
 const raw = statSync(path).size
-console.info(`content.js  raw ${raw}B  gzip ${gz}B  limit ${LIMIT}B`)
+const pct = Math.round((gz / LIMIT) * 100)
+
+// The budget is on the transferred size, so lead with gzip; printing raw beside the limit
+// invites reading the wrong number as the one under test.
+console.info(`content.js  ${gz}B gzip of ${LIMIT}B budget (${pct}%), ${raw}B raw`)
 
 if (gz > LIMIT) {
   console.error(`content script exceeds ${LIMIT}B gzip`)
