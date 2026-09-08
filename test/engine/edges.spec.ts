@@ -62,22 +62,24 @@ test.describe('half-typed bindings', () => {
   test('Escape abandons a pending prefix', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await page.evaluate(() => window.scrollTo(0, 900))
+    const before = await page.evaluate(() => window.scrollY)
     await page.keyboard.press('g')
     await page.keyboard.press('Escape')
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(960)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(before + 60)
   })
 
   test('a prefix followed by an unbound key runs neither', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await page.evaluate(() => window.scrollTo(0, 900))
+    const before = await page.evaluate(() => window.scrollY)
     await page.keyboard.press('g')
     await page.keyboard.press('q')
     await page.waitForTimeout(200)
-    expect(await page.evaluate(() => window.scrollY)).toBe(900)
+    expect(await page.evaluate(() => window.scrollY)).toBe(before)
 
     await page.keyboard.press('j')
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(960)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(before + 60)
   })
 
   test('gg reaches the top through the prefix', async ({ page }) => {

@@ -42,13 +42,24 @@ test('an exact label match wins immediately', () => {
 })
 
 test('text that is not a label filters the candidates', () => {
-  assert.deepEqual(filterHints(items, 'thr'), { kind: 'filter', indexes: [2] })
+  assert.deepEqual(filterHints(items, 'thr'), { kind: 'filter', indexes: [2], by: 'text' })
+})
+
+// The caller draws the two cases differently: a label prefix can be struck through the
+// label, a text match cannot.
+test('a label prefix reports that it narrowed by label', () => {
+  assert.deepEqual(filterHints([{ label: 'fj', text: 'x' }, { label: 'fk', text: 'y' }], 'f'), {
+    kind: 'filter',
+    indexes: [0, 1],
+    by: 'label',
+  })
 })
 
 test('a filter matching several keeps them all', () => {
   assert.deepEqual(filterHints([...items, { label: 'f', text: 'threefold' }], 'thr'), {
     kind: 'filter',
     indexes: [2, 3],
+    by: 'text',
   })
 })
 
