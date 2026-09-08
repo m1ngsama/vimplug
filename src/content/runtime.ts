@@ -9,6 +9,7 @@ import { Scroller } from './actions/scroll.ts'
 import { keyId } from '../shared/keys.ts'
 import { CountBuffer } from '../shared/count.ts'
 import { startHint, type HintSession } from './hint/index.ts'
+import { resolveTheme } from '../shared/theme.ts'
 import { startOverlay } from './overlay/index.ts'
 import { createFind, type FindSession } from './find/index.ts'
 import { isMarkChar, saveMark, jumpMark } from './marks.ts'
@@ -39,6 +40,10 @@ async function main(): Promise<void> {
   const boundIds = boundKeyIds(site.bindings.normal, keyMatching)
   const modes = new ModeMachine()
   const count = new CountBuffer()
+  const theme = resolveTheme(
+    site.options,
+    window.matchMedia('(prefers-color-scheme: dark)').matches,
+  )
   const scroller = new Scroller(
     () => site.options,
     () => deepActiveElement(document),
@@ -67,14 +72,15 @@ async function main(): Promise<void> {
             return r.width > 0 && r.height > 0
           })
         : undefined
-      const session = startHint(
-        site.options.hintChars,
+      const session = startHint({
+        chars: site.options.hintChars,
         newTab,
-        openTarget,
-        () => modes.enter('normal'),
-        targets,
         copy,
-      )
+        theme,
+        open: openTarget,
+        onInvalid: () => modes.enter('normal'),
+        targets,
+      })
       if (!session) return
       hint = session
       modes.enter('hint')

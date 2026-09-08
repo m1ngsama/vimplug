@@ -1,6 +1,7 @@
 import { generateLabels } from './labels.ts'
 import { collectTargets } from './collect.ts'
 import { hintText, filterHints } from './text.ts'
+import { applyTheme, type Tokens } from '../../shared/theme.ts'
 
 type FeedResult = 'pending' | 'done' | 'none'
 
@@ -20,9 +21,9 @@ const STYLE = `
 .h {
   position: fixed;
   z-index: 2147483647;
-  background: #ffd76e;
-  color: #21201c;
-  border: 1px solid #b8933a;
+  background: var(--vp-accent);
+  color: var(--vp-accent-fg);
+  border: 1px solid color-mix(in srgb, var(--vp-accent-fg) 45%, var(--vp-accent));
   border-radius: 3px;
   padding: 0 3px;
   font: bold 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -81,17 +82,21 @@ function activate(
   realClick(el)
 }
 
-export function startHint(
-  chars: string,
-  newTab: boolean,
-  open: (url: string, newTab: boolean) => void,
-  onInvalid: () => void,
-  targets: Element[] = collectTargets(document),
-  copy = false,
-): HintSession | null {
+export interface HintOptions {
+  chars: string
+  newTab: boolean
+  copy: boolean
+  theme: Tokens
+  open(url: string, newTab: boolean): void
+  onInvalid(): void
+  targets?: Element[]
+}
+
+export function startHint(o: HintOptions): HintSession | null {
+  const targets = o.targets ?? collectTargets(document)
   if (targets.length === 0) return null
 
-  const labels = generateLabels(targets.length, chars.toLowerCase())
+  const labels = generateLabels(targets.length, o.chars.toLowerCase())
   if (labels.length === 0) return null
 
   const host = document.createElement('div')
@@ -112,13 +117,14 @@ export function startHint(
     return { label: labels[i]!, text: hintText(el), el, node }
   })
 
+  applyTheme(host, o.theme)
   document.body.append(host)
 
   let typed = ''
 
   // Labels are positioned against the viewport, so anything that moves the page makes
   // them point at the wrong things. That, not a timer, is when hints stop being valid.
-  const invalidate = () => onInvalid()
+  const invalidate = () => o.onInvalid()
   window.addEventListener('scroll', invalidate, { passive: true })
   window.addEventListener('resize', invalidate, { passive: true })
 
@@ -130,7 +136,7 @@ export function startHint(
 
   const fire = (item: Item) => {
     cleanup()
-    activate(item.el, newTab, open, copy)
+    activate(item.el, o.newTab, o.open, o.copy)
   }
 
   return {
