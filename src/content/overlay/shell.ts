@@ -78,6 +78,7 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
   const close = (reason: CloseReason = 'cancel') => {
     if (closed) return
     closed = true
+    document.removeEventListener('keydown', guard, true)
     host.remove()
     cfg.onClose(reason)
   }
@@ -149,6 +150,25 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
       }
     }
   })
+
+  // Some pages refocus their own field on a timer, which owes nothing to our events and so
+  // survives the focus shield. Taking it back on the next task beats that timer.
+  input.addEventListener('blur', () => {
+    if (closed) return
+    setTimeout(() => {
+      if (!closed) input.focus()
+    }, 0)
+  })
+
+  // The timer can still win a single keystroke in the gap. While the panel is open the key
+  // is ours, so anything landing elsewhere is dropped rather than typed into the page.
+  const guard = (e: KeyboardEvent) => {
+    if (closed || e.target === host) return
+    e.preventDefault()
+    e.stopImmediatePropagation()
+    input.focus()
+  }
+  document.addEventListener('keydown', guard, true)
 
   wrap.addEventListener('mousedown', e => {
     if (e.target === wrap) close()

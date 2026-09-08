@@ -65,6 +65,35 @@ test.describe('find mode', () => {
     await expect.poll(async () => (await state(page)).panels).toBe(0)
   })
 
+  test('n steps to the next match after a commit, and N comes back', async ({ page }) => {
+    await loadEngine(page, `${base}/twice`)
+    await page.keyboard.press('/')
+    await page.keyboard.type('marker')
+    await page.keyboard.press('Enter')
+    await expect.poll(async () => (await state(page)).panels).toBe(0)
+    const first = await page.evaluate(() => window.scrollY)
+
+    await page.keyboard.press('n')
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(first)
+    const second = await page.evaluate(() => window.scrollY)
+
+    await page.keyboard.press('Shift+n')
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(second)
+  })
+
+  test('n wraps around rather than stopping at the last match', async ({ page }) => {
+    await loadEngine(page, `${base}/twice`)
+    await page.keyboard.press('/')
+    await page.keyboard.type('marker')
+    await page.keyboard.press('Enter')
+    const first = await page.evaluate(() => window.scrollY)
+
+    await page.keyboard.press('n')
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(first)
+    await page.keyboard.press('n')
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(first)
+  })
+
   // Incremental: every prefix has to miss too, so the first character must be absent.
   test('a query matching nothing leaves the page where it was', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
@@ -92,6 +121,19 @@ test.describe('a page fighting for focus', () => {
     await page.waitForTimeout(200)
     expect(await page.inputValue('#trap')).toBe('')
     await expect.poll(async () => (await state(page)).focusInOverlay).toBe(true)
+  })
+
+  // Hiding focus events is not enough against a page that refocuses on a timer: it never
+  // needed to hear about us in the first place.
+  test('/ holds the caret against a page that refocuses on a timer', async ({ page }) => {
+    await loadEngine(page, `${base}/refocus`)
+    await page.keyboard.press('/')
+    await page.waitForTimeout(400)
+    await expect.poll(async () => (await state(page)).focusInOverlay).toBe(true)
+
+    await page.keyboard.type('findme', { delay: 30 })
+    await page.waitForTimeout(200)
+    expect(await page.inputValue('#trap')).toBe('')
   })
 
   test('the overlay gives focus back when it closes', async ({ page }) => {
