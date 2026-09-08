@@ -18,14 +18,34 @@ interface Piece {
   start: number
 }
 
+// Inline elements continue a line, so text either side of one is a single run: a query for
+// "wordbreak" has to find wo<span>rd</span>break. Anything else starts a new line.
+const INLINE = new Set([
+  'A', 'ABBR', 'B', 'BDI', 'BDO', 'BR', 'CITE', 'CODE', 'DATA', 'DFN', 'EM', 'I', 'KBD',
+  'LABEL', 'MARK', 'OUTPUT', 'Q', 'S', 'SAMP', 'SMALL', 'SPAN', 'STRONG', 'SUB', 'SUP',
+  'TIME', 'U', 'VAR', 'WBR',
+])
+
+function blockOf(node: Text): Element | null {
+  let el = node.parentElement
+  while (el && INLINE.has(el.tagName)) el = el.parentElement
+  return el
+}
+
 function walk(): { text: string; pieces: Piece[] } {
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
   const pieces: Piece[] = []
   let text = ''
+  let lastBlock: Element | null = null
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     const node = n as Text
     const parent = node.parentElement
     if (!parent || parent.closest('script, style, noscript')) continue
+    // Without a break between blocks the nodes run together and a query matches across two
+    // unrelated elements: one ending in "a" beside one starting "dl" answers to "adl".
+    const block = blockOf(node)
+    if (lastBlock !== null && block !== lastBlock) text += '\n'
+    lastBlock = block
     pieces.push({ node, start: text.length })
     text += node.data
   }
@@ -91,7 +111,9 @@ export function createFind(theme: Tokens): FindSession | null {
   const reveal = () => {
     const cur = ranges[index]
     const rect = cur?.getBoundingClientRect()
-    if (!rect) return
+    // A box of nothing gives rect.top 0, and scrollBy would then walk the page upwards by
+    // a third of the viewport on every keystroke.
+    if (!rect || (rect.width === 0 && rect.height === 0)) return
     window.scrollBy({
       top: rect.top - window.innerHeight / 3,
       behavior: 'instant',
@@ -104,7 +126,9 @@ export function createFind(theme: Tokens): FindSession | null {
       const { text, pieces } = walk()
       ranges = collectMatches(text, query)
         .map(s => toRange(pieces, s.start, s.end))
-        .filter((r): r is Range => r !== null)
+        // Pages carry text in closed menus and templates. It is not on screen, so it is
+        // not a match, and a hidden range has no box to scroll to anyway.
+        .filter((r): r is Range => r !== null && r.getBoundingClientRect().width > 0)
       index = 0
       paint()
       if (ranges.length > 0) reveal()

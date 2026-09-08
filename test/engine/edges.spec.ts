@@ -206,6 +206,22 @@ test.describe('find over awkward text', () => {
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
   })
 
+  test('text in separate blocks does not run together into a match', async ({ page }) => {
+    await loadEngine(page, `${base}/blocks`)
+    await page.keyboard.press('/')
+    await page.keyboard.type('cd', { delay: 20 })
+    await page.waitForTimeout(400)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  })
+
+  test('text in a hidden element is not a match', async ({ page }) => {
+    await loadEngine(page, `${base}/hidden`)
+    await page.keyboard.press('/')
+    await page.keyboard.type('hiddenword', { delay: 20 })
+    await page.waitForTimeout(400)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  })
+
   test('a+b*c is a string, not a pattern', async ({ page }) => {
     await loadEngine(page, `${base}/awkward`)
     await page.keyboard.press('/')
