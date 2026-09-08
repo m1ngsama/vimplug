@@ -15,6 +15,7 @@ import { createFind, type FindSession } from './find/index.ts'
 import { isMarkChar, saveMark, jumpMark } from './marks.ts'
 import { beginVisual, moveVisual, yankVisual, clearVisual } from './visual.ts'
 import { createIndicator } from './indicator.ts'
+import { shieldOurFocus } from './focus-shield.ts'
 import type { Overlay } from './overlay/shell.ts'
 
 async function loadDsl(): Promise<string> {
@@ -285,5 +286,7 @@ async function main(): Promise<void> {
 
 if (!window.__vimplugLoaded) {
   window.__vimplugLoaded = true
+  // Before main() awaits the config: registration order decides who wins a focus fight.
+  shieldOurFocus()
   void main()
 }

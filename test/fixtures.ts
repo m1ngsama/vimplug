@@ -44,6 +44,16 @@ const PAGES: Record<string, string> = {
   // A site that focuses its own search box on load.
   '/steals': `<body style="height:5000px"><input id="s">
       <script>document.getElementById('s').focus()</script></body>`,
+  // A focus trap: the page takes focus back whenever anything else gains it. The shape of
+  // an editor, a modal, or any site that insists on keeping the caret.
+  '/focusfight': `<body style="height:5000px">
+      <input id="trap">
+      <script>
+        document.addEventListener('focusin', e => {
+          if (e.target.id !== 'trap') setTimeout(() => document.getElementById('trap').focus(), 0)
+        }, true)
+      </script>
+    </body>`,
   // A match split across text nodes, and characters a regex would read as syntax.
   '/awkward': `<body>
       <div style="height:2000px">top</div>
