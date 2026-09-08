@@ -189,6 +189,7 @@ pnpm test          # unit tests, no build step
 pnpm build         # produces dist/chrome and dist/safari
 pnpm test:engine   # mode semantics against dist/safari, in WebKit and Chromium
 pnpm test:e2e      # builds, then drives the artifact in a real Chromium
+pnpm sweep         # runs the engine over real sites; needs the network
 pnpm icons         # regenerates the icon set
 ```
 
@@ -202,6 +203,13 @@ WebKit behind a small `chrome.*` shim. That covers everything the engine does wi
 DOM, focus, event order and input methods. It cannot cover the extension plumbing —
 `registerContentScripts`, the disabled-site bootstrap, the background worker, the toolbar
 button — which stays manual on Safari and automated on Chrome via `pnpm test:e2e`.
+
+`pnpm sweep` runs the engine over pages nobody here wrote: GitHub, MDN, Wikipedia, Hacker
+News. Fixtures cover what we thought of, and one pass over real sites has found defects the
+whole fixture suite missed — site shortcuts firing on what is typed into our own panel,
+matches running together across unrelated elements, matches in hidden menus. It is not a CI
+job: it needs the network, and someone else's redesign would turn it red for no reason. Run
+it before a release.
 
 `content.js` must stay under 30KB gzip. `pnpm build` fails if it does not.
 
