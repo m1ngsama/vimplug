@@ -2,12 +2,31 @@ import { DEFAULT_DSL } from './config.ts'
 
 const KEY = 'dsl'
 
-export async function readDsl(): Promise<string> {
-  const got = await chrome.storage.local.get(KEY)
-  const stored = got[KEY]
-  return typeof stored === 'string' ? stored : DEFAULT_DSL
+export const CONFIG_VERSION = 1
+
+interface Stored {
+  version: number
+  dsl: string
 }
 
-export async function writeDsl(src: string): Promise<void> {
-  await chrome.storage.local.set({ [KEY]: src })
+// Version 0 stored the DSL as a bare string. Reads accept both shapes and writes always
+// produce the current one, so the upgrade happens the first time settings are saved.
+// A newer version than this build knows is passed through rather than discarded: an older
+// browser must not wipe what a newer one wrote.
+export function migrate(raw: unknown): string {
+  if (typeof raw === 'string') return raw
+  if (typeof raw === 'object' && raw !== null) {
+    const dsl = (raw as Partial<Stored>).dsl
+    if (typeof dsl === 'string') return dsl
+  }
+  return DEFAULT_DSL
+}
+
+export async function readDsl(): Promise<string> {
+  const got = await chrome.storage.local.get(KEY)
+  return migrate(got[KEY])
+}
+
+export async function writeDsl(dsl: string): Promise<void> {
+  await chrome.storage.local.set({ [KEY]: { version: CONFIG_VERSION, dsl } satisfies Stored })
 }

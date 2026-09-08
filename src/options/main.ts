@@ -5,7 +5,7 @@ import { resolveForHost, disabledHosts, DEFAULT_DSL, OPTION_SCHEMA } from '../sh
 import { parse } from '../shared/dsl/parse.ts'
 import { toNotation } from '../shared/keys.ts'
 import { fromEvent } from '../content/event-keys.ts'
-import { rebind, unbind, setOption, toggleSite } from './edits.ts'
+import { rebind, unbind, setOption, toggleSite } from '../shared/dsl/edits.ts'
 import { labelFor } from './labels.ts'
 
 const GROUPS: ActionGroup[] = ['Scroll', 'Navigation', 'Tabs', 'Open', 'Media', 'Modes']
@@ -182,6 +182,22 @@ function textView(): HTMLElement {
   const reset = el('button', { className: 'reset', textContent: 'Restore defaults' })
   reset.addEventListener('click', () => void save(DEFAULT_DSL).then(render))
 
+  const download = el('button', { className: 'reset', textContent: 'Export to a file' })
+  download.addEventListener('click', () => {
+    const url = URL.createObjectURL(new Blob([src], { type: 'text/plain' }))
+    const link = el('a', { href: url, download: 'vimplug.conf' })
+    link.click()
+    URL.revokeObjectURL(url)
+  })
+
+  const picker = el('input', { type: 'file', accept: '.conf,.txt,text/plain', hidden: true })
+  picker.addEventListener('change', () => {
+    const file = picker.files?.[0]
+    if (file) void file.text().then(text => save(text).then(render))
+  })
+  const upload = el('button', { className: 'reset', textContent: 'Import from a file' })
+  upload.addEventListener('click', () => picker.click())
+
   const main = el('main', {}, [
     el('p', { className: 'note' }, [
       'This text is the configuration. The Keys view edits it in place, so your comments ' +
@@ -189,6 +205,8 @@ function textView(): HTMLElement {
     ]),
     area,
     errors,
+    el('h2', { textContent: 'Move it between machines' }),
+    el('div', { className: 'sites' }, [download, upload, picker]),
     el('h2', { textContent: 'Start over' }),
     reset,
   ])

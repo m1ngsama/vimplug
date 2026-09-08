@@ -12,6 +12,8 @@ export function buildManifest(target: Target): Record<string, unknown> {
       '48': 'icon-48.png',
       '128': 'icon-128.png',
     },
+    // No default_popup: clicking should toggle the site outright, not open a menu.
+    action: { default_title: 'Toggle vimplug on this site' },
     permissions: ['scripting', 'storage', 'tabs'],
     host_permissions: ['<all_urls>'],
     // Safari rejects `type: module` on service workers and ignores open_in_tab.

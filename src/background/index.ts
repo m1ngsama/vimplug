@@ -1,7 +1,8 @@
-import { readDsl } from '../shared/storage.ts'
-import { registrationFor, isDisabled, REGISTRATION_ID } from './injection.ts'
+import { readDsl, writeDsl } from '../shared/storage.ts'
+import { registrationFor, isDisabled, hostOf, REGISTRATION_ID } from './injection.ts'
 import { runTabAction } from './tabs.ts'
 import { disabledHosts } from '../shared/config.ts'
+import { toggleSite } from '../shared/dsl/edits.ts'
 
 async function sync(): Promise<void> {
   const reg = registrationFor(__TARGET__, disabledHosts(await readDsl()))
@@ -9,7 +10,38 @@ async function sync(): Promise<void> {
   await chrome.scripting.registerContentScripts([reg])
 }
 
-chrome.runtime.onInstalled.addListener(() => void sync())
+async function offAt(host: string): Promise<boolean> {
+  return host !== '' && isDisabled(disabledHosts(await readDsl()), host)
+}
+
+async function refreshBadge(tab: chrome.tabs.Tab): Promise<void> {
+  if (tab.id === undefined) return
+  const off = await offAt(hostOf(tab.url))
+  await chrome.action.setBadgeText({ tabId: tab.id, text: off ? 'off' : '' })
+}
+
+chrome.action.onClicked.addListener(tab => {
+  const host = hostOf(tab.url)
+  if (host === '') return
+  void (async () => {
+    const src = await readDsl()
+    await writeDsl(toggleSite(src, host, !isDisabled(disabledHosts(src), host)))
+    await refreshBadge(tab)
+    if (tab.id !== undefined) await chrome.tabs.reload(tab.id)
+  })()
+})
+
+chrome.tabs.onActivated.addListener(info => {
+  void chrome.tabs.get(info.tabId).then(refreshBadge)
+})
+chrome.tabs.onUpdated.addListener((_id, change, tab) => {
+  if (change.status === 'complete') void refreshBadge(tab)
+})
+
+chrome.runtime.onInstalled.addListener(() => {
+  void chrome.action.setBadgeBackgroundColor({ color: '#8a6d1f' })
+  void sync()
+})
 chrome.runtime.onStartup.addListener(() => void sync())
 chrome.storage.onChanged.addListener(() => void sync())
 

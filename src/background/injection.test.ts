@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { registrationFor, isDisabled } from './injection.ts'
+import { registrationFor, isDisabled, hostOf } from './injection.ts'
 
 test('chrome uses excludeMatches for disabled hosts', () => {
   const r = registrationFor('chrome', ['youtube.com'])
@@ -51,4 +51,17 @@ test('isDisabled matches exact hosts', () => {
 test('isDisabled matches wildcard subdomains but not the bare host', () => {
   assert.equal(isDisabled(['*.a.com'], 'sub.a.com'), true)
   assert.equal(isDisabled(['*.a.com'], 'a.com'), false)
+})
+
+test('hostOf reads the hostname from a page URL', () => {
+  assert.equal(hostOf('https://example.com/a?b=1'), 'example.com')
+  assert.equal(hostOf('http://sub.example.com:8080/'), 'sub.example.com')
+})
+
+test('hostOf ignores anything the engine cannot run on', () => {
+  assert.equal(hostOf('chrome://extensions'), '')
+  assert.equal(hostOf('about:blank'), '')
+  assert.equal(hostOf('chrome-extension://abc/options.html'), '')
+  assert.equal(hostOf(undefined), '')
+  assert.equal(hostOf('not a url'), '')
 })

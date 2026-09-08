@@ -29,6 +29,17 @@ declare namespace chrome {
     function remove(tabId: number): Promise<void>
     function duplicate(tabId: number): Promise<Tab | undefined>
     function reload(tabId: number): Promise<void>
+    function get(tabId: number): Promise<Tab>
+    const onActivated: { addListener(cb: (info: { tabId: number }) => void): void }
+    const onUpdated: {
+      addListener(cb: (tabId: number, change: { status?: string }, tab: Tab) => void): void
+    }
+  }
+
+  namespace action {
+    const onClicked: { addListener(cb: (tab: tabs.Tab) => void): void }
+    function setBadgeText(details: { tabId?: number; text: string }): Promise<void>
+    function setBadgeBackgroundColor(details: { color: string }): Promise<void>
   }
 
   namespace windows {

@@ -1,5 +1,5 @@
-import { parse, type Stmt } from '../shared/dsl/parse.ts'
-import { replaceStmt, removeStmt, appendStmt } from '../shared/dsl/edit.ts'
+import { parse, type Stmt } from './parse.ts'
+import { replaceStmt, removeStmt, appendStmt } from './edit.ts'
 
 // Every edit goes through the parser's source spans, so comments and layout outside the
 // statement being changed survive untouched.

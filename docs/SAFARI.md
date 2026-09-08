@@ -117,6 +117,12 @@ python3 -m http.server 8000
 | 17 | settings, rebind | Open settings, click the key beside "Scroll down", press `d` | The key updates and `d` scrolls on any page |
 | 18 | settings, comments | Add a `#` comment in Text, rebind something in Keys, return to Text | The comment is still there |
 | 19 | settings, disable | Add a host under "Disabled sites", reload that host | vimplug does nothing there |
+| 20 | toolbar toggle | Click the toolbar button on any site | The badge reads `off`, the page reloads, and keys do nothing; clicking again restores it |
+| 21 | held scrolling | Hold `j` | The page accelerates smoothly and stops when released |
+| 22 | export and import | Export from the Text view, edit the file, import it back | The edited configuration is in force |
+
+Check 20 has no automated counterpart on either platform: Playwright drives pages, not the
+browser's own toolbar. The pieces underneath it are unit tested.
 
 Check 13 depends on the CSS Custom Highlight API. Safari has it from 17.2; on anything
 older the engine skips highlighting and only scrolls, which is the intended fallback.

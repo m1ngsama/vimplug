@@ -37,3 +37,14 @@ export function registrationFor(target: Target, disabled: string[]): Registratio
 export function isDisabled(disabled: string[], host: string): boolean {
   return disabled.some(p => (p.startsWith('*.') ? host.endsWith(p.slice(1)) : p === host))
 }
+
+// The toolbar button acts on the page's host, and only where the engine can run at all.
+export function hostOf(url: string | undefined): string {
+  if (!url) return ''
+  try {
+    const { protocol, hostname } = new URL(url)
+    return protocol === 'http:' || protocol === 'https:' ? hostname : ''
+  } catch {
+    return ''
+  }
+}

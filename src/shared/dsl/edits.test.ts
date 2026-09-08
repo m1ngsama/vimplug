@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { rebind, unbind, setOption, toggleSite } from './edits.ts'
-import { resolveForHost } from '../shared/config.ts'
+import { resolveForHost } from '../config.ts'
 
 const SRC = `# my bindings
 map j scrollDown

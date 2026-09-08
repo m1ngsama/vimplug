@@ -30,8 +30,10 @@ Defaults. Every one of them is rebindable; `?` shows the bindings actually in fo
 
 | Keys | Action |
 | --- | --- |
-| `j` `k` `h` `l` | Scroll |
+| `j` `k` `h` `l` | Scroll; hold to keep going |
 | `d` `u` | Scroll half a page |
+| `gg` `G` | Top, bottom |
+| `0` `$` | Left edge, right edge |
 | `f` | Hint clickable elements |
 | `F` | Hint, opening links in a new tab |
 | `o` | Open a URL or search |
@@ -61,6 +63,9 @@ last remaining candidate fires on its own.
 
 In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection, `y` copies it, and
 `<Esc>` cancels.
+
+Clicking the toolbar button turns vimplug off for the site you are on, and on again. The
+button shows `off` where it is disabled.
 
 ## Configuration
 
@@ -96,6 +101,10 @@ character instead.
 
 Where two `site` blocks match one host, the more specific pattern wins; ties go to
 whichever appears last.
+
+The Text view exports the configuration to a file and reads one back, which is how it
+moves between machines. Stored configurations carry a version and are migrated on read, so
+an older file keeps working.
 
 ## Engine invariants
 
