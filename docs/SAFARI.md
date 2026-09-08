@@ -74,6 +74,12 @@ each pinned by a test in `src/shared/manifest-def.test.ts`:
 | --- | --- |
 | `background.type: "module"` | Rejected. Background is built as IIFE for both targets. |
 | `options_ui.open_in_tab` | Ignored. Emitted for Chrome only. |
+| `history`, `bookmarks`, `sessions` permissions | Rejected. Requested for Chrome only. |
+
+Without those three permissions Safari degrades rather than breaks: `o` still searches
+open tabs and still opens URLs and searches, but offers no history or bookmarks; `b` finds
+nothing; and `X` cannot reopen a closed tab. Every call is guarded, so the absent APIs
+produce empty results instead of errors.
 
 ## `excludeMatches` is ignored
 

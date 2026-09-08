@@ -46,6 +46,11 @@ test('the omnibar needs history and bookmarks, and X needs sessions', () => {
   for (const p of ['history', 'bookmarks', 'sessions']) assert.ok(perms.includes(p), p)
 })
 
+test('safari asks for none of the three permissions it rejects', () => {
+  const perms = buildManifest('safari', '9.9.9').permissions as string[]
+  for (const p of ['history', 'bookmarks', 'sessions']) assert.equal(perms.includes(p), false, p)
+})
+
 test('both targets declare the icon set the stores and Safari need', () => {
   for (const t of ['chrome', 'safari'] as const) {
     const icons = buildManifest(t, '9.9.9').icons as Record<string, string>

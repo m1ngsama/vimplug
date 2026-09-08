@@ -72,7 +72,8 @@ export async function runTabAction(id: string, tab: chrome.tabs.Tab, count = 1):
       if (tabId !== undefined) await chrome.tabs.remove(tabId)
       return true
     case 'restoreTab':
-      await chrome.sessions.restore()
+      // Safari has no sessions API; there is nothing to reopen rather than a crash.
+      await chrome.sessions?.restore().catch(() => {})
       return true
     case 'duplicateTab':
       if (tabId !== undefined) await chrome.tabs.duplicate(tabId)

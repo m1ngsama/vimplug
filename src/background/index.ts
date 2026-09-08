@@ -48,7 +48,7 @@ chrome.runtime.onStartup.addListener(() => void sync())
 chrome.storage.onChanged.addListener(() => void sync())
 
 async function collect(query: string, bookmarksOnly: boolean): Promise<Suggestion[]> {
-  const marks = await chrome.bookmarks.search({ query }).catch(() => [])
+  const marks = await (chrome.bookmarks?.search({ query }) ?? Promise.resolve([])).catch(() => [])
   const fromMarks: Suggestion[] = marks.map(b => ({
     kind: 'bookmark',
     title: b.title,
@@ -58,7 +58,7 @@ async function collect(query: string, bookmarksOnly: boolean): Promise<Suggestio
 
   const [tabs, hist] = await Promise.all([
     chrome.tabs.query({}).catch(() => []),
-    chrome.history.search({ text: query, maxResults: 60 }).catch(() => []),
+    (chrome.history?.search({ text: query, maxResults: 60 }) ?? Promise.resolve([])).catch(() => []),
   ])
 
   return [

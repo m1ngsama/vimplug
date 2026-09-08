@@ -80,6 +80,10 @@ searching.
 Scrolling acts on the pane under the cursor, not only the document, so `j` works in apps
 whose page does not itself scroll.
 
+Safari does not grant extensions access to history, bookmarks or closed tabs, so there `o`
+searches open tabs only, `b` finds nothing, and `X` cannot reopen a tab. Everything else
+behaves the same on both browsers.
+
 While hints are showing, characters that are not a hint label narrow the hints by link
 text, and the last remaining candidate fires on its own.
 
