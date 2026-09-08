@@ -131,7 +131,11 @@ async function main(): Promise<void> {
         },
         id => dispatch(id, null),
         theme,
-        query => finder?.search(query),
+        query => {
+          // Typing past the last match must not leave the page on the result of whatever
+          // prefix matched before it.
+          if ((finder?.search(query) ?? 0) === 0 && origin) window.scrollTo(origin.x, origin.y)
+        },
       ).then(o => {
         overlay = o
       })
