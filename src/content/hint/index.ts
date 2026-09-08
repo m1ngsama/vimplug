@@ -30,8 +30,19 @@ const STYLE = `
   text-transform: uppercase;
   pointer-events: none;
   white-space: nowrap;
+  transform-origin: 0 0;
+  transition: opacity 90ms ease, transform 90ms ease, background-color 90ms ease;
 }
-.h[data-off] { opacity: .25 }
+/* The characters already typed, so the eye lands on what is left to press. */
+.h .done { opacity: .4 }
+.h[data-off] {
+  opacity: .35;
+  transform: scale(.92);
+  background: color-mix(in srgb, var(--vp-accent) 35%, transparent);
+}
+/* Narrowed by link text rather than by label: there is no prefix to mark. */
+.h[data-hit] { box-shadow: 0 0 0 2px color-mix(in srgb, var(--vp-accent) 45%, transparent) }
+@media (prefers-reduced-motion: reduce) { .h { transition: none } }
 `
 
 const FOCUSABLE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'IFRAME'])
@@ -160,8 +171,23 @@ export function startHint(o: HintOptions): HintSession | null {
 
       const live = new Set(result.indexes)
       items.forEach((i, n) => {
-        if (live.has(n)) i.node.removeAttribute('data-off')
-        else i.node.setAttribute('data-off', '')
+        if (!live.has(n)) {
+          i.node.setAttribute('data-off', '')
+          return
+        }
+        i.node.removeAttribute('data-off')
+        if (result.by === 'text') {
+          i.node.setAttribute('data-hit', '')
+        } else {
+          // Split only the survivors: a page can carry hundreds of hints and the first
+          // render must not pay for an animation none of them have started yet.
+          const done = document.createElement('span')
+          done.className = 'done'
+          done.textContent = i.label.slice(0, typed.length)
+          const rest = document.createElement('span')
+          rest.textContent = i.label.slice(typed.length)
+          i.node.replaceChildren(done, rest)
+        }
       })
       return 'pending'
     },

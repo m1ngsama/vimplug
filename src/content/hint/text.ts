@@ -24,11 +24,12 @@ interface HintItem {
 
 type FilterResult =
   | { kind: 'match'; index: number }
-  | { kind: 'filter'; indexes: number[] }
+  | { kind: 'filter'; indexes: number[]; by: 'label' | 'text' }
   | { kind: 'none' }
 
 // Typed characters are tried as a label first; anything else narrows by link text, which
-// is what makes hints usable on a page full of similar-looking links.
+// is what makes hints usable on a page full of similar-looking links. `by` tells the
+// caller which happened, because only a label prefix can be marked inside the label.
 export function filterHints(items: HintItem[], typed: string): FilterResult {
   const t = typed.toLowerCase()
 
@@ -36,10 +37,10 @@ export function filterHints(items: HintItem[], typed: string): FilterResult {
   if (exact !== -1) return { kind: 'match', index: exact }
 
   const byLabel = items.flatMap((i, n) => (i.label.startsWith(t) ? [n] : []))
-  if (byLabel.length > 0) return { kind: 'filter', indexes: byLabel }
+  if (byLabel.length > 0) return { kind: 'filter', indexes: byLabel, by: 'label' }
 
   const byText = items.flatMap((i, n) => (i.text.includes(t) ? [n] : []))
-  if (byText.length > 0) return { kind: 'filter', indexes: byText }
+  if (byText.length > 0) return { kind: 'filter', indexes: byText, by: 'text' }
 
   return { kind: 'none' }
 }
