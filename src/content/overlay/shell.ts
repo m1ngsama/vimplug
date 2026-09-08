@@ -65,6 +65,14 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
   input.placeholder = cfg.placeholder
   const list = document.createElement('ul')
 
+  // Our input lives in a shadow root, so retargeting shows the page a plain div as the
+  // event target. Every site's "is the user typing in a field?" check then says no and its
+  // single-key shortcuts fire on each character: on GitHub, typing a query runs the s
+  // shortcut and the caret is gone. Keys typed into the panel are ours.
+  for (const type of ['keydown', 'keypress', 'keyup', 'input']) {
+    host.addEventListener(type, e => e.stopPropagation())
+  }
+
   panel.append(input, list)
   wrap.append(panel)
   shadow.append(style, wrap)

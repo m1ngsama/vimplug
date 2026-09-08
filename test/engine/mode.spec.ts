@@ -136,6 +136,22 @@ test.describe('a page fighting for focus', () => {
     expect(await page.inputValue('#trap')).toBe('')
   })
 
+  // The bug this was all about: on GitHub, typing a query ran the site's own s shortcut,
+  // because a shadow root retargets our input to a plain div and every "is the user
+  // typing?" check on the web then says no.
+  test("a site's single-key shortcuts do not fire on what is typed in the panel", async ({
+    page,
+  }) => {
+    await loadEngine(page, `${base}/shortcuts`)
+    await page.keyboard.press('/')
+    await expect.poll(async () => (await state(page)).focusInOverlay).toBe(true)
+
+    await page.keyboard.type('cases', { delay: 30 })
+    await page.waitForTimeout(300)
+    await expect.poll(async () => (await state(page)).focusInOverlay).toBe(true)
+    expect(await page.evaluate(() => document.activeElement?.id)).not.toBe('site-search')
+  })
+
   test('the overlay gives focus back when it closes', async ({ page }) => {
     await loadEngine(page, `${base}/focusfight`)
     await page.keyboard.press('/')
