@@ -6,12 +6,18 @@ export interface Overlay {
   setRows(rows: Row[]): void
 }
 
+// Enter and Escape mean opposite things to a search: one keeps what it found, the other
+// puts the page back. The caller cannot tell them apart from onClose alone.
+export type CloseReason = 'cancel' | 'pick' | 'submit'
+
 interface OverlayConfig {
   placeholder: string
   rows: Row[]
   onPick(value: string, query: string, shift: boolean): void
-  onClose(): void
+  onClose(reason: CloseReason): void
   onInput?(query: string): void
+  // Lets Enter mean something when there are no rows to pick, as in find.
+  onSubmit?(query: string): void
   // Live sources rank their own results, so the shell must not filter them again.
   live?: boolean
   // Applied at render time against the live input, so a row standing for what was typed
@@ -70,11 +76,11 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
   let cursor = 0
   let closed = false
 
-  const close = () => {
+  const close = (reason: CloseReason = 'cancel') => {
     if (closed) return
     closed = true
     host.remove()
-    cfg.onClose()
+    cfg.onClose(reason)
   }
 
   let rows = cfg.rows
@@ -95,7 +101,7 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
         }
         li.addEventListener('mousedown', e => {
           e.preventDefault()
-          close()
+          close('pick')
           cfg.onPick(r.value, input.value, false)
         })
         return li
@@ -131,9 +137,17 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
     if (e.key === 'Enter') {
       e.preventDefault()
       const row = shown[cursor]
-      if (!row) return
-      close()
-      cfg.onPick(row.value, input.value, e.shiftKey)
+      if (row) {
+        close('pick')
+        cfg.onPick(row.value, input.value, e.shiftKey)
+        return
+      }
+      // A find has no rows, and vim's <CR> commits the search rather than doing nothing.
+      if (cfg.onSubmit) {
+        const query = input.value
+        close('submit')
+        cfg.onSubmit(query)
+      }
     }
   })
 

@@ -81,37 +81,51 @@ async function main(): Promise<void> {
         onInvalid: () => modes.enter('normal'),
         targets,
       })
-      if (!session) return
+      if (!session) return false
       hint = session
       modes.enter('hint')
+      return true
     },
     startVisual: () => {
-      if (beginVisual()) modes.enter('visual')
+      if (!beginVisual()) return false
+      modes.enter('visual')
+      return true
     },
     awaitMark: kind => {
       awaitingMark = kind
       modes.enter('pending')
+      return true
     },
-    clearFind: () => finder?.clear(),
+    clearFind: () => {
+      finder?.clear()
+      return true
+    },
     find: dir => {
-      if (!finder) return
-      if (dir !== 'open') {
-        finder.step(dir)
-        return
-      }
-      ctx.startOverlay('find')
+      // Opening does not need a finder: without the Custom Highlight API the panel still
+      // runs the search and scrolls to it, and only the painting is skipped.
+      if (dir === 'open') return ctx.startOverlay('find')
+      if (!finder) return false
+      finder.step(dir)
+      return true
     },
     startOverlay: kind => {
-      if (overlayOpen) return
+      if (overlayOpen) return false
       overlayOpen = true
+      // Where the page sat before an incremental search moved it, so cancelling can put it
+      // back the way aborting a vim search does.
+      const origin = kind === 'find' ? { x: window.scrollX, y: window.scrollY } : null
       modes.enter('command')
       void startOverlay(
         kind,
         site.bindings.normal,
         site.options.searchEngine,
-        () => {
+        reason => {
           overlay = null
           overlayOpen = false
+          if (origin && reason === 'cancel') {
+            finder?.clear()
+            window.scrollTo(origin.x, origin.y)
+          }
           modes.enter('normal')
         },
         id => dispatch(id, null),
@@ -120,10 +134,31 @@ async function main(): Promise<void> {
       ).then(o => {
         overlay = o
       })
+      return true
     },
   }
 
+  // An IME turns one word into a run of latin letters, and every one of them is also a
+  // binding. Safari ends the composition before delivering the final keydown, so
+  // isComposing is false on the key that closed the IME; justEnded covers that key, and
+  // clears on the next task, which is after the keydown but before anything the user
+  // means as a command.
+  let composing = false
+  let justEnded = false
+  document.addEventListener('compositionstart', () => (composing = true), true)
+  document.addEventListener(
+    'compositionend',
+    () => {
+      composing = false
+      justEnded = true
+      setTimeout(() => (justEnded = false), 0)
+    },
+    true,
+  )
+
   const onKeydown = (e: KeyboardEvent) => {
+    if (composing || justEnded || e.isComposing || e.keyCode === 229) return
+
     if (awaitingMark) {
       e.preventDefault()
       const kind = awaitingMark
