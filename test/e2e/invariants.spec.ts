@@ -580,7 +580,7 @@ async function openOptions(): Promise<Page> {
 test('the options page lists a keycap for every action', async () => {
   await setDsl(DEFAULT_DSL)
   const page = await openOptions()
-  expect(await page.locator('.cap').count()).toBe(ACTIONS.length)
+  expect(await page.locator('.cap:not(.preview-cap)').count()).toBe(ACTIONS.length)
   expect(await page.locator('.cap', { hasText: 'j' }).first().textContent()).toBe('j')
   await page.close()
 })
@@ -665,6 +665,62 @@ test('a second injection does not produce a second engine', async () => {
   await page.keyboard.press('j')
   await page.waitForTimeout(250)
   expect(await page.evaluate(() => window.scrollY)).toBe(60)
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
+test('a colour scheme reaches the hints drawn on the page', async () => {
+  await setDsl(`${DEFAULT_DSL}\nset theme = gruvbox-dark`)
+  const page = await open('/links')
+  await pressHint(page, 'f')
+
+  const accent = await page.evaluate(
+    () => (document.body.lastElementChild as HTMLElement).style.getPropertyValue('--vp-accent'),
+  )
+  expect(accent).toBe('#fabd2f')
+
+  await page.keyboard.press('Escape')
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
+test('a single override changes one token and leaves the others', async () => {
+  await setDsl(`${DEFAULT_DSL}\nset theme = nord\nset themeAccent = "#ff0000"`)
+  const page = await open('/links')
+  await pressHint(page, 'f')
+
+  const vars = await page.evaluate(() => {
+    const host = document.body.lastElementChild as HTMLElement
+    return {
+      accent: host.style.getPropertyValue('--vp-accent'),
+      bg: host.style.getPropertyValue('--vp-bg'),
+    }
+  })
+  expect(vars.accent).toBe('#ff0000')
+  expect(vars.bg).toBe('#2e3440')
+
+  await page.keyboard.press('Escape')
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
+test('find takes its colours off the page root and gives them back', async () => {
+  await setDsl(`${DEFAULT_DSL}\nset theme = nord`)
+  const page = await open('/find')
+
+  await pressOverlay(page, '/')
+  await page.keyboard.type('findme')
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')))
+    .toBe('#a3be8c')
+
+  // Escape closes the panel; a second one retires the search itself.
+  await page.keyboard.press('Escape')
+  await page.keyboard.press('Escape')
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')))
+    .toBe('')
+
   await page.close()
   await setDsl(DEFAULT_DSL)
 })

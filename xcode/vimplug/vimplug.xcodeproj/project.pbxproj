@@ -7,48 +7,48 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		58916102304FA8D5009A69D0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58916101304FA8D5009A69D0 /* AppDelegate.swift */; };
-		58916106304FA8D5009A69D0 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 58916104304FA8D5009A69D0 /* Main.html */; };
-		58916108304FA8D5009A69D0 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 58916107304FA8D5009A69D0 /* Icon.png */; };
-		5891610A304FA8D5009A69D0 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 58916109304FA8D5009A69D0 /* Style.css */; };
-		5891610C304FA8D5009A69D0 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 5891610B304FA8D5009A69D0 /* Script.js */; };
-		5891610E304FA8D5009A69D0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891610D304FA8D5009A69D0 /* ViewController.swift */; };
-		58916111304FA8D5009A69D0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5891610F304FA8D5009A69D0 /* Main.storyboard */; };
-		58916113304FA8D6009A69D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58916112304FA8D6009A69D0 /* Assets.xcassets */; };
-		5891611A304FA8D6009A69D0 /* vimplug Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 58916119304FA8D6009A69D0 /* vimplug Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		5891611F304FA8D6009A69D0 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891611E304FA8D6009A69D0 /* SafariWebExtensionHandler.swift */; };
-		58916137304FA8D6009A69D0 /* icon-16.png in Resources */ = {isa = PBXBuildFile; fileRef = 5891612B304FA8D6009A69D0 /* icon-16.png */; };
-		58916138304FA8D6009A69D0 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 5891612C304FA8D6009A69D0 /* background.js */; };
-		58916139304FA8D6009A69D0 /* icon-48.png in Resources */ = {isa = PBXBuildFile; fileRef = 5891612D304FA8D6009A69D0 /* icon-48.png */; };
-		5891613A304FA8D6009A69D0 /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = 5891612E304FA8D6009A69D0 /* options.js */; };
-		5891613B304FA8D6009A69D0 /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = 5891612F304FA8D6009A69D0 /* bootstrap.js */; };
-		5891613C304FA8D6009A69D0 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 58916130304FA8D6009A69D0 /* manifest.json */; };
-		5891613D304FA8D6009A69D0 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 58916131304FA8D6009A69D0 /* options.html */; };
-		5891613E304FA8D6009A69D0 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 58916132304FA8D6009A69D0 /* content.js */; };
-		5891613F304FA8D6009A69D0 /* icon-128.png in Resources */ = {isa = PBXBuildFile; fileRef = 58916133304FA8D6009A69D0 /* icon-128.png */; };
-		58916140304FA8D6009A69D0 /* icon-32.png in Resources */ = {isa = PBXBuildFile; fileRef = 58916134304FA8D6009A69D0 /* icon-32.png */; };
-		58916141304FA8D6009A69D0 /* options.css in Resources */ = {isa = PBXBuildFile; fileRef = 58916135304FA8D6009A69D0 /* options.css */; };
-		58916142304FA8D6009A69D0 /* icon-512.png in Resources */ = {isa = PBXBuildFile; fileRef = 58916136304FA8D6009A69D0 /* icon-512.png */; };
+		5818834E304FE087005F2872 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5818834D304FE087005F2872 /* AppDelegate.swift */; };
+		58188352304FE087005F2872 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 58188350304FE087005F2872 /* Main.html */; };
+		58188354304FE087005F2872 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 58188353304FE087005F2872 /* Icon.png */; };
+		58188356304FE087005F2872 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 58188355304FE087005F2872 /* Style.css */; };
+		58188358304FE087005F2872 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 58188357304FE087005F2872 /* Script.js */; };
+		5818835A304FE087005F2872 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58188359304FE087005F2872 /* ViewController.swift */; };
+		5818835D304FE087005F2872 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5818835B304FE087005F2872 /* Main.storyboard */; };
+		5818835F304FE088005F2872 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5818835E304FE088005F2872 /* Assets.xcassets */; };
+		58188366304FE088005F2872 /* vimplug Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 58188365304FE088005F2872 /* vimplug Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5818836B304FE088005F2872 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5818836A304FE088005F2872 /* SafariWebExtensionHandler.swift */; };
+		58188383304FE089005F2872 /* icon-16.png in Resources */ = {isa = PBXBuildFile; fileRef = 58188377304FE089005F2872 /* icon-16.png */; };
+		58188384304FE089005F2872 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 58188378304FE089005F2872 /* background.js */; };
+		58188385304FE089005F2872 /* icon-48.png in Resources */ = {isa = PBXBuildFile; fileRef = 58188379304FE089005F2872 /* icon-48.png */; };
+		58188386304FE089005F2872 /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = 5818837A304FE089005F2872 /* options.js */; };
+		58188387304FE089005F2872 /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = 5818837B304FE089005F2872 /* bootstrap.js */; };
+		58188388304FE089005F2872 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 5818837C304FE089005F2872 /* manifest.json */; };
+		58188389304FE089005F2872 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 5818837D304FE089005F2872 /* options.html */; };
+		5818838A304FE089005F2872 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 5818837E304FE089005F2872 /* content.js */; };
+		5818838B304FE089005F2872 /* icon-128.png in Resources */ = {isa = PBXBuildFile; fileRef = 5818837F304FE089005F2872 /* icon-128.png */; };
+		5818838C304FE089005F2872 /* icon-32.png in Resources */ = {isa = PBXBuildFile; fileRef = 58188380304FE089005F2872 /* icon-32.png */; };
+		5818838D304FE089005F2872 /* options.css in Resources */ = {isa = PBXBuildFile; fileRef = 58188381304FE089005F2872 /* options.css */; };
+		5818838E304FE089005F2872 /* icon-512.png in Resources */ = {isa = PBXBuildFile; fileRef = 58188382304FE089005F2872 /* icon-512.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		5891611B304FA8D6009A69D0 /* PBXContainerItemProxy */ = {
+		58188367304FE088005F2872 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 589160F6304FA8D5009A69D0 /* Project object */;
+			containerPortal = 58188342304FE087005F2872 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 58916118304FA8D6009A69D0;
+			remoteGlobalIDString = 58188364304FE088005F2872;
 			remoteInfo = "vimplug Extension";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		58916126304FA8D6009A69D0 /* Embed Foundation Extensions */ = {
+		58188372304FE088005F2872 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				5891611A304FA8D6009A69D0 /* vimplug Extension.appex in Embed Foundation Extensions */,
+				58188366304FE088005F2872 /* vimplug Extension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -56,42 +56,42 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		589160FE304FA8D5009A69D0 /* vimplug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = vimplug.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		58916101304FA8D5009A69D0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		58916105304FA8D5009A69D0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
-		58916107304FA8D5009A69D0 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
-		58916109304FA8D5009A69D0 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
-		5891610B304FA8D5009A69D0 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
-		5891610D304FA8D5009A69D0 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		58916110304FA8D5009A69D0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		58916112304FA8D6009A69D0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		58916114304FA8D6009A69D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		58916119304FA8D6009A69D0 /* vimplug Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "vimplug Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5891611E304FA8D6009A69D0 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
-		58916120304FA8D6009A69D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5891612B304FA8D6009A69D0 /* icon-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-16.png"; path = "../../../dist/safari/icon-16.png"; sourceTree = "<group>"; };
-		5891612C304FA8D6009A69D0 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../../dist/safari/background.js; sourceTree = "<group>"; };
-		5891612D304FA8D6009A69D0 /* icon-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-48.png"; path = "../../../dist/safari/icon-48.png"; sourceTree = "<group>"; };
-		5891612E304FA8D6009A69D0 /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = ../../../dist/safari/options.js; sourceTree = "<group>"; };
-		5891612F304FA8D6009A69D0 /* bootstrap.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = bootstrap.js; path = ../../../dist/safari/bootstrap.js; sourceTree = "<group>"; };
-		58916130304FA8D6009A69D0 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../dist/safari/manifest.json; sourceTree = "<group>"; };
-		58916131304FA8D6009A69D0 /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../../dist/safari/options.html; sourceTree = "<group>"; };
-		58916132304FA8D6009A69D0 /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../../dist/safari/content.js; sourceTree = "<group>"; };
-		58916133304FA8D6009A69D0 /* icon-128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-128.png"; path = "../../../dist/safari/icon-128.png"; sourceTree = "<group>"; };
-		58916134304FA8D6009A69D0 /* icon-32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-32.png"; path = "../../../dist/safari/icon-32.png"; sourceTree = "<group>"; };
-		58916135304FA8D6009A69D0 /* options.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = options.css; path = ../../../dist/safari/options.css; sourceTree = "<group>"; };
-		58916136304FA8D6009A69D0 /* icon-512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-512.png"; path = "../../../dist/safari/icon-512.png"; sourceTree = "<group>"; };
+		5818834A304FE087005F2872 /* vimplug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = vimplug.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5818834D304FE087005F2872 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		58188351304FE087005F2872 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		58188353304FE087005F2872 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		58188355304FE087005F2872 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		58188357304FE087005F2872 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		58188359304FE087005F2872 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		5818835C304FE087005F2872 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		5818835E304FE088005F2872 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		58188360304FE088005F2872 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		58188365304FE088005F2872 /* vimplug Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "vimplug Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5818836A304FE088005F2872 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		5818836C304FE088005F2872 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		58188377304FE089005F2872 /* icon-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-16.png"; path = "../../../dist/safari/icon-16.png"; sourceTree = "<group>"; };
+		58188378304FE089005F2872 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../../dist/safari/background.js; sourceTree = "<group>"; };
+		58188379304FE089005F2872 /* icon-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-48.png"; path = "../../../dist/safari/icon-48.png"; sourceTree = "<group>"; };
+		5818837A304FE089005F2872 /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = ../../../dist/safari/options.js; sourceTree = "<group>"; };
+		5818837B304FE089005F2872 /* bootstrap.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = bootstrap.js; path = ../../../dist/safari/bootstrap.js; sourceTree = "<group>"; };
+		5818837C304FE089005F2872 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../dist/safari/manifest.json; sourceTree = "<group>"; };
+		5818837D304FE089005F2872 /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../../dist/safari/options.html; sourceTree = "<group>"; };
+		5818837E304FE089005F2872 /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../../dist/safari/content.js; sourceTree = "<group>"; };
+		5818837F304FE089005F2872 /* icon-128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-128.png"; path = "../../../dist/safari/icon-128.png"; sourceTree = "<group>"; };
+		58188380304FE089005F2872 /* icon-32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-32.png"; path = "../../../dist/safari/icon-32.png"; sourceTree = "<group>"; };
+		58188381304FE089005F2872 /* options.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = options.css; path = ../../../dist/safari/options.css; sourceTree = "<group>"; };
+		58188382304FE089005F2872 /* icon-512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-512.png"; path = "../../../dist/safari/icon-512.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		589160FB304FA8D5009A69D0 /* Frameworks */ = {
+		58188347304FE087005F2872 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		58916116304FA8D6009A69D0 /* Frameworks */ = {
+		58188362304FE088005F2872 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -101,73 +101,73 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		589160F5304FA8D5009A69D0 = {
+		58188341304FE087005F2872 = {
 			isa = PBXGroup;
 			children = (
-				58916100304FA8D5009A69D0 /* vimplug */,
-				5891611D304FA8D6009A69D0 /* vimplug Extension */,
-				589160FF304FA8D5009A69D0 /* Products */,
+				5818834C304FE087005F2872 /* vimplug */,
+				58188369304FE088005F2872 /* vimplug Extension */,
+				5818834B304FE087005F2872 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		589160FF304FA8D5009A69D0 /* Products */ = {
+		5818834B304FE087005F2872 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				589160FE304FA8D5009A69D0 /* vimplug.app */,
-				58916119304FA8D6009A69D0 /* vimplug Extension.appex */,
+				5818834A304FE087005F2872 /* vimplug.app */,
+				58188365304FE088005F2872 /* vimplug Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		58916100304FA8D5009A69D0 /* vimplug */ = {
+		5818834C304FE087005F2872 /* vimplug */ = {
 			isa = PBXGroup;
 			children = (
-				58916101304FA8D5009A69D0 /* AppDelegate.swift */,
-				5891610D304FA8D5009A69D0 /* ViewController.swift */,
-				5891610F304FA8D5009A69D0 /* Main.storyboard */,
-				58916112304FA8D6009A69D0 /* Assets.xcassets */,
-				58916114304FA8D6009A69D0 /* Info.plist */,
-				58916103304FA8D5009A69D0 /* Resources */,
+				5818834D304FE087005F2872 /* AppDelegate.swift */,
+				58188359304FE087005F2872 /* ViewController.swift */,
+				5818835B304FE087005F2872 /* Main.storyboard */,
+				5818835E304FE088005F2872 /* Assets.xcassets */,
+				58188360304FE088005F2872 /* Info.plist */,
+				5818834F304FE087005F2872 /* Resources */,
 			);
 			path = vimplug;
 			sourceTree = "<group>";
 		};
-		58916103304FA8D5009A69D0 /* Resources */ = {
+		5818834F304FE087005F2872 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				58916104304FA8D5009A69D0 /* Main.html */,
-				58916107304FA8D5009A69D0 /* Icon.png */,
-				58916109304FA8D5009A69D0 /* Style.css */,
-				5891610B304FA8D5009A69D0 /* Script.js */,
+				58188350304FE087005F2872 /* Main.html */,
+				58188353304FE087005F2872 /* Icon.png */,
+				58188355304FE087005F2872 /* Style.css */,
+				58188357304FE087005F2872 /* Script.js */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		5891611D304FA8D6009A69D0 /* vimplug Extension */ = {
+		58188369304FE088005F2872 /* vimplug Extension */ = {
 			isa = PBXGroup;
 			children = (
-				5891612A304FA8D6009A69D0 /* Resources */,
-				5891611E304FA8D6009A69D0 /* SafariWebExtensionHandler.swift */,
-				58916120304FA8D6009A69D0 /* Info.plist */,
+				58188376304FE089005F2872 /* Resources */,
+				5818836A304FE088005F2872 /* SafariWebExtensionHandler.swift */,
+				5818836C304FE088005F2872 /* Info.plist */,
 			);
 			path = "vimplug Extension";
 			sourceTree = "<group>";
 		};
-		5891612A304FA8D6009A69D0 /* Resources */ = {
+		58188376304FE089005F2872 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				5891612B304FA8D6009A69D0 /* icon-16.png */,
-				5891612C304FA8D6009A69D0 /* background.js */,
-				5891612D304FA8D6009A69D0 /* icon-48.png */,
-				5891612E304FA8D6009A69D0 /* options.js */,
-				5891612F304FA8D6009A69D0 /* bootstrap.js */,
-				58916130304FA8D6009A69D0 /* manifest.json */,
-				58916131304FA8D6009A69D0 /* options.html */,
-				58916132304FA8D6009A69D0 /* content.js */,
-				58916133304FA8D6009A69D0 /* icon-128.png */,
-				58916134304FA8D6009A69D0 /* icon-32.png */,
-				58916135304FA8D6009A69D0 /* options.css */,
-				58916136304FA8D6009A69D0 /* icon-512.png */,
+				58188377304FE089005F2872 /* icon-16.png */,
+				58188378304FE089005F2872 /* background.js */,
+				58188379304FE089005F2872 /* icon-48.png */,
+				5818837A304FE089005F2872 /* options.js */,
+				5818837B304FE089005F2872 /* bootstrap.js */,
+				5818837C304FE089005F2872 /* manifest.json */,
+				5818837D304FE089005F2872 /* options.html */,
+				5818837E304FE089005F2872 /* content.js */,
+				5818837F304FE089005F2872 /* icon-128.png */,
+				58188380304FE089005F2872 /* icon-32.png */,
+				58188381304FE089005F2872 /* options.css */,
+				58188382304FE089005F2872 /* icon-512.png */,
 			);
 			name = Resources;
 			path = "vimplug Extension";
@@ -176,34 +176,34 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		589160FD304FA8D5009A69D0 /* vimplug */ = {
+		58188349304FE087005F2872 /* vimplug */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58916127304FA8D6009A69D0 /* Build configuration list for PBXNativeTarget "vimplug" */;
+			buildConfigurationList = 58188373304FE088005F2872 /* Build configuration list for PBXNativeTarget "vimplug" */;
 			buildPhases = (
-				589160FA304FA8D5009A69D0 /* Sources */,
-				589160FB304FA8D5009A69D0 /* Frameworks */,
-				589160FC304FA8D5009A69D0 /* Resources */,
-				58916126304FA8D6009A69D0 /* Embed Foundation Extensions */,
+				58188346304FE087005F2872 /* Sources */,
+				58188347304FE087005F2872 /* Frameworks */,
+				58188348304FE087005F2872 /* Resources */,
+				58188372304FE088005F2872 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				5891611C304FA8D6009A69D0 /* PBXTargetDependency */,
+				58188368304FE088005F2872 /* PBXTargetDependency */,
 			);
 			name = vimplug;
 			packageProductDependencies = (
 			);
 			productName = vimplug;
-			productReference = 589160FE304FA8D5009A69D0 /* vimplug.app */;
+			productReference = 5818834A304FE087005F2872 /* vimplug.app */;
 			productType = "com.apple.product-type.application";
 		};
-		58916118304FA8D6009A69D0 /* vimplug Extension */ = {
+		58188364304FE088005F2872 /* vimplug Extension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58916123304FA8D6009A69D0 /* Build configuration list for PBXNativeTarget "vimplug Extension" */;
+			buildConfigurationList = 5818836F304FE088005F2872 /* Build configuration list for PBXNativeTarget "vimplug Extension" */;
 			buildPhases = (
-				58916115304FA8D6009A69D0 /* Sources */,
-				58916116304FA8D6009A69D0 /* Frameworks */,
-				58916117304FA8D6009A69D0 /* Resources */,
+				58188361304FE088005F2872 /* Sources */,
+				58188362304FE088005F2872 /* Frameworks */,
+				58188363304FE088005F2872 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -213,123 +213,123 @@
 			packageProductDependencies = (
 			);
 			productName = "vimplug Extension";
-			productReference = 58916119304FA8D6009A69D0 /* vimplug Extension.appex */;
+			productReference = 58188365304FE088005F2872 /* vimplug Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		589160F6304FA8D5009A69D0 /* Project object */ = {
+		58188342304FE087005F2872 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
-					589160FD304FA8D5009A69D0 = {
+					58188349304FE087005F2872 = {
 						CreatedOnToolsVersion = 26.3;
 					};
-					58916118304FA8D6009A69D0 = {
+					58188364304FE088005F2872 = {
 						CreatedOnToolsVersion = 26.3;
 					};
 				};
 			};
-			buildConfigurationList = 589160F9304FA8D5009A69D0 /* Build configuration list for PBXProject "vimplug" */;
+			buildConfigurationList = 58188345304FE087005F2872 /* Build configuration list for PBXProject "vimplug" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 589160F5304FA8D5009A69D0;
+			mainGroup = 58188341304FE087005F2872;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 589160FF304FA8D5009A69D0 /* Products */;
+			productRefGroup = 5818834B304FE087005F2872 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				589160FD304FA8D5009A69D0 /* vimplug */,
-				58916118304FA8D6009A69D0 /* vimplug Extension */,
+				58188349304FE087005F2872 /* vimplug */,
+				58188364304FE088005F2872 /* vimplug Extension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		589160FC304FA8D5009A69D0 /* Resources */ = {
+		58188348304FE087005F2872 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58916108304FA8D5009A69D0 /* Icon.png in Resources */,
-				58916111304FA8D5009A69D0 /* Main.storyboard in Resources */,
-				5891610C304FA8D5009A69D0 /* Script.js in Resources */,
-				58916106304FA8D5009A69D0 /* Main.html in Resources */,
-				58916113304FA8D6009A69D0 /* Assets.xcassets in Resources */,
-				5891610A304FA8D5009A69D0 /* Style.css in Resources */,
+				58188354304FE087005F2872 /* Icon.png in Resources */,
+				5818835D304FE087005F2872 /* Main.storyboard in Resources */,
+				58188358304FE087005F2872 /* Script.js in Resources */,
+				58188352304FE087005F2872 /* Main.html in Resources */,
+				5818835F304FE088005F2872 /* Assets.xcassets in Resources */,
+				58188356304FE087005F2872 /* Style.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		58916117304FA8D6009A69D0 /* Resources */ = {
+		58188363304FE088005F2872 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5891613E304FA8D6009A69D0 /* content.js in Resources */,
-				5891613D304FA8D6009A69D0 /* options.html in Resources */,
-				5891613F304FA8D6009A69D0 /* icon-128.png in Resources */,
-				58916140304FA8D6009A69D0 /* icon-32.png in Resources */,
-				58916138304FA8D6009A69D0 /* background.js in Resources */,
-				58916142304FA8D6009A69D0 /* icon-512.png in Resources */,
-				5891613A304FA8D6009A69D0 /* options.js in Resources */,
-				5891613B304FA8D6009A69D0 /* bootstrap.js in Resources */,
-				58916137304FA8D6009A69D0 /* icon-16.png in Resources */,
-				5891613C304FA8D6009A69D0 /* manifest.json in Resources */,
-				58916141304FA8D6009A69D0 /* options.css in Resources */,
-				58916139304FA8D6009A69D0 /* icon-48.png in Resources */,
+				5818838A304FE089005F2872 /* content.js in Resources */,
+				58188389304FE089005F2872 /* options.html in Resources */,
+				5818838B304FE089005F2872 /* icon-128.png in Resources */,
+				5818838C304FE089005F2872 /* icon-32.png in Resources */,
+				58188384304FE089005F2872 /* background.js in Resources */,
+				5818838E304FE089005F2872 /* icon-512.png in Resources */,
+				58188386304FE089005F2872 /* options.js in Resources */,
+				58188387304FE089005F2872 /* bootstrap.js in Resources */,
+				58188383304FE089005F2872 /* icon-16.png in Resources */,
+				58188388304FE089005F2872 /* manifest.json in Resources */,
+				5818838D304FE089005F2872 /* options.css in Resources */,
+				58188385304FE089005F2872 /* icon-48.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		589160FA304FA8D5009A69D0 /* Sources */ = {
+		58188346304FE087005F2872 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5891610E304FA8D5009A69D0 /* ViewController.swift in Sources */,
-				58916102304FA8D5009A69D0 /* AppDelegate.swift in Sources */,
+				5818835A304FE087005F2872 /* ViewController.swift in Sources */,
+				5818834E304FE087005F2872 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		58916115304FA8D6009A69D0 /* Sources */ = {
+		58188361304FE088005F2872 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5891611F304FA8D6009A69D0 /* SafariWebExtensionHandler.swift in Sources */,
+				5818836B304FE088005F2872 /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		5891611C304FA8D6009A69D0 /* PBXTargetDependency */ = {
+		58188368304FE088005F2872 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 58916118304FA8D6009A69D0 /* vimplug Extension */;
-			targetProxy = 5891611B304FA8D6009A69D0 /* PBXContainerItemProxy */;
+			target = 58188364304FE088005F2872 /* vimplug Extension */;
+			targetProxy = 58188367304FE088005F2872 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		58916104304FA8D5009A69D0 /* Main.html */ = {
+		58188350304FE087005F2872 /* Main.html */ = {
 			isa = PBXVariantGroup;
 			children = (
-				58916105304FA8D5009A69D0 /* Base */,
+				58188351304FE087005F2872 /* Base */,
 			);
 			name = Main.html;
 			sourceTree = "<group>";
 		};
-		5891610F304FA8D5009A69D0 /* Main.storyboard */ = {
+		5818835B304FE087005F2872 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				58916110304FA8D5009A69D0 /* Base */,
+				5818835C304FE087005F2872 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -337,7 +337,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		58916121304FA8D6009A69D0 /* Debug */ = {
+		5818836D304FE088005F2872 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -400,7 +400,7 @@
 			};
 			name = Debug;
 		};
-		58916122304FA8D6009A69D0 /* Release */ = {
+		5818836E304FE088005F2872 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -455,7 +455,7 @@
 			};
 			name = Release;
 		};
-		58916124304FA8D6009A69D0 /* Debug */ = {
+		58188370304FE088005F2872 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -489,7 +489,7 @@
 			};
 			name = Debug;
 		};
-		58916125304FA8D6009A69D0 /* Release */ = {
+		58188371304FE088005F2872 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -523,7 +523,7 @@
 			};
 			name = Release;
 		};
-		58916128304FA8D6009A69D0 /* Debug */ = {
+		58188374304FE088005F2872 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -564,7 +564,7 @@
 			};
 			name = Debug;
 		};
-		58916129304FA8D6009A69D0 /* Release */ = {
+		58188375304FE088005F2872 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -608,34 +608,34 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		589160F9304FA8D5009A69D0 /* Build configuration list for PBXProject "vimplug" */ = {
+		58188345304FE087005F2872 /* Build configuration list for PBXProject "vimplug" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				58916121304FA8D6009A69D0 /* Debug */,
-				58916122304FA8D6009A69D0 /* Release */,
+				5818836D304FE088005F2872 /* Debug */,
+				5818836E304FE088005F2872 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58916123304FA8D6009A69D0 /* Build configuration list for PBXNativeTarget "vimplug Extension" */ = {
+		5818836F304FE088005F2872 /* Build configuration list for PBXNativeTarget "vimplug Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				58916124304FA8D6009A69D0 /* Debug */,
-				58916125304FA8D6009A69D0 /* Release */,
+				58188370304FE088005F2872 /* Debug */,
+				58188371304FE088005F2872 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58916127304FA8D6009A69D0 /* Build configuration list for PBXNativeTarget "vimplug" */ = {
+		58188373304FE088005F2872 /* Build configuration list for PBXNativeTarget "vimplug" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				58916128304FA8D6009A69D0 /* Debug */,
-				58916129304FA8D6009A69D0 /* Release */,
+				58188374304FE088005F2872 /* Debug */,
+				58188375304FE088005F2872 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 589160F6304FA8D5009A69D0 /* Project object */;
+	rootObject = 58188342304FE087005F2872 /* Project object */;
 }

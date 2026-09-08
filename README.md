@@ -126,6 +126,28 @@ character instead.
 Where two `site` blocks match one host, the more specific pattern wins; ties go to
 whichever appears last.
 
+### Colours
+
+`set theme = gruvbox-dark` recolours everything vimplug draws. Built in: `default-dark`,
+`default-light`, `gruvbox-dark`, `gruvbox-light`, `nord`, `catppuccin-mocha`,
+`catppuccin-latte`, `tokyo-night`, `solarized-dark`, `solarized-light`, and `system`,
+which picks a default from your desktop setting.
+
+Light and dark are separate schemes rather than a system setting. Hints are drawn on other
+people's pages and have to stand out against the page, not against your desktop.
+
+Any single colour can be overridden on top of a scheme, and a scheme can be set for one
+site alone:
+
+```
+set theme = nord
+set themeAccent = "#ff5f5f"
+
+site github.com {
+  set theme = gruvbox-light
+}
+```
+
 The Text view exports the configuration to a file and reads one back, which is how it
 moves between machines. Stored configurations carry a version and are migrated on read, so
 an older file keeps working.

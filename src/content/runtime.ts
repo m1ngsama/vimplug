@@ -92,6 +92,7 @@ async function main(): Promise<void> {
       awaitingMark = kind
       modes.enter('pending')
     },
+    clearFind: () => finder?.clear(),
     find: dir => {
       if (!finder) return
       if (dir !== 'open') {

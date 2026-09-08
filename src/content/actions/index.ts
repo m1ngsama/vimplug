@@ -30,6 +30,7 @@ export interface ActionContext {
   startHint: (newTab: boolean, frames?: boolean, copy?: boolean) => void
   startOverlay: (kind: OverlayKind) => void
   find: (dir: 1 | -1 | 'open') => void
+  clearFind: () => void
   awaitMark: (mode: 'set' | 'jump') => void
   startVisual: () => void
 }
@@ -94,6 +95,7 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
   }
 
   if (id === 'escape') {
+    ctx.clearFind()
     ctx.enter('normal')
     return true
   }

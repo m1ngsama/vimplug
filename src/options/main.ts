@@ -7,6 +7,9 @@ import { toNotation } from '../shared/keys.ts'
 import { fromEvent } from '../content/event-keys.ts'
 import { rebind, unbind, setOption, toggleSite } from '../shared/dsl/edits.ts'
 import { labelFor } from './labels.ts'
+import { resolveTheme, applyTheme } from '../shared/theme.ts'
+
+const prefersDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
 
 const GROUPS: ActionGroup[] = ['Scroll', 'Navigation', 'Tabs', 'Open', 'Media', 'Modes']
 
@@ -89,6 +92,15 @@ function keysView(): HTMLElement {
     }
   }
 
+  main.append(
+    el('h2', { textContent: 'Appearance' }),
+    el('p', { className: 'note' }, [
+      'Light and dark are separate schemes rather than a system setting: hints are drawn ' +
+        'on other people\u2019s pages, so they follow your choice, not your desktop.',
+    ]),
+    preview(),
+  )
+
   main.append(el('h2', { textContent: 'Settings' }))
   const opts = resolveForHost(src, 'example.com').options
   for (const def of OPTION_SCHEMA) {
@@ -112,6 +124,14 @@ function keysView(): HTMLElement {
         void save(setOption(src, def.key, select.value)).then(render),
       )
       field = select
+    } else if (def.type === 'color') {
+      const input = el('input', { type: 'color', value: current || '#000000' })
+      input.addEventListener('change', () =>
+        void save(setOption(src, def.key, input.value)).then(render),
+      )
+      const reset = el('button', { className: 'clear', textContent: 'Reset' })
+      reset.addEventListener('click', () => void save(setOption(src, def.key, '')).then(render))
+      field = el('span', { className: 'colour' }, [input, current ? reset : el('span')])
     } else {
       const input = el('input', { type: def.type === 'number' ? 'number' : 'text', value: current })
       input.addEventListener('change', () =>
@@ -214,7 +234,27 @@ function textView(): HTMLElement {
   return main
 }
 
+function preview(): HTMLElement {
+  const hint = el('span', { className: 'cap preview-cap', textContent: 'fj' })
+  hint.style.background = 'var(--vp-accent)'
+  hint.style.color = 'var(--vp-accent-fg)'
+  hint.style.borderColor = 'var(--vp-accent-fg)'
+
+  return el('div', { className: 'preview' }, [
+    hint,
+    el('div', { className: 'preview-row' }, [
+      el('span', {}, ['Open a URL or search']),
+      el('span', { className: 'sub', textContent: 'tab  https://example.com' }),
+    ]),
+    el('span', { className: 'preview-mark', textContent: 'a search match' }),
+  ])
+}
+
 function render(): void {
+  applyTheme(
+    document.documentElement,
+    resolveTheme(resolveForHost(src, 'example.com').options, prefersDark()),
+  )
   statusNode = statusNode ?? el('span', { className: 'status' })
 
   const tab = (id: 'keys' | 'text', text: string) => {

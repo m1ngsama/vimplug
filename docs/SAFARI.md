@@ -127,6 +127,8 @@ python3 -m http.server 8000
 | 22 | export and import | Export from the Text view, edit the file, import it back | The edited configuration is in force |
 | 23 | pane scrolling | Open Gmail or any app whose page does not scroll, press `j` | The content pane scrolls |
 | 24 | counts | Press `5j` | The page moves five steps, not one |
+| 26 | theme | Set `theme = gruvbox-dark`, press `f` | Hint labels are gruvbox yellow |
+| 27 | theme, settings | Open settings with a scheme set | The page itself uses that scheme |
 | 25 | omnibar | Press `o`, type part of an open tab's title | That tab is offered and Enter switches to it |
 
 Check 20 has no automated counterpart on either platform: Playwright drives pages, not the
