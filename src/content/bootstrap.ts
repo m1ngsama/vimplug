@@ -1,3 +1,5 @@
+import { shieldOurFocus } from './focus-shield.ts'
+
 // Safari path. Fail-closed: registers nothing and loads nothing until the background
 // confirms this host is enabled.
 async function boot(): Promise<void> {
@@ -8,4 +10,6 @@ async function boot(): Promise<void> {
   await import(chrome.runtime.getURL('content.js'))
 }
 
+// Before the awaits in boot(), or the page's own focus handlers get there first.
+shieldOurFocus()
 void boot()

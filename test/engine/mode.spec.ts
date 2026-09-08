@@ -74,6 +74,33 @@ test.describe('find mode', () => {
   })
 })
 
+test.describe('a page fighting for focus', () => {
+  test('/ keeps the caret in the panel against a focus trap', async ({ page }) => {
+    await loadEngine(page, `${base}/focusfight`)
+    await page.keyboard.press('/')
+    await page.waitForTimeout(300)
+    expect(await state(page)).toMatchObject({ panels: 1, focusInOverlay: true })
+  })
+
+  test('what is typed reaches the panel, not the page field', async ({ page }) => {
+    await loadEngine(page, `${base}/focusfight`)
+    await page.keyboard.press('/')
+    await page.waitForTimeout(300)
+    await page.keyboard.type('findme', { delay: 20 })
+    await page.waitForTimeout(200)
+    expect(await page.inputValue('#trap')).toBe('')
+    expect((await state(page)).focusInOverlay).toBe(true)
+  })
+
+  test('the overlay gives focus back when it closes', async ({ page }) => {
+    await loadEngine(page, `${base}/focusfight`)
+    await page.keyboard.press('/')
+    await page.waitForTimeout(300)
+    await page.keyboard.press('Escape')
+    await expect.poll(async () => (await state(page)).panels).toBe(0)
+  })
+})
+
 test.describe('IME composition', () => {
   test('keys sent while an IME is composing never run as commands', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
