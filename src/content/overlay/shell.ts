@@ -6,8 +6,7 @@ export interface Overlay {
   setRows(rows: Row[]): void
 }
 
-// Enter and Escape mean opposite things to a search: one keeps what it found, the other
-// puts the page back. The caller cannot tell them apart from onClose alone.
+// Enter keeps what a search found, Escape puts the page back; onClose alone cannot tell.
 export type CloseReason = 'cancel' | 'pick' | 'submit'
 
 interface OverlayConfig {

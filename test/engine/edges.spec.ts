@@ -1,11 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { loadEngine, serveFixtures, state, composingKey } from './harness.ts'
 
-// The edges that decide whether the engine is usable every day: half-typed bindings,
-// counts, pages that grab focus, and text that does not sit in one tidy node. Each one is
-// a thing a mainstream vim extension had to get right, and each runs in WebKit as well as
-// Chromium, because Safari is the target and Safari is WebKit.
-
 let base: string
 let stop: () => Promise<void>
 
@@ -203,7 +198,7 @@ test.describe('find over awkward text', () => {
   test('Escape in normal mode retires a committed search', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')
-    await page.keyboard.type('needlexyz')
+    await page.keyboard.type('findmethistext')
     await page.keyboard.press('Enter')
     await expect
       .poll(() =>

@@ -3,9 +3,7 @@ export interface Span {
   end: number
 }
 
-// smartcase: a capital in the query is a deliberate act, so it narrows the search. Compare
-// against the lowercased query rather than testing for /[A-Z]/, which would call a query
-// case sensitive over an accent or a non-latin script that has no case at all.
+// Not /[A-Z]/: that would call an accent or a caseless script case sensitive.
 const isCaseSensitive = (query: string): boolean => query !== query.toLowerCase()
 
 export function collectMatches(text: string, query: string): Span[] {

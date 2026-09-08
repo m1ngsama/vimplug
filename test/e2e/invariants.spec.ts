@@ -1,53 +1,12 @@
 import { test, expect, chromium, type BrowserContext, type Page } from '@playwright/test'
-import { createServer, type Server } from 'node:http'
 import { resolve } from 'node:path'
 import { DEFAULT_DSL } from '../../src/shared/config.ts'
 import { ACTIONS } from '../../src/shared/actions.ts'
+import { serveFixtures } from '../fixtures.ts'
 
 const EXT = resolve('dist/chrome')
 
-// Content scripts do not match about:blank or data: URLs, so fixtures need a real origin.
-const PAGES: Record<string, string> = {
-  '/tall': '<body style="height:5000px">hi</body>',
-  '/textarea': '<body style="height:5000px"><textarea id="t"></textarea></body>',
-  '/editable': '<body style="height:5000px"><div id="e" contenteditable></div></body>',
-  '/shadow': '<body style="height:5000px"><div id="h"></div></body>',
-  '/find': `<body>
-      <div style="height:2000px">top</div>
-      <p id="needle">findmethistext</p>
-      <div style="height:2000px">bottom</div>
-    </body>`,
-  // A control that only reacts to the pointer sequence, like YouTube's skip-ad button.
-  '/pointer': `<body style="height:5000px">
-      <button id="p">skip</button>
-      <script>
-        document.getElementById('p').addEventListener('pointerdown', () => {
-          document.title = 'pointer-seen'
-        })
-      </script>
-    </body>`,
-  // The shape of Gmail, Slack and most docs sites: the page does not scroll, a pane does.
-  '/pane': `<body style="margin:0;height:100vh;overflow:hidden">
-      <div id="pane" style="height:100vh;overflow-y:auto" tabindex="0">
-        <div style="height:5000px">pane content</div>
-      </div>
-    </body>`,
-  '/links': `<body style="height:5000px">
-      <a id="a1" href="/tall">one</a>
-      <a id="a2" href="/textarea">two</a>
-      <button id="b1" onclick="document.title='clicked'">three</button>
-    </body>`,
-  '/cmdk': `<body style="height:5000px"><div id="out"></div><script>
-      document.addEventListener('keydown', e => {
-        if (e.metaKey && e.key === 'k') {
-          e.preventDefault()
-          document.getElementById('out').textContent = 'page-saw-it'
-        }
-      })
-    </script></body>`,
-}
-
-let server: Server
+let stop: () => Promise<void>
 let base: string
 let ctx: BrowserContext
 
@@ -89,15 +48,7 @@ async function setDsl(dsl: string): Promise<void> {
 }
 
 test.beforeAll(async () => {
-  server = createServer((req, res) => {
-    const path = (req.url ?? '').split('?')[0] ?? ''
-    const body = PAGES[path] ?? '<body>not found</body>'
-    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
-    res.end(`<!doctype html><html>${body}</html>`)
-  })
-  await new Promise<void>(r => server.listen(0, '127.0.0.1', r))
-  const addr = server.address()
-  base = `http://127.0.0.1:${typeof addr === 'object' && addr ? addr.port : 0}`
+  ;({ base, stop } = await serveFixtures())
 
   // channel:'chromium' picks the full browser rather than the headless shell, which is
   // the build that loads MV3 extensions. Headless keeps the suite from stealing focus.
@@ -112,7 +63,7 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   await ctx?.close()
-  await new Promise<void>(r => server.close(() => r()))
+  await stop()
 })
 
 test('j scrolls the page in normal mode', async () => {

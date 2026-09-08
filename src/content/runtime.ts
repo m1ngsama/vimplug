@@ -45,7 +45,7 @@ async function main(): Promise<void> {
     site.options,
     window.matchMedia('(prefers-color-scheme: dark)').matches,
   )
-  const indicator = createIndicator(theme)
+  const showMode = createIndicator(theme)
   const scroller = new Scroller(
     () => site.options,
     () => deepActiveElement(document),
@@ -103,8 +103,7 @@ async function main(): Promise<void> {
       return true
     },
     find: dir => {
-      // Opening does not need a finder: without the Custom Highlight API the panel still
-      // runs the search and scrolls to it, and only the painting is skipped.
+      // Opening needs no finder: without the Highlight API only the painting is skipped.
       if (dir === 'open') return ctx.startOverlay('find')
       if (!finder) return false
       finder.step(dir)
@@ -113,8 +112,7 @@ async function main(): Promise<void> {
     startOverlay: kind => {
       if (overlayOpen) return false
       overlayOpen = true
-      // Where the page sat before an incremental search moved it, so cancelling can put it
-      // back the way aborting a vim search does.
+      // Cancelling a search puts the page back, so where it sat has to be kept.
       const origin = kind === 'find' ? { x: window.scrollX, y: window.scrollY } : null
       modes.enter('command')
       void startOverlay(
@@ -140,11 +138,8 @@ async function main(): Promise<void> {
     },
   }
 
-  // An IME turns one word into a run of latin letters, and every one of them is also a
-  // binding. Safari ends the composition before delivering the final keydown, so
-  // isComposing is false on the key that closed the IME; justEnded covers that key, and
-  // clears on the next task, which is after the keydown but before anything the user
-  // means as a command.
+  // Safari ends the composition before delivering the final keydown, so isComposing is
+  // false on the key that closed the IME; justEnded covers it and clears on the next task.
   let composing = false
   let justEnded = false
   document.addEventListener('compositionstart', () => (composing = true), true)
@@ -256,7 +251,7 @@ async function main(): Promise<void> {
     if (needsKeydown(next)) attach()
     else detach()
     setHatch(next === 'passthrough')
-    indicator.show(next)
+    showMode(next)
     // Covers the mode machine's own timeout, so a stale overlay cannot outlive hint mode.
     if (prev === 'hint' && next !== 'hint') {
       hint?.cancel()
