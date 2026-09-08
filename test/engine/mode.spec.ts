@@ -94,6 +94,30 @@ test.describe('find mode', () => {
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(first)
   })
 
+  // Typing past the last match must not leave the view sitting on a prefix's result.
+  test('a query that stops matching returns to where the search began', async ({ page }) => {
+    await loadEngine(page, `${base}/find`)
+    await page.keyboard.press('/')
+    await page.keyboard.type('find', { delay: 20 })
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
+
+    await page.keyboard.type('zzznope', { delay: 20 })
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+  })
+
+  test('a query that stops matching drops the highlights with it', async ({ page }) => {
+    await loadEngine(page, `${base}/find`)
+    await page.keyboard.press('/')
+    await page.keyboard.type('find', { delay: 20 })
+    await page.waitForTimeout(200)
+    await page.keyboard.type('zzznope', { delay: 20 })
+    await page.waitForTimeout(200)
+    const painted = await page.evaluate(
+      () => (CSS as unknown as { highlights: Map<string, unknown> }).highlights.size,
+    )
+    expect(painted).toBe(0)
+  })
+
   // Incremental: every prefix has to miss too, so the first character must be absent.
   test('a query matching nothing leaves the page where it was', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
