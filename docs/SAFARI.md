@@ -90,58 +90,39 @@ engine, and does nothing if it cannot confirm. See `src/background/injection.ts`
 
 ## Manual checklist
 
-Safari extensions cannot be driven by Playwright, so the automated invariant suite covers
-Chrome only. These steps mirror `test/e2e/invariants.spec.ts` one for one and must be run
-by hand against Safari before a release.
+Safari extensions cannot be driven by Playwright, and safaridriver cannot load an
+extension at all. But Safari is WebKit, and `pnpm test:engine` runs the engine in WebKit,
+so scrolling, modes, focus, counts, hints, overlays, find and input-method handling are
+all covered automatically. What is left here is the part that is not the engine: Safari's
+own extension plumbing, which nothing but Safari can answer for.
 
-Serve the fixtures over HTTP — content scripts do not match `about:blank` or `data:` URLs:
+Run these by hand before a release, with the extension loaded per "Loading for
+development" above. Serve fixtures over HTTP — content scripts do not match `about:blank`
+or `data:` URLs:
 
 ```sh
 pnpm build:safari
 python3 -m http.server 8000
 ```
 
-| # | Mirrors | Steps | Expected |
+| # | What only Safari can answer | Steps | Expected |
 | --- | --- | --- | --- |
-| 1 | `j scrolls the page` | Open a long page, press `j` | Page scrolls down |
-| 2 | invariant 1, textarea | Focus a `<textarea>`, type `jjjj` | Field reads `jjjj`, page does not scroll |
-| 3 | invariant 1, contenteditable | Focus a `contenteditable`, type `jjjj` | Text inserted, page does not scroll |
-| 4 | invariant 1, shadow DOM | Focus an `<input>` inside an open shadow root, type `jjjj` | Page does not scroll |
-| 5 | invariant 1, resume | Blur the field, press `j` | Page scrolls again |
-| 6 | invariant 2 | On a page binding Cmd+K, press Cmd+K | The page's own handler runs |
-| 7 | invariant 3 | Add `site <host> { disable }`, reload | `document.documentElement.dataset.vimplug` is undefined and `j` does nothing |
-| 8 | hint mode | Press `f` on a page with links, then the label shown | That link opens |
-| 9 | hint teardown | Press `f`, then Esc | Every label disappears |
-| 10 | overlay input | Press `o`, type two words with a space | The space lands in the field, not swallowed |
-| 11 | overlay isolation | Press `?`, type `jjjj` | The page does not scroll |
-| 12 | filtered hints | Press `f`, then type part of a link's text | Hints narrow to that link |
-| 13 | find | Press `/`, type a word further down the page | The word scrolls into view and is highlighted |
-| 14 | find teardown | Press Esc after a find | Highlighting clears and the page markup is unchanged |
-| 15 | marks | Scroll down, press `Ma`, scroll to top, press `` `a `` | The original position is restored |
-| 16 | visual | Press `v`, then `l` a few times, then `y` | Text is selected and copied |
-| 17 | settings, rebind | Open settings, click the key beside "Scroll down", press `d` | The key updates and `d` scrolls on any page |
-| 18 | settings, comments | Add a `#` comment in Text, rebind something in Keys, return to Text | The comment is still there |
-| 19 | settings, disable | Add a host under "Disabled sites", reload that host | vimplug does nothing there |
-| 20 | toolbar toggle | Click the toolbar button on any site | The badge reads `off`, the page reloads, and keys do nothing; clicking again restores it |
-| 21 | held scrolling | Hold `j` | The page accelerates smoothly and stops when released |
-| 22 | export and import | Export from the Text view, edit the file, import it back | The edited configuration is in force |
-| 23 | pane scrolling | Open Gmail or any app whose page does not scroll, press `j` | The content pane scrolls |
-| 24 | counts | Press `5j` | The page moves five steps, not one |
-| 26 | theme | Set `theme = gruvbox-dark`, press `f` | Hint labels are gruvbox yellow |
-| 27 | theme, settings | Open settings with a scheme set | The page itself uses that scheme |
-| 25 | omnibar | Press `o`, type part of an open tab's title | That tab is offered and Enter switches to it |
+| 1 | The background worker runs at all | Open a long page, press `j` | The page scrolls. The background is the only thing that registers content scripts, so if nothing responds anywhere it never started, and `background` must become `{ scripts: ['background.js'], persistent: false }` in `src/shared/manifest-def.ts`. The build already emits IIFE, so no build change is needed. |
+| 2 | The fail-closed bootstrap | Add `site <host> { disable }`, reload | `document.documentElement.dataset.vimplug` is undefined and `j` does nothing. This is the check that differs by platform: Chrome never injects, Safari injects `bootstrap.js` and stops there. |
+| 3 | The settings page is reachable | Settings > Extensions > vimplug > Settings | The page opens. Safari ignores `open_in_tab`, so this button is the only way in. |
+| 4 | Settings reach the page | Rebind "Scroll down" to `d`, then export from Text, edit the file, import it back | The rebind works on any page and the edited configuration is in force |
+| 5 | The toolbar button | Click it on any site | The badge reads `off`, the page reloads, keys do nothing; clicking again restores it. No automated counterpart on any platform: Playwright drives pages, not the browser's own toolbar. |
+| 6 | Permissions Safari withholds | Press `o` and type part of an open tab's title; then press `b`; then `X` | The tab is offered and Enter switches to it. `b` finds nothing and `X` cannot reopen a tab, and neither throws — Safari grants no `history`, `bookmarks` or `sessions`. |
+| 7 | Storage survives a restart | Scroll down, press `Ma`, quit and reopen Safari, press `` `a `` | The position is restored |
 
-Check 20 has no automated counterpart on either platform: Playwright drives pages, not the
-browser's own toolbar. The pieces underneath it are unit tested.
+Check 1 has been open since the project started and is the reason this table still exists.
 
-Check 13 depends on the CSS Custom Highlight API. Safari has it from 17.2; on anything
-older the engine skips highlighting and only scrolls, which is the intended fallback.
-
-Check 7 is the one that differs by platform: Chrome never injects, while Safari injects
-`bootstrap.js` and stops there. Both must end with no listener and no DOM changes.
+Find highlighting depends on the CSS Custom Highlight API, which Safari has from 17.2. On
+anything older the panel still opens and still scrolls to matches, and only the painting
+is skipped; `pnpm test:engine` covers that fallback.
 
 ## Known gaps
 
-- Safari extensions cannot be driven by Playwright. The automated invariant tests run
-  against Chrome only; the Safari equivalents are a manual checklist.
+- Safari extensions cannot be driven by Playwright, and safaridriver cannot load one. The
+  engine is covered in WebKit instead; Safari's extension plumbing stays a manual list.
 - iOS and iPadOS are not supported.
