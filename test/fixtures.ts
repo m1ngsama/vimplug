@@ -59,6 +59,19 @@ const PAGES: Record<string, string> = {
       <input id="trap">
       <script>setInterval(() => document.getElementById('trap').focus(), 50)</script>
     </body>`,
+  // GitHub's shape: a bare letter focuses the site's own search unless the user is judged
+  // to be typing. Retargeting shows such a check our host div, not our input.
+  '/shortcuts': `<body style="height:5000px">
+      <input id="site-search">
+      <script>
+        document.addEventListener('keydown', e => {
+          const t = e.target
+          const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
+            t.isContentEditable)
+          if (!typing && e.key === 's') document.getElementById('site-search').focus()
+        })
+      </script>
+    </body>`,
   // Two matches far apart, so n has somewhere to go.
   '/twice': `<body>
       <div style="height:1500px">top</div>
