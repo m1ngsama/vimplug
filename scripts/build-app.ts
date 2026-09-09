@@ -1,5 +1,9 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync, rmSync } from 'node:fs'
+import { resolve } from 'node:path'
+
+const LSREGISTER =
+  '/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister'
 
 const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }
 
@@ -26,7 +30,17 @@ execFileSync(
   { stdio: 'inherit' },
 )
 
+const built = 'dist/xcode/Build/Products/Release/vimplug.app'
 rmSync('dist/vimplug.app', { force: true, recursive: true })
-execFileSync('ditto', ['dist/xcode/Build/Products/Release/vimplug.app', 'dist/vimplug.app'])
+execFileSync('ditto', [built, 'dist/vimplug.app'])
+
+// xcodebuild registers its product with LaunchServices, so without this every build leaves
+// another vimplug in Safari's extension list, indistinguishable from the installed one.
+// `-u` exits 1 when the path was never scanned, which is the normal case on a first build.
+for (const app of [built, 'dist/vimplug.app']) {
+  try {
+    execFileSync(LSREGISTER, ['-u', resolve(app)], { stdio: 'ignore' })
+  } catch {}
+}
 
 console.info(`vimplug.app ${version} at dist/vimplug.app`)

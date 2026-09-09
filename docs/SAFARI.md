@@ -25,6 +25,12 @@ register the extension with Safari. Then:
    Every Website". Without site access `registerContentScripts` silently injects nothing,
    which looks identical to a broken build.
 
+Updating later is the same command plus a copy over the installed app:
+
+```sh
+pnpm build:app && ditto dist/vimplug.app /Applications/vimplug.app
+```
+
 The app is signed ad-hoc rather than left unsigned because entitlements are only written
 when something signs, and Safari will not load an appex that lost its sandbox entitlement.
 An ad-hoc signature satisfies Safari but not Gatekeeper, so a copy that reaches another Mac
@@ -82,11 +88,25 @@ which silently narrows the supported range. Set it back to 13.3 to match Safari 
 `xcodebuild` into `dist/xcode` and copies the result to `dist/vimplug.app`. Extension
 resources land at `vimplug.app/Contents/PlugIns/vimplug Extension.appex/Contents/Resources/`.
 
-Two settings there are load-bearing. `MARKETING_VERSION` is passed on the command line from
-`package.json`, because the project file holds a `1.0` placeholder that would otherwise ship
-as the app's version. And `CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO` must not be added to
-suppress `get-task-allow`: it drops the entire generated entitlement set, sandbox included,
-and Safari then refuses the extension.
+Three things in there are load-bearing.
+
+`MARKETING_VERSION` is passed on the command line from `package.json`, because the project
+file holds a `1.0` placeholder that would otherwise ship as the app's version.
+
+`CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO` must not be added to suppress `get-task-allow`: it
+drops the entire generated entitlement set, sandbox included, and Safari then refuses the
+extension.
+
+Both build products are unregistered from LaunchServices at the end. `xcodebuild` registers
+whatever it builds, so without that step every build adds another vimplug to Safari's
+extension list, identical in name, version and icon to the installed one and offering the
+same Uninstall button. Only `/Applications/vimplug.app` should ever be registered. To see
+what is:
+
+```sh
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+  -dump | grep -E 'path:.*vimplug.*\.app'
+```
 
 ## Loading for development
 
