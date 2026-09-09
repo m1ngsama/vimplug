@@ -16,6 +16,7 @@
     "build:chrome": "TARGET=chrome vite build && TARGET=chrome node scripts/manifest.ts && node scripts/check-size.ts chrome",
     "build:safari": "TARGET=safari vite build && TARGET=safari node scripts/manifest.ts && node scripts/check-size.ts safari",
     "build": "pnpm build:chrome && pnpm build:safari",
+    "build:app": "pnpm build:safari && node scripts/build-app.ts",
     "package": "pnpm build && rm -f dist/vimplug-chrome.zip && cd dist/chrome && zip -qr ../vimplug-chrome.zip ."
   },
   "devDependencies": {
