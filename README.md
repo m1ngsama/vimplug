@@ -20,14 +20,37 @@ answered as the specification for what must not go wrong.
 
 ## Install
 
+There is no signed release. Safari only keeps an extension installed if its containing app
+carries an Apple Developer ID, which costs $99 a year, so vimplug is built from source
+until that is funded ([#10](https://github.com/m1ngsama/vimplug/issues/10)). Chrome and Edge
+have the same story for now.
+
+**Safari.** Needs Safari 16.4+ (macOS 13.3+) and Xcode.
+
+```sh
+pnpm install && pnpm build:app
+```
+
+Drag `dist/vimplug.app` to `/Applications` and open it once — that is what puts vimplug in
+Safari's extension list. Then, in Safari:
+
+1. Settings > Advanced > check "Show features for web developers".
+2. Settings > Developer > check "Allow unsigned extensions". **This resets every time
+   Safari quits**, and an unsigned build needs it ticked again at the next launch. It is
+   the one thing a paid Apple account would remove.
+3. Settings > Extensions > enable vimplug, and set site access to "Always Allow on Every
+   Website". Without site access the extension silently does nothing, which looks exactly
+   like a broken build.
+
+[docs/SAFARI.md](docs/SAFARI.md) covers the rest, including what Safari withholds and what
+signing would change.
+
 **Chrome or Edge.** Build, then load `dist/chrome` at `chrome://extensions` with developer
 mode on.
 
 ```sh
 pnpm install && pnpm build
 ```
-
-**Safari.** See [docs/SAFARI.md](docs/SAFARI.md). Safari 16.4+ (macOS 13.3+) is required.
 
 ## Keys
 
@@ -187,6 +210,7 @@ Highlight API, so nothing the engine draws touches the page's own markup or styl
 pnpm check         # tsc --noEmit
 pnpm test          # unit tests, no build step
 pnpm build         # produces dist/chrome and dist/safari
+pnpm build:app     # builds dist/safari, then the Safari app at dist/vimplug.app
 pnpm test:engine   # mode semantics against dist/safari, in WebKit and Chromium
 pnpm test:e2e      # builds, then drives the artifact in a real Chromium
 pnpm sweep         # runs the engine over real sites; needs the network
