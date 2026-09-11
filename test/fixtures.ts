@@ -24,6 +24,26 @@ const PAGES: Record<string, string> = {
         <div style="height:5000px">pane content</div>
       </div>
     </body>`,
+  '/pager': `<body style="height:3000px">
+      <p>An article. <a href="/pager-more">Learn more</a></p>
+      <nav><a href="/pager-next">Next</a></nav>
+      <a href="/pager-hidden" style="display:none">Next</a>
+    </body>`,
+  '/pager-zh': `<body style="height:3000px">
+      <a href="/pager-home">首页</a>
+      <a href="/pager-prev">上一页</a>
+      <a href="/pager-next">下一页</a>
+    </body>`,
+  '/pager-link': `<head><link rel="next" href="/pager-next"></head>
+    <body style="height:3000px"><a href="/pager-anchor">Next</a></body>`,
+  '/pager-none': `<body style="height:3000px">
+      <a href="/tall">Contact</a>
+      <script>
+        document.addEventListener('keydown', e => {
+          if (e.key === ']') document.title += ']'
+        })
+      </script>
+    </body>`,
   '/links': `<body style="height:5000px">
       <a id="a1" href="/tall">one</a>
       <a id="a2" href="/textarea">two</a>

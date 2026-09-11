@@ -1,3 +1,5 @@
+import { onScreen } from './focus-input.ts'
+
 export interface PagerCandidate {
   text: string
   rel: string
@@ -5,21 +7,23 @@ export interface PagerCandidate {
 }
 
 const WORDS: Record<1 | -1, RegExp> = {
-  1: /(^|\s)(next|older|more|forward)(\s|$)|^[›»→>]+$/i,
-  [-1]: /(^|\s)(prev|previous|newer|back)(\s|$)|^[‹«←<]+$/i,
+  1: /(^|\s)(next|older|more|forward)(\s|$)|^[›»→>]+$|下一页|下页|下一章|下一张|后一页|下一頁|下頁|後頁/i,
+  [-1]: /(^|\s)(prev|previous|newer|back)(\s|$)|^[‹«←<]+$|上一页|上页|上一章|上一张|前一页|上一頁|上頁|前頁/i,
 }
 
-const REL: Record<1 | -1, string> = { 1: 'next', [-1]: 'prev' }
+const RELS: Record<1 | -1, string[]> = { 1: ['next'], [-1]: ['prev', 'previous'] }
+
+const BY_REL = 2
 
 export function pagerScore(candidate: PagerCandidate, dir: 1 | -1): number {
-  const rel = candidate.rel.toLowerCase().trim()
-  if (rel === REL[dir] || (dir === -1 && rel === 'previous')) return 10
-  if (rel !== '' && (rel === 'next' || rel === 'prev' || rel === 'previous')) return 0
+  const rels = candidate.rel.toLowerCase().split(/\s+/)
+  if (RELS[dir].some(r => rels.includes(r))) return BY_REL
+  if (RELS[dir === 1 ? -1 : 1].some(r => rels.includes(r))) return 0
 
-  const pattern = WORDS[dir]
-  if (pattern.test(candidate.text.trim())) return 5
-  if (pattern.test(candidate.ariaLabel.trim())) return 4
-  return 0
+  const label = [candidate.text, candidate.ariaLabel]
+    .map(s => s.trim())
+    .find(s => WORDS[dir].test(s))
+  return label ? 1 / label.split(/\s+/).length : 0
 }
 
 export function pickPager(candidates: PagerCandidate[], dir: 1 | -1): number {
@@ -27,7 +31,7 @@ export function pickPager(candidates: PagerCandidate[], dir: 1 | -1): number {
   let bestScore = 0
   candidates.forEach((c, i) => {
     const n = pagerScore(c, dir)
-    if (n > bestScore) {
+    if (n > 0 && n >= bestScore) {
       bestScore = n
       best = i
     }
@@ -35,12 +39,25 @@ export function pickPager(candidates: PagerCandidate[], dir: 1 | -1): number {
   return best
 }
 
+const DECLARED: Record<1 | -1, string> = {
+  1: 'link[rel~="next"][href]',
+  [-1]: 'link[rel~="prev"][href], link[rel~="previous"][href]',
+}
+
 export function runPager(action: string): boolean {
   const dir: 1 | -1 | null =
     action === 'pageNext' ? 1 : action === 'pagePrev' ? -1 : null
   if (dir === null) return false
 
-  const links = Array.from(document.querySelectorAll('a[href], button, [role="link"]'))
+  const declared = document.querySelector<HTMLLinkElement>(DECLARED[dir])
+  if (declared) {
+    location.href = declared.href
+    return true
+  }
+
+  const links = Array.from(
+    document.querySelectorAll<HTMLElement>('a[href], button, [role="link"]'),
+  ).filter(onScreen)
   const hit = pickPager(
     links.map(el => ({
       text: el.textContent ?? '',
@@ -49,6 +66,7 @@ export function runPager(action: string): boolean {
     })),
     dir,
   )
-  if (hit !== -1) (links[hit] as HTMLElement).click()
+  if (hit === -1) return false
+  links[hit]!.click()
   return true
 }

@@ -7,7 +7,7 @@ export function firstTextField(
   return els.find(e => isEditable(e) && isVisible(e)) ?? null
 }
 
-function onScreen(el: Element): boolean {
+export function onScreen(el: Element): boolean {
   const r = el.getBoundingClientRect()
   return r.width > 0 && r.height > 0
 }
