@@ -6,7 +6,7 @@ import { applyTheme, type Tokens } from '../../shared/theme.ts'
 type FeedResult = 'pending' | 'done' | 'none'
 
 export interface HintSession {
-  feed(ch: string): FeedResult
+  feed(ch: string, shift?: boolean): FeedResult
   cancel(): void
 }
 
@@ -135,6 +135,7 @@ export function startHint(o: HintOptions): HintSession | null {
   document.body.append(host)
 
   let typed = ''
+  let shifted = false
 
   // Labels are positioned against the viewport, so anything that moves the page makes
   // them point at the wrong things. That, not a timer, is when hints stop being valid.
@@ -150,13 +151,15 @@ export function startHint(o: HintOptions): HintSession | null {
 
   const fire = (item: Item) => {
     cleanup()
-    activate(item.el, o.newTab, o.open, o.copy)
+    activate(item.el, o.newTab || shifted, o.open, o.copy)
   }
 
   return {
     cancel: cleanup,
-    feed(ch: string): FeedResult {
+    feed(ch: string, shift = false): FeedResult {
       typed += ch.toLowerCase()
+      // Caps Lock inverts Shift, so either a capital or Shift itself asks for a new tab.
+      shifted ||= shift || ch !== ch.toLowerCase()
       const result = filterHints(items, typed)
 
       if (result.kind === 'none') {

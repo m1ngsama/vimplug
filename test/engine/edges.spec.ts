@@ -357,6 +357,19 @@ test.describe('hints', () => {
     await expect(page).toHaveURL(`${base}/tall`)
   })
 
+  // Shift+f reports Shift over a lowercase key; F alone is a capital with no Shift, as Caps Lock gives.
+  for (const key of ['Shift+f', 'F']) {
+    test(`a label typed as ${key} opens the link in a new tab`, async ({ page }) => {
+      await loadEngine(page, `${base}/links`)
+      await page.keyboard.press('f')
+      await page.keyboard.press(key)
+      await expect
+        .poll(() => page.evaluate(() => (window as any).__vimplugSent ?? []))
+        .toContainEqual({ type: 'openUrl', url: `${base}/tall` })
+      expect(page.url()).toBe(`${base}/links`)
+    })
+  }
+
   test('an element clickable only by script gets a hint, its wrapper does not', async ({ page }) => {
     await loadEngine(page, `${base}/scripted`)
     await page.keyboard.press('f')

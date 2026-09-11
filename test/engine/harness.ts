@@ -27,6 +27,7 @@ function shim(dsl: string): string {
     runtime: {
       getURL: (p) => p,
       sendMessage: async (msg) => {
+        ;(window.__vimplugSent ??= []).push(msg)
         if (msg.type === 'getDsl') return { dsl: ${JSON.stringify(dsl)} }
         if (msg.type === 'siteEnabled') return { enabled: true }
         if (msg.type === 'suggest') return { rows: [] }

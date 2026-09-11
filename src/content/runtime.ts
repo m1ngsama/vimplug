@@ -194,7 +194,7 @@ async function main(): Promise<void> {
       e.preventDefault()
       e.stopPropagation()
       if (e.key === 'Escape') modes.enter('normal')
-      else if (e.key.length === 1 && hint.feed(e.key) !== 'pending') {
+      else if (e.key.length === 1 && hint.feed(e.key, e.shiftKey) !== 'pending') {
         hint = null
         modes.enter('normal')
       }

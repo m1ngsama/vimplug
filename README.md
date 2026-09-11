@@ -109,7 +109,8 @@ searches open tabs only, `b` finds nothing, and `X` cannot reopen a tab. Everyth
 behaves the same on both browsers.
 
 While hints are showing, characters that are not a hint label narrow the hints by link
-text, and the last remaining candidate fires on its own.
+text, and the last remaining candidate fires on its own. Typing a label in capitals, with
+Shift held, opens the link in a new tab.
 
 In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection, `y` copies it, and
 `<Esc>` cancels.
