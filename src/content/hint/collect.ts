@@ -1,4 +1,4 @@
-const CONTROLS = new Set(['BUTTON', 'SELECT', 'TEXTAREA'])
+const CONTROLS = new Set(['BUTTON', 'SELECT', 'TEXTAREA', 'SUMMARY'])
 const ROLES = new Set(['button', 'link', 'checkbox', 'radio', 'menuitem', 'tab', 'switch'])
 
 export function isClickable(el: Element): boolean {
@@ -56,12 +56,38 @@ export function groupTargets(targets: Element[]): Element[][] {
   return groups
 }
 
+const up = (el: Element): Element | null =>
+  el.parentElement ?? (el.parentNode as ShadowRoot | null)?.host ?? null
+
+const pointer = (el: Element | null): boolean =>
+  el !== null && getComputedStyle(el).cursor === 'pointer'
+
+// Clicks bound in script leave only a pointer cursor; take the top of each pointer run.
 export function collectTargets(root: Document | ShadowRoot): Element[] {
-  const out: Element[] = []
-  for (const el of root.querySelectorAll('*')) {
-    if (isClickable(el) && onScreen(el)) out.push(el)
-    const shadow = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot
-    if (shadow) out.push(...collectTargets(shadow))
+  const found: Element[] = []
+  const scripted = new Set<Element>()
+  const walk = (r: Document | ShadowRoot) => {
+    for (const el of r.querySelectorAll('*')) {
+      if (isClickable(el)) {
+        if (onScreen(el)) found.push(el)
+      } else if (onScreen(el) && pointer(el) && !pointer(up(el))) {
+        found.push(el)
+        scripted.add(el)
+      }
+      const shadow = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot
+      if (shadow) walk(shadow)
+    }
   }
-  return out
+  walk(root)
+  if (scripted.size === 0) return found
+
+  // A wrapper around a real target, or a piece of one, would only repeat its hint.
+  const real = new Set(found.filter(el => !scripted.has(el)))
+  const above = new Set<Element>()
+  for (const t of real) for (let e = up(t); e && !above.has(e); e = up(e)) above.add(e)
+  const inReal = (el: Element): boolean => {
+    for (let e = up(el); e; e = up(e)) if (real.has(e)) return true
+    return false
+  }
+  return found.filter(el => !scripted.has(el) || (!above.has(el) && !inReal(el)))
 }

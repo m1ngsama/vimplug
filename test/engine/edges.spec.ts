@@ -328,6 +328,13 @@ test.describe('hints', () => {
     await page.keyboard.press('n')
     await expect(page).toHaveURL(`${base}/tall`)
   })
+
+  test('an element clickable only by script gets a hint, its wrapper does not', async ({ page }) => {
+    await loadEngine(page, `${base}/scripted`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('j')
+    await expect(page).toHaveTitle('clicked')
+  })
 })
 
 test.describe('panes', () => {

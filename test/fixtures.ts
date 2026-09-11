@@ -39,6 +39,16 @@ const PAGES: Record<string, string> = {
       <a href="/tall">name</a>
       <a href="/textarea">other</a>
     </div></body>`,
+  // Clicks bound in script, the pointer cursor the only trace: Bilibili's top bar, Reddit.
+  '/scripted': `<body style="height:5000px">
+      <div style="cursor:pointer"><a href="/tall">inner</a></div>
+      <div id="card" style="cursor:pointer"><span>card</span></div>
+      <script>
+        document.getElementById('card').addEventListener('click', () => {
+          document.title = 'clicked'
+        })
+      </script>
+    </body>`,
   '/cmdk': `<body style="height:5000px"><div id="out"></div><script>
       document.addEventListener('keydown', e => {
         if (e.metaKey && e.key === 'k') {

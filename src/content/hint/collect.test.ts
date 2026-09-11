@@ -24,6 +24,10 @@ test('form controls are clickable', () => {
   assert.equal(isClickable(el({ tagName: 'TEXTAREA' })), true)
 })
 
+test('a details summary is clickable', () => {
+  assert.equal(isClickable(el({ tagName: 'SUMMARY' })), true)
+})
+
 test('a disabled control is not clickable', () => {
   assert.equal(isClickable(el({ tagName: 'BUTTON', 'attr:disabled': '' })), false)
 })
