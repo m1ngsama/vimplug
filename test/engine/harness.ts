@@ -20,7 +20,8 @@ function atDocumentStart(src: string): string {
 
 // '' is a valid config with no bindings; loadDsl only falls back on a non-string.
 function shim(dsl: string): string {
-  return `window.chrome = {
+  return `const store = {}
+  window.chrome = {
     runtime: {
       getURL: (p) => p,
       sendMessage: async (msg) => {
@@ -33,7 +34,10 @@ function shim(dsl: string): string {
       },
     },
     storage: {
-      local: { get: async () => ({}), set: async () => {} },
+      local: {
+        get: async (key) => (key in store ? { [key]: store[key] } : {}),
+        set: async (items) => { Object.assign(store, items) },
+      },
       onChanged: { addListener() {} },
     },
   }`

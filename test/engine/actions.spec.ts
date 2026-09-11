@@ -74,3 +74,38 @@ test.describe('focus input', () => {
     await expect.poll(() => focusedId(page)).toBe('c')
   })
 })
+
+test.describe('marks', () => {
+  test('a mark restores the pane being scrolled, not the window', async ({ page }) => {
+    await loadEngine(page, `${base}/pane`)
+    const paneTop = () => page.evaluate(() => document.getElementById('pane')!.scrollTop)
+    const bottom = await page.evaluate(() => {
+      const pane = document.getElementById('pane')!
+      pane.scrollTop = pane.scrollHeight
+      return pane.scrollTop
+    })
+    await page.keyboard.press('Shift+m')
+    await page.keyboard.press('a')
+    await page.waitForTimeout(200)
+
+    await page.evaluate(() => {
+      document.getElementById('pane')!.scrollTop = 0
+    })
+    await page.keyboard.press('`')
+    await page.keyboard.press('a')
+    await expect.poll(paneTop).toBe(bottom)
+  })
+
+  test('a mark falls back to the window when no pane scrolls', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.evaluate(() => window.scrollTo(0, 1200))
+    await page.keyboard.press('Shift+m')
+    await page.keyboard.press('a')
+    await page.waitForTimeout(200)
+
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await page.keyboard.press('`')
+    await page.keyboard.press('a')
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1200)
+  })
+})

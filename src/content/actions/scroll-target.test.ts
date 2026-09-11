@@ -66,6 +66,17 @@ test('pickScrollable skips an inner box already at its limit', () => {
   assert.equal(pickScrollable(chain, 'y', 1), 1)
 })
 
+test('with no direction, a box counts when it can scroll either way', () => {
+  assert.equal(canScroll(box({ scrollHeight: 500, scrollTop: 400 }), 'y'), true)
+  assert.equal(canScroll(box({ scrollHeight: 500, scrollTop: 0 }), 'y'), true)
+  assert.equal(canScroll(box(), 'y'), false)
+})
+
+test('pickScrollable with no direction finds a pane parked at either end', () => {
+  const chain = [box(), box({ scrollHeight: 500, scrollTop: 0 })]
+  assert.equal(pickScrollable(chain, 'y'), 1)
+})
+
 test('pickScrollable reports nothing when the chain cannot scroll', () => {
   assert.equal(pickScrollable([box(), box()], 'y', 1), -1)
   assert.equal(pickScrollable([], 'y', 1), -1)

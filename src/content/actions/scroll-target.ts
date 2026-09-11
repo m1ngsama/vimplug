@@ -11,7 +11,7 @@ export interface ScrollMetrics {
 
 const SCROLLABLE_OVERFLOW = new Set(['auto', 'scroll', 'overlay'])
 
-export function canScroll(m: ScrollMetrics, axis: 'x' | 'y', dir: -1 | 1): boolean {
+export function canScroll(m: ScrollMetrics, axis: 'x' | 'y', dir?: -1 | 1): boolean {
   const overflow = axis === 'y' ? m.overflowY : m.overflowX
   if (!SCROLLABLE_OVERFLOW.has(overflow)) return false
 
@@ -19,6 +19,7 @@ export function canScroll(m: ScrollMetrics, axis: 'x' | 'y', dir: -1 | 1): boole
   const content = axis === 'y' ? m.scrollHeight : m.scrollWidth
   // Sub-pixel layout leaves scrollHeight a hair over clientHeight on boxes that don't scroll.
   if (content <= size + 1) return false
+  if (dir === undefined) return true
 
   const at = axis === 'y' ? m.scrollTop : m.scrollLeft
   return dir === 1 ? at < content - size - 1 : at > 0
@@ -27,7 +28,7 @@ export function canScroll(m: ScrollMetrics, axis: 'x' | 'y', dir: -1 | 1): boole
 export function pickScrollable(
   chain: ScrollMetrics[],
   axis: 'x' | 'y',
-  dir: -1 | 1,
+  dir?: -1 | 1,
 ): number {
   return chain.findIndex(m => canScroll(m, axis, dir))
 }
@@ -103,7 +104,7 @@ function ancestors(start: Element | null): Element[] {
   return out
 }
 
-function scrollableFrom(seed: Element | null, axis: 'x' | 'y', dir: -1 | 1): Element | null {
+function scrollableFrom(seed: Element | null, axis: 'x' | 'y', dir?: -1 | 1): Element | null {
   const chain = ancestors(seed).filter(
     el => el !== document.documentElement && el !== document.body,
   )
@@ -118,7 +119,7 @@ function meaningfulFocus(el: Element | null): Element | null {
 export function resolveScrollBox(
   focused: Element | null,
   axis: 'x' | 'y',
-  dir: -1 | 1,
+  dir?: -1 | 1,
 ): ScrollBox {
   const centre = () =>
     document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2)
