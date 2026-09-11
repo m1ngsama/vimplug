@@ -3,7 +3,7 @@ import { resolveForHost, DEFAULT_DSL } from '../shared/config.ts'
 import { ModeMachine, needsKeydown, type Mode } from './mode.ts'
 import { fromEvent } from './event-keys.ts'
 import { boundKeyIds, shouldHandle } from './dispatch.ts'
-import { deepActiveElement, modeForFocus } from './focus.ts'
+import { deepActiveElement, modeForFocus, ownsEscape } from './focus.ts'
 import { runAction, openTarget, type ActionContext } from './actions/index.ts'
 import { Scroller } from './actions/scroll.ts'
 import { keyId } from '../shared/keys.ts'
@@ -43,13 +43,14 @@ async function main(): Promise<void> {
     site.options,
     window.matchMedia('(prefers-color-scheme: dark)').matches,
   )
-  const showMode = createIndicator(theme)
+  const indicator = createIndicator(theme)
   const scroller = new Scroller(
     () => site.options,
     () => deepActiveElement(document),
   )
 
   let hint: HintSession | null = null
+  let heldFromHint = false
 
   let overlay: Overlay | null = null
   // Set before building: the input focuses synchronously, and focusin would re-sync the mode first.
@@ -76,7 +77,10 @@ async function main(): Promise<void> {
         copy,
         theme,
         open: openTarget,
-        onInvalid: () => modes.enter('normal'),
+        notify: indicator.flash,
+        onEnd: () => {
+          if (modes.current === 'hint') modes.enter('normal')
+        },
         targets,
       })
       if (!session) return false
@@ -101,9 +105,11 @@ async function main(): Promise<void> {
     find: dir => {
       if (dir === 'open') return ctx.startOverlay('find')
       if (!finder) return false
-      finder.step(dir)
+      const at = finder.step(dir)
+      if (at) indicator.flash(`${at.index + 1}/${at.total}`)
       return true
     },
+    notify: indicator.flash,
     startOverlay: kind => {
       if (overlayOpen) return false
       overlayOpen = true
@@ -120,12 +126,15 @@ async function main(): Promise<void> {
             finder?.clear()
             window.scrollTo(origin.x, origin.y)
           }
+          if (origin && reason === 'submit') finder?.select()
           modes.enter('normal')
         },
         id => dispatch(id, null),
         theme,
         query => {
-          if ((finder?.search(query) ?? 0) === 0 && origin) window.scrollTo(origin.x, origin.y)
+          const found = finder?.search(query) ?? 0
+          if (found === 0 && origin) window.scrollTo(origin.x, origin.y)
+          return found
         },
       ).then(o => {
         overlay = o
@@ -153,6 +162,10 @@ async function main(): Promise<void> {
 
   const onKeydown = (e: KeyboardEvent) => {
     if (fromInputMethod(e)) return
+    if (e.repeat && heldFromHint) {
+      e.preventDefault()
+      return
+    }
 
     if (awaitingMark) {
       e.preventDefault()
@@ -172,7 +185,12 @@ async function main(): Promise<void> {
         modes.enter('normal')
       } else if (e.key === 'y') {
         e.preventDefault()
-        void yankVisual()
+        yankVisual().then(
+          n => {
+            if (n > 0) indicator.flash(`Copied ${n} characters`)
+          },
+          () => indicator.flash('Copy failed'),
+        )
         modes.enter('normal')
       } else if (moveVisual(e.key)) {
         e.preventDefault()
@@ -183,11 +201,11 @@ async function main(): Promise<void> {
     if (hint) {
       e.preventDefault()
       e.stopPropagation()
+      if (e.repeat) return
       if (e.key === 'Escape') modes.enter('normal')
-      else if (e.key.length === 1 && hint.feed(e.key, e.shiftKey) !== 'pending') {
-        hint = null
-        modes.enter('normal')
-      }
+      else if (e.key === 'Backspace') hint.back()
+      else if (e.key === 'Enter') hint.confirm()
+      else if (e.key.length === 1) hint.feed(e.key, e.shiftKey)
       return
     }
 
@@ -207,13 +225,19 @@ async function main(): Promise<void> {
     }
   }
 
-  const onKeyup = (e: KeyboardEvent) => scroller.release(keyId(fromEvent(e), keyMatching))
+  const onKeyup = (e: KeyboardEvent) => {
+    heldFromHint = false
+    scroller.release(keyId(fromEvent(e), keyMatching))
+  }
 
   let escapeHatch: ((e: KeyboardEvent) => void) | null = null
   const setHatch = (on: boolean) => {
     if (on && !escapeHatch) {
       escapeHatch = e => {
-        if (e.key === 'Escape' && !fromInputMethod(e)) modes.enter('normal')
+        if (e.key !== 'Escape' || fromInputMethod(e)) return
+        if (modes.current !== 'insert') return modes.enter('normal')
+        const field = deepActiveElement(document)
+        if (field && !ownsEscape(field)) (field as HTMLElement).blur()
       }
       document.addEventListener('keydown', escapeHatch, true)
     } else if (!on && escapeHatch) {
@@ -240,11 +264,12 @@ async function main(): Promise<void> {
   modes.onChange((next, prev) => {
     if (needsKeydown(next)) attach()
     else detach()
-    setHatch(next === 'passthrough')
-    showMode(next)
+    setHatch(next === 'passthrough' || next === 'insert')
+    indicator.mode(next)
     if (prev === 'hint' && next !== 'hint') {
       hint?.cancel()
       hint = null
+      heldFromHint = true
     }
     if (prev === 'pending' && next !== 'pending') awaitingMark = null
   })

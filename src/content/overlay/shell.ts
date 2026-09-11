@@ -4,6 +4,7 @@ import { applyTheme, type Tokens } from '../../shared/theme.ts'
 export interface Overlay {
   close(): void
   setRows(rows: Row[]): void
+  setStatus(text: string): void
 }
 
 export type CloseReason = 'cancel' | 'pick' | 'submit'
@@ -38,6 +39,8 @@ input {
   padding: 14px 16px; font: inherit; font-size: 15px;
   background: transparent; color: inherit;
 }
+.status { padding: 0 16px 10px; font-size: 12px; color: var(--vp-muted) }
+.status:empty { display: none }
 ul { list-style: none; margin: 0; padding: 0; max-height: 46vh; overflow-y: auto;
      border-top: 1px solid var(--vp-border) }
 li { padding: 8px 16px; cursor: pointer }
@@ -60,13 +63,15 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
   const input = document.createElement('input')
   input.placeholder = cfg.placeholder
   input.value = cfg.value ?? ''
+  const status = document.createElement('div')
+  status.className = 'status'
   const list = document.createElement('ul')
 
   for (const type of ['keydown', 'keypress', 'keyup', 'input']) {
     host.addEventListener(type, e => e.stopPropagation())
   }
 
-  panel.append(input, list)
+  panel.append(input, status, list)
   wrap.append(panel)
   shadow.append(style, wrap)
   applyTheme(host, cfg.theme)
@@ -121,13 +126,13 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
       close()
       return
     }
-    if (e.key === 'ArrowDown' || (e.key === 'n' && e.ctrlKey)) {
+    if (e.key === 'ArrowDown' || (e.key === 'n' && e.ctrlKey) || (e.key === 'Tab' && !e.shiftKey)) {
       e.preventDefault()
       cursor = Math.min(cursor + 1, shown.length - 1)
       render()
       return
     }
-    if (e.key === 'ArrowUp' || (e.key === 'p' && e.ctrlKey)) {
+    if (e.key === 'ArrowUp' || (e.key === 'p' && e.ctrlKey) || (e.key === 'Tab' && e.shiftKey)) {
       e.preventDefault()
       cursor = Math.max(cursor - 1, 0)
       render()
@@ -173,6 +178,9 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
 
   return {
     close,
+    setStatus(text: string) {
+      status.textContent = text
+    },
     setRows(next: Row[]) {
       if (closed) return
       rows = next

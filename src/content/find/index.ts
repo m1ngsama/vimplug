@@ -64,7 +64,8 @@ function toRange(pieces: Piece[], start: number, end: number): Range | null {
 
 export interface FindSession {
   search(query: string): number
-  step(dir: 1 | -1): void
+  step(dir: 1 | -1): { index: number; total: number } | null
+  select(): void
   clear(): void
 }
 
@@ -109,7 +110,16 @@ export function createFind(theme: Tokens): FindSession | null {
     })
   }
 
+  const select = () => {
+    const cur = ranges[index]
+    const sel = getSelection()
+    if (!cur || !sel) return
+    sel.removeAllRanges()
+    sel.addRange(cur.cloneRange())
+  }
+
   return {
+    select,
     search(query: string): number {
       ensureStyle()
       const { text, pieces } = walk()
@@ -122,12 +132,17 @@ export function createFind(theme: Tokens): FindSession | null {
       return ranges.length
     },
     step(dir: 1 | -1) {
-      if (ranges.length === 0) return
+      if (ranges.length === 0) return null
       index = stepIndex(index, ranges.length, dir)
       paint()
       reveal()
+      select()
+      return { index, total: ranges.length }
     },
     clear() {
+      const sel = getSelection()
+      const cur = ranges[index]
+      if (cur && sel?.rangeCount === 1 && sel.toString() === cur.toString()) sel.removeAllRanges()
       ranges = []
       highlights.delete(ALL)
       highlights.delete(CURRENT)

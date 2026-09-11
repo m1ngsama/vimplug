@@ -28,6 +28,10 @@ test('a details summary is clickable', () => {
   assert.equal(isClickable(el({ tagName: 'SUMMARY' })), true)
 })
 
+test('an aria-disabled control is not clickable', () => {
+  assert.equal(isClickable(el({ tagName: 'BUTTON', 'attr:aria-disabled': 'true' })), false)
+})
+
 test('a disabled control is not clickable', () => {
   assert.equal(isClickable(el({ tagName: 'BUTTON', 'attr:disabled': '' })), false)
 })

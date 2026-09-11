@@ -28,3 +28,7 @@ export function modeForFocus(el: Element | null): Mode {
   if (el?.tagName === 'IFRAME') return 'passthrough'
   return isEditable(el) ? 'insert' : 'normal'
 }
+
+export function ownsEscape(el: Element): boolean {
+  return el.getAttribute('aria-expanded') === 'true' || DETECTORS.some(d => d(el))
+}

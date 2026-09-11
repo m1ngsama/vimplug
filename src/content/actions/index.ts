@@ -20,9 +20,13 @@ const OVERLAY_FOR: Record<string, OverlayKind | undefined> = {
   openBookmark: 'bookmarks',
 }
 
-export function openTarget(url: string, newTab: boolean): void {
-  if (newTab) void chrome.runtime.sendMessage({ type: 'openUrl', url }).catch(() => {})
-  else location.href = url
+export function openTarget(url: string, newTab: boolean, background = false): void {
+  if (!newTab) {
+    location.href = url
+    return
+  }
+  const msg = background ? { type: 'openUrl', url, active: false } : { type: 'openUrl', url }
+  void chrome.runtime.sendMessage(msg).catch(() => {})
 }
 
 // Return false when nothing ran: a true swallows the key and can strand the engine in a mode.
@@ -35,6 +39,7 @@ export interface ActionContext {
   clearFind: () => boolean
   awaitMark: (mode: 'set' | 'jump') => boolean
   startVisual: () => boolean
+  notify: (text: string) => void
 }
 
 export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
@@ -55,7 +60,9 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
     return true
 
   if (id === 'copyUrl' || id === 'openClipboard' || id === 'openClipboardNewTab') {
-    void runClipboard(id, opts.searchEngine, openTarget)
+    const done = runClipboard(id, opts.searchEngine, openTarget)
+    if (id === 'copyUrl') done.then(() => ctx.notify('Copied URL'), () => ctx.notify('Copy failed'))
+    else void done.catch(() => {})
     return true
   }
 

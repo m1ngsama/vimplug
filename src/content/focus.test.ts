@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { isEditable, deepActiveElement, modeForFocus } from './focus.ts'
+import { isEditable, deepActiveElement, modeForFocus, ownsEscape } from './focus.ts'
 
 const el = (o: Record<string, unknown>) =>
   ({
@@ -84,4 +84,19 @@ test('a focused text field is insert, anything else is normal', () => {
   assert.equal(modeForFocus(el({ tagName: 'TEXTAREA' })), 'insert')
   assert.equal(modeForFocus(el({ tagName: 'DIV' })), 'normal')
   assert.equal(modeForFocus(null), 'normal')
+})
+
+test('a field with its popup open keeps Esc for itself', () => {
+  assert.equal(ownsEscape(el({ tagName: 'INPUT', 'attr:role': 'combobox', 'attr:aria-expanded': 'true' })), true)
+})
+
+test('a code editor keeps Esc for itself', () => {
+  const editor = el({ tagName: 'DIV', closest: (s: string) => (s.includes('.cm-content') ? {} : null) })
+  assert.equal(ownsEscape(editor), true)
+})
+
+test('a plain field or a closed combobox gives Esc up', () => {
+  assert.equal(ownsEscape(el({ tagName: 'INPUT', closest: () => null })), false)
+  const closed = el({ tagName: 'INPUT', 'attr:role': 'combobox', 'attr:aria-expanded': 'false', closest: () => null })
+  assert.equal(ownsEscape(closed), false)
 })

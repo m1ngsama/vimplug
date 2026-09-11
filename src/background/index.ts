@@ -112,7 +112,8 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
 
   if (type === 'openUrl') {
     const url = String((msg as { url?: unknown }).url ?? '')
-    if (url) void chrome.tabs.create({ url, windowId: sender.tab?.windowId })
+    const active = (msg as { active?: unknown }).active !== false
+    if (url) void chrome.tabs.create({ url, windowId: sender.tab?.windowId, active })
     reply({ ok: true })
     return true
   }

@@ -18,13 +18,21 @@ const STYLE = `
 }
 `
 
-export function createIndicator(theme: Tokens): (mode: Mode) => void {
+const FLASH_MS = 1500
+
+export interface Indicator {
+  mode(m: Mode): void
+  flash(text: string): void
+}
+
+export function createIndicator(theme: Tokens): Indicator {
   let host: HTMLElement | null = null
   let badge: HTMLElement | null = null
+  let label: string | null = null
+  let flashing: ReturnType<typeof setTimeout> | undefined
 
-  return mode => {
-    const label = indicatorLabel(mode)
-    if (label === null) {
+  const render = (text: string | null) => {
+    if (text === null) {
       host?.remove()
       host = null
       badge = null
@@ -42,6 +50,21 @@ export function createIndicator(theme: Tokens): (mode: Mode) => void {
       applyTheme(host, theme)
       document.body.append(host)
     }
-    badge.textContent = label
+    badge.textContent = text
+  }
+
+  return {
+    mode(m) {
+      label = indicatorLabel(m)
+      if (flashing === undefined) render(label)
+    },
+    flash(text) {
+      clearTimeout(flashing)
+      render(text)
+      flashing = setTimeout(() => {
+        flashing = undefined
+        render(label)
+      }, FLASH_MS)
+    },
   }
 }

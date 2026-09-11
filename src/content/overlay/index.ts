@@ -6,6 +6,7 @@ import type { Binding } from '../../shared/matcher.ts'
 import type { Tokens } from '../../shared/theme.ts'
 import { clipboardTarget, looksLikeUrl } from '../actions/clipboard.ts'
 import { openTarget } from '../actions/index.ts'
+import { matchSummary } from '../find/matches.ts'
 
 export type OverlayKind = 'help' | 'open' | 'edit' | 'tabs' | 'palette' | 'find' | 'bookmarks'
 
@@ -47,18 +48,22 @@ export async function startOverlay(
   onClose: (reason: CloseReason) => void,
   runById: (id: string) => void,
   theme: Tokens,
-  onFind?: (query: string) => void,
+  onFind?: (query: string) => number,
 ): Promise<Overlay> {
   if (kind === 'find') {
-    return openOverlay({
+    const panel = openOverlay({
       placeholder: 'Find in page',
       rows: [],
-      onInput: onFind,
+      onInput: query => {
+        const found = onFind?.(query) ?? 0
+        panel.setStatus(query === '' ? '' : matchSummary(found))
+      },
       onPick: () => {},
       onSubmit: () => {},
       onClose,
       theme,
     })
+    return panel
   }
 
   if (kind === 'palette') {

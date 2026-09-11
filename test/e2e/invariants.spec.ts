@@ -674,3 +674,20 @@ test('invariant 3: a disabled host never activates the engine', async () => {
   await page.close()
   await setDsl(DEFAULT_DSL)
 })
+
+test('a label typed with Shift opens the link in a background tab', async () => {
+  const page = await open('/links')
+  const opened = ctx.waitForEvent('page')
+  await pressHint(page, 'f')
+  await page.keyboard.press('Shift+f')
+  const tab = await opened
+  await tab.waitForLoadState()
+  const [sw] = ctx.serviceWorkers()
+  const active = await sw!.evaluate(
+    async (url: string) => (await chrome.tabs.query({})).find(t => t.url === url)?.active,
+    `${base}/tall`,
+  )
+  expect(active).toBe(false)
+  await tab.close()
+  await page.close()
+})

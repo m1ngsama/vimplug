@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { collectMatches, stepIndex } from './matches.ts'
+import { collectMatches, stepIndex, matchSummary } from './matches.ts'
 
 test('finds every occurrence', () => {
   assert.deepEqual(collectMatches('abcabc', 'abc'), [
@@ -54,4 +54,10 @@ test('stepIndex wraps in both directions', () => {
 
 test('stepIndex on an empty set stays at zero', () => {
   assert.equal(stepIndex(0, 0, 1), 0)
+})
+
+test('a match count reads as words', () => {
+  assert.equal(matchSummary(0), 'No matches')
+  assert.equal(matchSummary(1), '1 match')
+  assert.equal(matchSummary(17), '17 matches')
 })

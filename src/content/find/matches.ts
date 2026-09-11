@@ -26,3 +26,6 @@ export function stepIndex(current: number, count: number, dir: 1 | -1): number {
   if (count <= 0) return 0
   return (current + dir + count) % count
 }
+
+export const matchSummary = (n: number): string =>
+  n === 0 ? 'No matches' : n === 1 ? '1 match' : `${n} matches`

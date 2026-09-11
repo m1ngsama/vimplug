@@ -169,6 +169,23 @@ test.describe('focus decides the mode', () => {
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
   })
 
+  test('Esc leaves a text field, so the next key is a command', async ({ page }) => {
+    await loadEngine(page, `${base}/textarea`)
+    await page.focus('#t')
+    await page.keyboard.type('ab')
+    await page.keyboard.press('Escape')
+    await page.keyboard.press('j')
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+    expect(await page.inputValue('#t')).toBe('ab')
+  })
+
+  test('Esc on a field with its popup open is left to the page', async ({ page }) => {
+    await loadEngine(page, `${base}/combobox`)
+    await page.focus('#c')
+    await page.keyboard.press('Escape')
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('c')
+  })
+
   test('typing in a contenteditable does not scroll', async ({ page }) => {
     await loadEngine(page, `${base}/editable`)
     await page.focus('#e')
@@ -246,6 +263,21 @@ test.describe('find over awkward text', () => {
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
   })
 
+  test('a committed search selects the match, and n carries the selection on', async ({ page }) => {
+    await loadEngine(page, `${base}/twice`)
+    const selected = () =>
+      page.evaluate(() => {
+        const s = getSelection()
+        return `${s?.toString()}@${s?.anchorNode?.parentElement?.id}`
+      })
+    await page.keyboard.press('/')
+    await page.keyboard.type('marker')
+    await page.keyboard.press('Enter')
+    await expect.poll(selected).toBe('marker@one')
+    await page.keyboard.press('n')
+    await expect.poll(selected).toBe('marker@two')
+  })
+
   test('Enter on a query that matched nothing still leaves normal mode', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')
@@ -311,6 +343,23 @@ test.describe('overlays keep every key', () => {
     expect((await state(page)).scrollY).toBe(0)
   })
 
+  test('Tab moves down the rows of a panel', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('Shift+;')
+    await page.keyboard.type('scroll to the')
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Enter')
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
+  })
+
+  test('yy says it copied, then gets out of the way', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    const ui = () => page.evaluate(() => document.querySelectorAll('[data-vimplug-ui]').length)
+    await page.keyboard.type('yy')
+    await expect.poll(ui).toBe(1)
+    await expect.poll(ui, { timeout: 5000 }).toBe(0)
+  })
+
   test('one overlay at a time', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await page.keyboard.press('o')
@@ -356,16 +405,89 @@ test.describe('hints', () => {
   })
 
   for (const key of ['Shift+f', 'F']) {
-    test(`a label typed as ${key} opens the link in a new tab`, async ({ page }) => {
+    test(`a label typed as ${key} opens the link in a background tab`, async ({ page }) => {
       await loadEngine(page, `${base}/links`)
       await page.keyboard.press('f')
       await page.keyboard.press(key)
       await expect
         .poll(() => page.evaluate(() => (window as any).__vimplugSent ?? []))
-        .toContainEqual({ type: 'openUrl', url: `${base}/tall` })
+        .toContainEqual({ type: 'openUrl', url: `${base}/tall`, active: false })
       expect(page.url()).toBe(`${base}/links`)
     })
   }
+
+  test('keys typed while a text match settles stay with the hints', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    await page.keyboard.press('f')
+    await page.keyboard.type('thx', { delay: 30 })
+    await expect(page).toHaveTitle('clicked')
+    const actions = await page.evaluate(() =>
+      ((window as any).__vimplugSent ?? []).filter((m: { type: string }) => m.type === 'runAction'),
+    )
+    expect(actions).toEqual([])
+  })
+
+  test('Enter takes the first hint a text filter leaves', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('t')
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(`${base}/textarea`)
+  })
+
+  test('Backspace takes back the last character typed', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('o')
+    await page.keyboard.press('Backspace')
+    await page.keyboard.press('d')
+    await expect(page).toHaveTitle('clicked')
+  })
+
+  test('a key that matches nothing is dropped, not the end of hints', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('z')
+    await page.keyboard.press('d')
+    await expect(page).toHaveTitle('clicked')
+  })
+
+  test('a held label key does not repeat into normal mode', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    await page.keyboard.press('f')
+    await page.keyboard.down('d')
+    await page.keyboard.down('d')
+    await page.keyboard.down('d')
+    await page.keyboard.up('d')
+    await expect(page).toHaveTitle('clicked')
+    await page.waitForTimeout(300)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  })
+
+  test('an element under an overlay gets no hint', async ({ page }) => {
+    await loadEngine(page, `${base}/covered`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('f')
+    await expect(page).toHaveTitle('top')
+  })
+
+  test('a hint on a text field leaves you typing in it', async ({ page }) => {
+    await loadEngine(page, `${base}/textarea`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('f')
+    await page.keyboard.type('jj')
+    expect(await page.inputValue('#t')).toBe('jj')
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  })
+
+  test('F opens the link in a new tab in front', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    await page.keyboard.press('Shift+f')
+    await page.keyboard.press('f')
+    await expect
+      .poll(() => page.evaluate(() => (window as any).__vimplugSent ?? []))
+      .toContainEqual({ type: 'openUrl', url: `${base}/tall` })
+  })
 
   test('an element clickable only by script gets a hint, its wrapper does not', async ({ page }) => {
     await loadEngine(page, `${base}/scripted`)

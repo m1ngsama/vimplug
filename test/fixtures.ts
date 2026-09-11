@@ -43,6 +43,13 @@ const PAGES: Record<string, string> = {
         })
       </script>
     </body>`,
+  '/covered': `<body style="height:5000px">
+      <a href="/tall">under</a>
+      <div style="position:fixed;inset:0;background:#fff">
+        <button onclick="document.title='top'">close</button>
+      </div>
+    </body>`,
+  '/combobox': '<body style="height:5000px"><input id="c" role="combobox" aria-expanded="true"></body>',
   '/cmdk': `<body style="height:5000px"><div id="out"></div><script>
       document.addEventListener('keydown', e => {
         if (e.metaKey && e.key === 'k') {

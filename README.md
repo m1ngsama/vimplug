@@ -109,8 +109,9 @@ searches open tabs only, `b` finds nothing, and `X` cannot reopen a tab. Everyth
 behaves the same on both browsers.
 
 While hints are showing, characters that are not a hint label narrow the hints by link
-text, and the last remaining candidate fires on its own. Typing a label in capitals, with
-Shift held, opens the link in a new tab.
+text. The last candidate left fires once you pause, or at once on Enter, and Backspace
+takes back a character. Typing a label in capitals, with Shift held, opens the link in a
+background tab.
 
 In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection, `y` copies it, and
 `<Esc>` cancels.
@@ -118,14 +119,17 @@ In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection, `y` copies 
 Clicking the toolbar button turns vimplug off for the site you are on, and on again. The
 button reads `off` where it is disabled.
 
-`/` searches as you type. `<CR>` commits the search: the panel closes, the matches stay,
-and `n` and `N` step through them. `<Esc>` cancels instead, putting the page back where it
-was before the search moved it. Once a search is committed, `<Esc>` in normal mode clears
-the highlights, the way `:noh` does. Queries are smartcase: `/error` ignores case, `/Error`
-does not.
+`/` searches as you type and counts the matches. `<CR>` commits the search: the panel
+closes, the current match is selected so `v` starts from it, and `n` and `N` step through
+the rest. `<Esc>` cancels instead, putting the page back where it was before the search
+moved it. Once a search is committed, `<Esc>` in normal mode clears the highlights, the way
+`:noh` does. Queries are smartcase: `/error` ignores case, `/Error` does not.
 
 Keys pressed while an input method is composing belong to the input method, never to
 vimplug, so typing a word in Chinese, Japanese or Korean cannot fire a command.
+
+`<Esc>` in a text field leaves the field, so the next key is a command again. A field with
+its popup open, and a code editor, keep `<Esc>` for themselves.
 
 ## Configuration
 
@@ -194,8 +198,9 @@ an older file keeps working.
 Four properties hold by construction and are covered by regression tests. Changing any of
 them is a behaviour change, not a refactor.
 
-1. **No keydown listener exists in insert mode.** The mode machine is the only thing that
-   attaches or detaches it, so typing in a text field has zero overhead.
+1. **Insert mode listens for `<Esc>` and nothing else.** The mode machine is the only thing
+   that attaches the full listener, so every other key typed in a text field goes straight
+   to the page.
 2. **Modifier combos pass through unless explicitly bound.** Cmd+K, Cmd+I and Cmd+B stay
    with the page.
 3. **A disabled host never activates the engine.** Chrome excludes it from injection

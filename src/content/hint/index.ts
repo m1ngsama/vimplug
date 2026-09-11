@@ -3,10 +3,10 @@ import { collectTargets, groupTargets } from './collect.ts'
 import { hintText, filterHints } from './text.ts'
 import { applyTheme, type Tokens } from '../../shared/theme.ts'
 
-type FeedResult = 'pending' | 'done' | 'none'
-
 export interface HintSession {
-  feed(ch: string, shift?: boolean): FeedResult
+  feed(ch: string, shift?: boolean): void
+  back(): void
+  confirm(): void
   cancel(): void
 }
 
@@ -44,6 +44,7 @@ const STYLE = `
 `
 
 const FOCUSABLE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'IFRAME'])
+const SETTLE_MS = 200
 
 function realClick(el: Element): void {
   const r = el.getBoundingClientRect()
@@ -67,19 +68,31 @@ function realClick(el: Element): void {
   ;(el as HTMLElement).click()
 }
 
-function activate(
-  el: Element,
-  newTab: boolean,
-  open: (url: string, newTab: boolean) => void,
-  copy = false,
-): void {
+export interface HintOptions {
+  chars: string
+  newTab: boolean
+  copy: boolean
+  theme: Tokens
+  open(url: string, newTab: boolean, background?: boolean): void
+  notify(text: string): void
+  onEnd(): void
+  targets?: Element[]
+}
+
+function activate(el: Element, o: HintOptions, shifted: boolean): void {
   const href = el.tagName === 'A' ? el.getAttribute('href') : null
-  if (copy) {
-    if (href) void navigator.clipboard.writeText(new URL(href, location.href).href)
+  const url = href ? new URL(href, location.href).href : null
+  if (o.copy) {
+    if (url) {
+      navigator.clipboard.writeText(url).then(
+        () => o.notify('Copied link'),
+        () => o.notify('Copy failed'),
+      )
+    }
     return
   }
-  if (newTab && href) {
-    open(new URL(href, location.href).href, true)
+  if ((o.newTab || shifted) && url) {
+    o.open(url, true, shifted)
     return
   }
   if (FOCUSABLE.has(el.tagName) || (el as HTMLElement).isContentEditable) {
@@ -87,16 +100,6 @@ function activate(
     return
   }
   realClick(el)
-}
-
-export interface HintOptions {
-  chars: string
-  newTab: boolean
-  copy: boolean
-  theme: Tokens
-  open(url: string, newTab: boolean): void
-  onInvalid(): void
-  targets?: Element[]
 }
 
 export function startHint(o: HintOptions): HintSession | null {
@@ -131,12 +134,14 @@ export function startHint(o: HintOptions): HintSession | null {
 
   let typed = ''
   let shifted = false
+  let settling: ReturnType<typeof setTimeout> | undefined
 
-  const invalidate = () => o.onInvalid()
+  const invalidate = () => o.onEnd()
   window.addEventListener('scroll', invalidate, { passive: true })
   window.addEventListener('resize', invalidate, { passive: true })
 
   const cleanup = () => {
+    clearTimeout(settling)
     window.removeEventListener('scroll', invalidate)
     window.removeEventListener('resize', invalidate)
     host.remove()
@@ -144,48 +149,64 @@ export function startHint(o: HintOptions): HintSession | null {
 
   const fire = (item: Item) => {
     cleanup()
-    activate(item.el, o.newTab || shifted, o.open, o.copy)
+    activate(item.el, o, shifted)
+    o.onEnd()
+  }
+
+  const plain = (i: Item) => {
+    if (i.node.firstElementChild) i.node.textContent = i.label
+  }
+
+  const show = () => {
+    clearTimeout(settling)
+    const result = filterHints(items, typed)
+    if (typed === '' || result.kind === 'none') {
+      for (const i of items) {
+        i.node.removeAttribute('data-off')
+        i.node.removeAttribute('data-hit')
+        plain(i)
+      }
+      return
+    }
+    if (result.kind === 'match') return fire(items[result.index]!)
+
+    const live = new Set(result.indexes)
+    items.forEach((i, n) => {
+      i.node.toggleAttribute('data-off', !live.has(n))
+      i.node.toggleAttribute('data-hit', live.has(n) && result.by === 'text')
+      if (!live.has(n) || result.by === 'text') return plain(i)
+      const done = document.createElement('span')
+      done.className = 'done'
+      done.textContent = i.label.slice(0, typed.length)
+      const rest = document.createElement('span')
+      rest.textContent = i.label.slice(typed.length)
+      i.node.replaceChildren(done, rest)
+    })
+
+    if (result.indexes.length === 1) {
+      const only = items[result.indexes[0]!]!
+      if (result.by === 'label') fire(only)
+      else settling = setTimeout(() => fire(only), SETTLE_MS)
+    }
   }
 
   return {
     cancel: cleanup,
-    feed(ch: string, shift = false): FeedResult {
-      typed += ch.toLowerCase()
+    feed(ch: string, shift = false) {
+      const next = typed + ch.toLowerCase()
+      if (filterHints(items, next).kind === 'none') return
+      typed = next
       shifted ||= shift || ch !== ch.toLowerCase()
+      show()
+    },
+    back() {
+      if (typed === '') return o.onEnd()
+      typed = typed.slice(0, -1)
+      show()
+    },
+    confirm() {
       const result = filterHints(items, typed)
-
-      if (result.kind === 'none') {
-        cleanup()
-        return 'none'
-      }
-      if (result.kind === 'match') {
-        fire(items[result.index]!)
-        return 'done'
-      }
-      if (result.indexes.length === 1) {
-        fire(items[result.indexes[0]!]!)
-        return 'done'
-      }
-
-      const live = new Set(result.indexes)
-      items.forEach((i, n) => {
-        if (!live.has(n)) {
-          i.node.setAttribute('data-off', '')
-          return
-        }
-        i.node.removeAttribute('data-off')
-        if (result.by === 'text') {
-          i.node.setAttribute('data-hit', '')
-        } else {
-          const done = document.createElement('span')
-          done.className = 'done'
-          done.textContent = i.label.slice(0, typed.length)
-          const rest = document.createElement('span')
-          rest.textContent = i.label.slice(typed.length)
-          i.node.replaceChildren(done, rest)
-        }
-      })
-      return 'pending'
+      if (typed !== '' && result.kind === 'filter') fire(items[result.indexes[0]!]!)
     },
   }
 }

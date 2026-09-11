@@ -55,10 +55,11 @@ export function moveVisual(key: string): boolean {
   return true
 }
 
-export async function yankVisual(): Promise<void> {
+export async function yankVisual(): Promise<number> {
   const text = window.getSelection()?.toString() ?? ''
   if (text) await navigator.clipboard.writeText(text)
   window.getSelection()?.removeAllRanges()
+  return text.length
 }
 
 export function clearVisual(): void {
