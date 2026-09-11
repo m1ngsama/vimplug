@@ -44,6 +44,12 @@ const PAGES: Record<string, string> = {
         })
       </script>
     </body>`,
+  '/fields': `<body style="height:3000px">
+      <input id="off" disabled>
+      <input id="locked" readonly>
+      <input id="gone" style="display:none">
+      <input id="a"><textarea id="b"></textarea><input id="c">
+    </body>`,
   '/links': `<body style="height:5000px">
       <a id="a1" href="/tall">one</a>
       <a id="a2" href="/textarea">two</a>

@@ -53,7 +53,7 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
   if (
     runHistory(id, count) ||
     runMedia(id, opts.volumeStep * count) ||
-    runFocusInput(id) ||
+    runFocusInput(id, count) ||
     runUrl(id) ||
     runPager(id)
   )

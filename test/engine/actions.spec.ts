@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { loadEngine, serveFixtures } from './harness.ts'
 
 let base: string
@@ -44,5 +44,33 @@ test.describe('pager', () => {
     await page.keyboard.press(']')
     await page.keyboard.press(']')
     await expect(page).toHaveTitle(']]')
+  })
+})
+
+test.describe('focus input', () => {
+  const focusedId = (page: Page) =>
+    page.evaluate(() => document.activeElement?.id ?? '')
+
+  test('gi skips disabled, readonly and hidden fields', async ({ page }) => {
+    await loadEngine(page, `${base}/fields`)
+    await page.keyboard.press('g')
+    await page.keyboard.press('i')
+    await expect.poll(() => focusedId(page)).toBe('a')
+  })
+
+  test('a count picks the nth field', async ({ page }) => {
+    await loadEngine(page, `${base}/fields`)
+    await page.keyboard.press('2')
+    await page.keyboard.press('g')
+    await page.keyboard.press('i')
+    await expect.poll(() => focusedId(page)).toBe('b')
+  })
+
+  test('a count past the end stops at the last field', async ({ page }) => {
+    await loadEngine(page, `${base}/fields`)
+    await page.keyboard.press('9')
+    await page.keyboard.press('g')
+    await page.keyboard.press('i')
+    await expect.poll(() => focusedId(page)).toBe('c')
   })
 })
