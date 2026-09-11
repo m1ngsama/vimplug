@@ -127,7 +127,6 @@ export function startHint(o: HintOptions): HintSession | null {
     node.style.top = `${Math.max(0, r.top)}px`
     node.style.left = `${Math.max(0, r.left)}px`
     shadow.append(node)
-    // A newline cannot be typed, so no text match spans two members of a group.
     return { label: labels[i]!, text: group.map(hintText).join('\n'), el, node }
   })
 
@@ -158,7 +157,6 @@ export function startHint(o: HintOptions): HintSession | null {
     cancel: cleanup,
     feed(ch: string, shift = false): FeedResult {
       typed += ch.toLowerCase()
-      // Caps Lock inverts Shift, so either a capital or Shift itself asks for a new tab.
       shifted ||= shift || ch !== ch.toLowerCase()
       const result = filterHints(items, typed)
 

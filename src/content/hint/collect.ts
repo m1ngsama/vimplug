@@ -30,14 +30,12 @@ function onScreen(el: Element): boolean {
   )
 }
 
-// Behind '#' and 'javascript:' a script decides what happens, so equal hrefs prove nothing.
 function linkOf(el: Element): string | null {
   if (el.tagName !== 'A') return null
   const raw = el.getAttribute('href') ?? ''
   return raw === '' || /^(#|javascript:)/i.test(raw) ? null : (el as HTMLAnchorElement).href
 }
 
-// Only within a row: a node tag repeated down a feed still needs a hint where the eye is.
 export function groupTargets(targets: Element[]): Element[][] {
   const groups: Element[][] = []
   const rows: Array<{ href: string; top: number; bottom: number; group: Element[] }> = []
@@ -62,7 +60,6 @@ const up = (el: Element): Element | null =>
 const pointer = (el: Element | null): boolean =>
   el !== null && getComputedStyle(el).cursor === 'pointer'
 
-// Clicks bound in script leave only a pointer cursor; take the top of each pointer run.
 export function collectTargets(root: Document | ShadowRoot): Element[] {
   const found: Element[] = []
   const scripted = new Set<Element>()
@@ -81,13 +78,12 @@ export function collectTargets(root: Document | ShadowRoot): Element[] {
   walk(root)
   if (scripted.size === 0) return found
 
-  // A wrapper around a real target, or a piece of one, would only repeat its hint.
   const real = new Set(found.filter(el => !scripted.has(el)))
-  const above = new Set<Element>()
-  for (const t of real) for (let e = up(t); e && !above.has(e); e = up(e)) above.add(e)
+  const wrappers = new Set<Element>()
+  for (const t of real) for (let e = up(t); e && !wrappers.has(e); e = up(e)) wrappers.add(e)
   const inReal = (el: Element): boolean => {
     for (let e = up(el); e; e = up(e)) if (real.has(e)) return true
     return false
   }
-  return found.filter(el => !scripted.has(el) || (!above.has(el) && !inReal(el)))
+  return found.filter(el => !scripted.has(el) || (!wrappers.has(el) && !inReal(el)))
 }

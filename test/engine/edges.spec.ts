@@ -154,7 +154,6 @@ test.describe('focus decides the mode', () => {
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
   })
 
-  // Bilibili's comment box sits three shadow roots deep.
   test('an editor nested in several shadow roots counts as typing', async ({ page }) => {
     await loadEngine(page, `${base}/shadow`)
     await page.evaluate(() => {
@@ -357,7 +356,6 @@ test.describe('hints', () => {
     await expect(page).toHaveURL(`${base}/tall`)
   })
 
-  // Shift+f reports Shift over a lowercase key; F alone is a capital with no Shift, as Caps Lock gives.
   for (const key of ['Shift+f', 'F']) {
     test(`a label typed as ${key} opens the link in a new tab`, async ({ page }) => {
       await loadEngine(page, `${base}/links`)

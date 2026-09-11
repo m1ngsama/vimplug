@@ -32,7 +32,6 @@ const look = (page: Page): Promise<State> =>
       panels: document.querySelectorAll('[data-vimplug-ui]').length,
       ours: a instanceof HTMLElement && 'vimplugUi' in a.dataset,
       y: Math.round(window.scrollY),
-      // Counting every body child flakes: V2EX adds ad iframes while hints are up.
       hints: [...document.body.children].filter(
         c => c instanceof HTMLElement && c.style.zIndex === '2147483647' && !('vimplugUi' in c.dataset),
       ).length,
