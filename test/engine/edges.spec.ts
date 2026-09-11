@@ -152,6 +152,23 @@ test.describe('focus decides the mode', () => {
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
   })
 
+  // Bilibili's comment box sits three shadow roots deep.
+  test('an editor nested in several shadow roots counts as typing', async ({ page }) => {
+    await loadEngine(page, `${base}/shadow`)
+    await page.evaluate(() => {
+      let root: ShadowRoot = document.getElementById('h')!.attachShadow({ mode: 'open' })
+      for (let i = 0; i < 2; i += 1) {
+        const inner = document.createElement('div')
+        root.append(inner)
+        root = inner.attachShadow({ mode: 'open' })
+      }
+      root.innerHTML = '<div id="e" contenteditable></div>'
+      ;(root.getElementById('e') as HTMLElement).focus()
+    })
+    await page.keyboard.type('jjjj')
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  })
+
   test('typing in a contenteditable does not scroll', async ({ page }) => {
     await loadEngine(page, `${base}/editable`)
     await page.focus('#e')
