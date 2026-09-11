@@ -1,12 +1,14 @@
 import { test, expect, type Page } from '@playwright/test'
 import { loadEngine, serveFixtures, state, composingKey } from './harness.ts'
 
-// Scrolling is animated, so a value read as soon as it passes a threshold is mid-flight.
-async function settled(page: Page): Promise<number> {
+// A busy machine can start the animation later than one poll, so leave `from` before settling.
+async function settled(page: Page, from: number): Promise<number> {
+  await expect.poll(() => page.evaluate(() => window.scrollY)).not.toBe(from)
   let last = -1
-  for (let i = 0; i < 40; i += 1) {
+  let quiet = 0
+  for (let i = 0; i < 40 && quiet < 2; i += 1) {
     const y = await page.evaluate(() => window.scrollY)
-    if (y === last) return y
+    quiet = y === last ? quiet + 1 : 0
     last = y
     await page.waitForTimeout(60)
   }
@@ -17,7 +19,7 @@ async function settled(page: Page): Promise<number> {
 // where macOS reports 60. Measure one and compare against it.
 async function step(page: Page): Promise<number> {
   await page.keyboard.press('j')
-  const y = await settled(page)
+  const y = await settled(page, 0)
   await page.evaluate(() => window.scrollTo(0, 0))
   return y
 }
@@ -49,11 +51,11 @@ test.describe('counts', () => {
 
     await page.keyboard.press('3')
     await page.keyboard.press('j')
-    const after = await settled(page)
+    const after = await settled(page, 0)
     expect(after).toBeGreaterThan(one * 2)
 
     await page.keyboard.press('j')
-    const next = await settled(page)
+    const next = await settled(page, after)
     expect(next).toBeGreaterThan(after)
     expect(next).toBeLessThan(after + one * 2)
   })
@@ -65,7 +67,7 @@ test.describe('counts', () => {
     await page.keyboard.press('5')
     await page.keyboard.press('Escape')
     await page.keyboard.press('j')
-    const y = await settled(page)
+    const y = await settled(page, 0)
     expect(y).toBeGreaterThan(0)
     expect(y).toBeLessThan(one * 2)
   })
@@ -76,7 +78,7 @@ test.describe('counts', () => {
 
     await page.keyboard.press('0')
     await page.keyboard.press('j')
-    const y = await settled(page)
+    const y = await settled(page, 0)
     expect(y).toBeGreaterThan(0)
     expect(y).toBeLessThan(one * 2)
   })
