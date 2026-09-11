@@ -150,7 +150,7 @@ site mail.google.com {
   disable
 }
 
-set hintChars = "fjdkslagh"
+set hintChars = "fjdkslaghrueiwo"
 set keyMatching = physical
 ```
 

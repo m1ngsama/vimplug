@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { generateLabels } from './labels.ts'
+import { resolveForHost } from '../../shared/config.ts'
 
 const noPrefixCollision = (labels: string[]) => {
   for (const a of labels) {
@@ -42,6 +43,11 @@ test('a realistic page keeps most labels to two characters', () => {
   const labels = generateLabels(60, 'fjdkslagh')
   assert.ok(labels.every(l => l.length <= 2), 'some label needed three characters')
   assert.ok(labels.filter(l => l.length === 1).length > 0, 'no single-character labels at all')
+})
+
+test('the default alphabet keeps a page of 200 hints to two keys', () => {
+  const { hintChars } = resolveForHost('', 'example.com').options
+  assert.ok(generateLabels(200, hintChars).every(l => l.length <= 2))
 })
 
 test('only alphabet characters appear', () => {
