@@ -1,7 +1,3 @@
-// Labels are prefix-free but not fixed width: the shortest available label is expanded
-// only when more are needed, so the first targets keep one-character hints even on a page
-// with dozens of them. Prefix-free is what lets a hint fire the moment its last character
-// arrives, with no timeout and no ambiguity.
 export function generateLabels(count: number, chars: string): string[] {
   const n = chars.length
   if (count <= 0 || n < 2) return []

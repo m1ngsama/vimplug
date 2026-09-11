@@ -6,7 +6,6 @@ export interface Overlay {
   setRows(rows: Row[]): void
 }
 
-// Enter keeps what a search found, Escape puts the page back; onClose alone cannot tell.
 export type CloseReason = 'cancel' | 'pick' | 'submit'
 
 interface OverlayConfig {
@@ -16,12 +15,8 @@ interface OverlayConfig {
   onPick(value: string, query: string, shift: boolean): void
   onClose(reason: CloseReason): void
   onInput?(query: string): void
-  // Lets Enter mean something when there are no rows to pick, as in find.
   onSubmit?(query: string): void
-  // Live sources rank their own results, so the shell must not filter them again.
   live?: boolean
-  // Applied at render time against the live input, so a row standing for what was typed
-  // is never a keystroke behind the async results it sits among.
   compose?(rows: Row[], query: string): Row[]
   theme: Tokens
 }
@@ -67,10 +62,6 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
   input.value = cfg.value ?? ''
   const list = document.createElement('ul')
 
-  // Our input lives in a shadow root, so retargeting shows the page a plain div as the
-  // event target. Every site's "is the user typing in a field?" check then says no and its
-  // single-key shortcuts fire on each character: on GitHub, typing a query runs the s
-  // shortcut and the caret is gone. Keys typed into the panel are ours.
   for (const type of ['keydown', 'keypress', 'keyup', 'input']) {
     host.addEventListener(type, e => e.stopPropagation())
   }
@@ -124,8 +115,6 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
     cfg.onInput?.(input.value)
   })
 
-  // Only navigation and submit keys are intercepted. Everything else, spaces included,
-  // reaches the input untouched.
   input.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       e.preventDefault()
@@ -152,7 +141,6 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
         cfg.onPick(row.value, input.value, e.shiftKey)
         return
       }
-      // A find has no rows, and vim's <CR> commits the search rather than doing nothing.
       if (cfg.onSubmit) {
         const query = input.value
         close('submit')
@@ -161,8 +149,6 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
     }
   })
 
-  // Some pages refocus their own field on a timer, which owes nothing to our events and so
-  // survives the focus shield. Taking it back on the next task beats that timer.
   input.addEventListener('blur', () => {
     if (closed) return
     setTimeout(() => {
@@ -170,8 +156,6 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
     }, 0)
   })
 
-  // The timer can still win a single keystroke in the gap. While the panel is open the key
-  // is ours, so anything landing elsewhere is dropped rather than typed into the page.
   const guard = (e: KeyboardEvent) => {
     if (closed || e.target === host) return
     e.preventDefault()

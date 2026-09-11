@@ -6,7 +6,6 @@ function parsed(url: string): URL | null {
   }
 }
 
-// A query or fragment is a step of its own: dropping it is what the user meant first.
 export function parentUrl(url: string): string | null {
   const u = parsed(url)
   if (!u) return null

@@ -25,13 +25,10 @@ async function activeTabUrl(): Promise<string> {
   })
 }
 
-// Overlays and hints render on the next frame; a fixed pause is a guess that fails on a
-// loaded machine, which is exactly when the whole suite runs.
 async function pressOverlay(page: Page, key: string): Promise<void> {
   await page.keyboard.press(key)
   await page.waitForSelector('[data-vimplug-ui]', { state: 'attached' })
 }
-
 
 async function pressHint(page: Page, key: string): Promise<void> {
   const before = await page.evaluate(() => document.body.childElementCount)
@@ -50,8 +47,6 @@ async function setDsl(dsl: string): Promise<void> {
 test.beforeAll(async () => {
   ;({ base, stop } = await serveFixtures())
 
-  // channel:'chromium' picks the full browser rather than the headless shell, which is
-  // the build that loads MV3 extensions. Headless keeps the suite from stealing focus.
   ctx = await chromium.launchPersistentContext('', {
     channel: 'chromium',
     headless: true,
@@ -73,8 +68,6 @@ test('j scrolls the page in normal mode', async () => {
   await page.close()
 })
 
-// The engine animates while the key is held rather than reacting to OS key repeat, so a
-// single keydown with no repeats must still scroll far.
 test('holding j scrolls continuously and stops when released', async () => {
   const page = await open('/tall')
 
@@ -241,8 +234,7 @@ test('invariant 2: unbound modifier combos reach the page', async () => {
   await page.close()
 })
 
-// Playwright's press('H') sends code=KeyH with shiftKey FALSE, which no real keyboard can
-// produce. Shifted bindings must be driven as 'Shift+<lowercase>'.
+// press('H') sends shiftKey false, which no keyboard does: drive shifted keys as 'Shift+h'.
 test('shift+k switches to the next tab through the background channel', async () => {
   const first = await open('/tall?1')
   const second = await open('/tall?2')
@@ -592,17 +584,13 @@ test('adding a disabled site from the GUI takes effect', async () => {
   await setDsl(DEFAULT_DSL)
 })
 
-// Saving options re-registers content scripts, which can deliver the engine to a loading
-// page twice. Two engines would double every keystroke.
 test('a second injection does not produce a second engine', async () => {
-  // Instant scrolling is required to see the fault: two smooth scrollBy calls in one frame
-  // both target current+60 and the second replaces the first, hiding the doubling.
+  // Smooth scrolling hides the doubling: two scrollBy calls in one frame share a target.
   await setDsl(`${DEFAULT_DSL}\nset scrollSmooth = false`)
   const page = await open('/tall')
 
   const [sw] = ctx.serviceWorkers()
-  // Target by URL: a Playwright page is not necessarily the active tab, and injecting
-  // into the wrong one would make this test prove nothing.
+  // Target by URL: the Playwright page may not be the active tab, and the test would prove nothing.
   const injected = await sw!.evaluate(async (want: string) => {
     const tabs = await chrome.tabs.query({})
     const tab = tabs.find(t => t.url === want)
@@ -665,7 +653,6 @@ test('find takes its colours off the page root and gives them back', async () =>
     .poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')))
     .toBe('#a3be8c')
 
-  // Escape cancels outright: the panel closes and the search is retired with it.
   await page.keyboard.press('Escape')
   await expect
     .poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')))

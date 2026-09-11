@@ -14,8 +14,6 @@ test('a bare domain gets https', () => {
   assert.equal(clipboardTarget('sub.example.co.uk/path', SEARCH), 'https://sub.example.co.uk/path')
 })
 
-// Chrome's omnibox sends loopback to http and everything else to https; dev servers are
-// almost never TLS, so guessing https there just breaks the navigation.
 test('loopback hosts get http, not https', () => {
   assert.equal(clipboardTarget('localhost:3000', SEARCH), 'http://localhost:3000')
   assert.equal(clipboardTarget('localhost', SEARCH), 'http://localhost')

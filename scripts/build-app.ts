@@ -7,8 +7,7 @@ const LSREGISTER =
 
 const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }
 
-// Ad-hoc signed: unsigned, the appex loses its sandbox entitlement and Safari won't load it.
-// CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO would strip the sandbox along with get-task-allow.
+// Ad-hoc signed so the appex keeps its sandbox; CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO strips it too.
 execFileSync(
   'xcodebuild',
   [

@@ -2,8 +2,6 @@ import { hasModifier, type Key } from './keys.ts'
 
 const MAX = 1000
 
-// vim's numeric prefix. A bare 0 is left alone because it is a binding of its own here,
-// scroll to the left edge; inside a count it is just a digit.
 export class CountBuffer {
   #digits = ''
 

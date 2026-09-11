@@ -33,22 +33,18 @@ const STYLE = `
   transform-origin: 0 0;
   transition: opacity 90ms ease, transform 90ms ease, background-color 90ms ease;
 }
-/* The characters already typed, so the eye lands on what is left to press. */
 .h .done { opacity: .4 }
 .h[data-off] {
   opacity: .35;
   transform: scale(.92);
   background: color-mix(in srgb, var(--vp-accent) 35%, transparent);
 }
-/* Narrowed by link text rather than by label: there is no prefix to mark. */
 .h[data-hit] { box-shadow: 0 0 0 2px color-mix(in srgb, var(--vp-accent) 45%, transparent) }
 @media (prefers-reduced-motion: reduce) { .h { transition: none } }
 `
 
 const FOCUSABLE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'IFRAME'])
 
-// Many players and frameworks act on the pointer sequence and ignore a bare click(), so
-// hints replay what a real mouse does before clicking. YouTube's skip-ad button is one.
 function realClick(el: Element): void {
   const r = el.getBoundingClientRect()
   const base = {
@@ -136,8 +132,6 @@ export function startHint(o: HintOptions): HintSession | null {
   let typed = ''
   let shifted = false
 
-  // Labels are positioned against the viewport, so anything that moves the page makes
-  // them point at the wrong things. That, not a timer, is when hints stop being valid.
   const invalidate = () => o.onInvalid()
   window.addEventListener('scroll', invalidate, { passive: true })
   window.addEventListener('resize', invalidate, { passive: true })
@@ -183,8 +177,6 @@ export function startHint(o: HintOptions): HintSession | null {
         if (result.by === 'text') {
           i.node.setAttribute('data-hit', '')
         } else {
-          // Split only the survivors: a page can carry hundreds of hints and the first
-          // render must not pay for an animation none of them have started yet.
           const done = document.createElement('span')
           done.className = 'done'
           done.textContent = i.label.slice(0, typed.length)

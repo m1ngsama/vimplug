@@ -53,8 +53,6 @@ export class Matcher {
       this.reset()
       return { kind: 'none' }
     }
-    // A node with children stays pending even if it also carries an action, so a
-    // longer binding shadows a shorter one sharing its prefix.
     if (next.children.size > 0) {
       this.#cursor = next
       return { kind: 'pending' }

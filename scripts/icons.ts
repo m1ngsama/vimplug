@@ -1,8 +1,6 @@
 import { chromium } from '@playwright/test'
 import { mkdirSync, writeFileSync } from 'node:fs'
 
-// A keycap: yellow face over a darker skirt, carrying a bold v. The yellow is the same
-// one the hint overlay paints, so the icon and the thing you see every day match.
 const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <rect x="8" y="8" width="112" height="112" rx="24" fill="#b8933a"/>
   <rect x="8" y="8" width="112" height="102" rx="24" fill="#ffd76e"/>

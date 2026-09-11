@@ -1,8 +1,6 @@
 import { applyTheme, type Tokens } from '../shared/theme.ts'
 import type { Mode } from './mode.ts'
 
-// Only the modes with nothing else on screen: hint and command draw themselves, pending
-// releases within a keystroke, and insert is reached by clicking a field.
 export function indicatorLabel(m: Mode): string | null {
   if (m === 'passthrough') return '-- INSERT --'
   if (m === 'visual') return '-- VISUAL --'
@@ -22,7 +20,6 @@ const STYLE = `
 
 export function createIndicator(theme: Tokens): (mode: Mode) => void {
   let host: HTMLElement | null = null
-  // The shadow root is closed, so host.shadowRoot is null and the badge is held here.
   let badge: HTMLElement | null = null
 
   return mode => {

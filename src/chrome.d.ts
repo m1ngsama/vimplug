@@ -1,5 +1,3 @@
-// Hand-written subset of the extension API. @types/chrome is a large surface we use
-// almost none of; extend this as new calls are needed.
 declare namespace chrome {
   namespace storage {
     interface StorageArea {

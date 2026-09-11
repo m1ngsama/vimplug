@@ -1,7 +1,5 @@
 export type Mode = 'normal' | 'insert' | 'hint' | 'command' | 'passthrough' | 'pending' | 'visual'
 
-// hint draws over the page and reads raw keys, so it needs the global listener. command
-// owns a real text input, so the listener must be off or it would eat what is typed.
 const NEEDS_KEYDOWN: Record<Mode, boolean> = {
   normal: true,
   hint: true,
@@ -12,10 +10,6 @@ const NEEDS_KEYDOWN: Record<Mode, boolean> = {
   passthrough: false,
 }
 
-// Only pending is an invisible wait, and only invisible waits need a deadline: a mistyped
-// key after M would otherwise wedge the engine with nothing on screen to explain it.
-// hint, command and visual all show what they are doing and wait for the user. Hints are
-// retired by what actually invalidates them, a scroll or a resize, not by a clock.
 const TRANSIENT: ReadonlySet<Mode> = new Set<Mode>(['pending'])
 
 export function needsKeydown(m: Mode): boolean {
@@ -49,7 +43,6 @@ export class ModeMachine {
       clearTimeout(this.#timer)
       this.#timer = null
     }
-    // Transient modes always have a way out, so a botched rebind cannot wedge the engine.
     if (TRANSIENT.has(next)) {
       this.#timer = setTimeout(() => this.enter('normal'), this.#timeout)
     }

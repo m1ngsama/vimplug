@@ -62,8 +62,6 @@ test('an empty alphabet yields no labels rather than looping', () => {
   assert.deepEqual(generateLabels(5, ''), [])
 })
 
-// A prefix-free set larger than one is impossible with a single character, so rather
-// than emit ambiguous labels the engine declines and hint mode simply does not open.
 test('a single-character alphabet yields no labels', () => {
   assert.deepEqual(generateLabels(3, 'a'), [])
 })

@@ -12,10 +12,8 @@ export function buildManifest(target: Target, version: string): Record<string, u
       '48': 'icon-48.png',
       '128': 'icon-128.png',
     },
-    // No default_popup: clicking should toggle the site outright, not open a menu.
     action: { default_title: 'Toggle vimplug on this site' },
-    // Safari rejects history, bookmarks and sessions. Declaring them there would warn on
-    // every conversion and buy nothing, so each target asks only for what it can use.
+    // Safari rejects the history, bookmarks and sessions permissions.
     permissions:
       target === 'safari'
         ? ['scripting', 'storage', 'tabs']

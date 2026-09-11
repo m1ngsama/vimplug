@@ -17,16 +17,13 @@ export function canScroll(m: ScrollMetrics, axis: 'x' | 'y', dir: -1 | 1): boole
 
   const size = axis === 'y' ? m.clientHeight : m.clientWidth
   const content = axis === 'y' ? m.scrollHeight : m.scrollWidth
-  // A pixel of slack: sub-pixel layout leaves scrollHeight a hair above clientHeight on
-  // elements that do not scroll at all.
+  // Sub-pixel layout leaves scrollHeight a hair over clientHeight on boxes that don't scroll.
   if (content <= size + 1) return false
 
   const at = axis === 'y' ? m.scrollTop : m.scrollLeft
   return dir === 1 ? at < content - size - 1 : at > 0
 }
 
-// Innermost first. An element already at its limit is passed over so the scroll continues
-// into the surrounding region rather than dying against the edge of a pane.
 export function pickScrollable(
   chain: ScrollMetrics[],
   axis: 'x' | 'y',
@@ -58,8 +55,6 @@ function metricsOf(el: Element): ScrollMetrics {
   }
 }
 
-// A box is a live view, not a snapshot: it outlives the press that created it, and an
-// absolute jump reading a stale scroll position would travel the wrong distance.
 function boxOfElement(el: Element): ScrollBox {
   return {
     get height() {
@@ -108,9 +103,6 @@ function ancestors(start: Element | null): Element[] {
   return out
 }
 
-// Modern apps scroll a pane, not the document. Starting from whatever has focus, and
-// falling back to whatever sits in the middle of the viewport, finds the region the user
-// is actually looking at; the window is the last resort, not the first choice.
 function scrollableFrom(seed: Element | null, axis: 'x' | 'y', dir: -1 | 1): Element | null {
   const chain = ancestors(seed).filter(
     el => el !== document.documentElement && el !== document.body,
@@ -119,8 +111,6 @@ function scrollableFrom(seed: Element | null, axis: 'x' | 'y', dir: -1 | 1): Ele
   return hit === -1 ? null : chain[hit]!
 }
 
-// With nothing focused, activeElement is body rather than null, which is not a hint about
-// where the user is looking. Only a real focus counts as one.
 function meaningfulFocus(el: Element | null): Element | null {
   return el && el !== document.body && el !== document.documentElement ? el : null
 }

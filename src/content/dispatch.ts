@@ -10,7 +10,6 @@ export function boundKeyIds(bindings: Binding[], matching: KeyMatching): Readonl
   return out
 }
 
-// Invariant 2: a modifier combo belongs to the page unless the user bound it here.
 export function shouldHandle(
   k: Key,
   boundIds: ReadonlySet<string>,

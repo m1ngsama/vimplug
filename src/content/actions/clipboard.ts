@@ -1,7 +1,6 @@
 const HAS_PROTOCOL = /^[a-z][a-z0-9+.-]*:\/\//i
 const BARE_HOST = /^[\w-]+(\.[\w-]+)+(:\d+)?([/?#].*)?$/
 const LOCALHOST = /^localhost(:\d+)?([/?#].*)?$/i
-// Dev servers are almost never TLS, so loopback keeps http the way the omnibox does.
 const LOOPBACK = /^(localhost|127(\.\d{1,3}){3}|0\.0\.0\.0|\[::1\])(:\d+)?([/?#].*)?$/i
 
 export function looksLikeUrl(text: string): boolean {

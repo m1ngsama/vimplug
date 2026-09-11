@@ -278,8 +278,6 @@ function render(): void {
   )
 }
 
-// Capture runs on the window so a rebind can claim keys the browser would otherwise
-// route to the focused control.
 window.addEventListener(
   'keydown',
   e => {

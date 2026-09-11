@@ -1,7 +1,5 @@
 import { shieldOurFocus } from './focus-shield.ts'
 
-// Safari path. Fail-closed: registers nothing and loads nothing until the background
-// confirms this host is enabled.
 async function boot(): Promise<void> {
   const res = await chrome.runtime
     .sendMessage({ type: 'siteEnabled', host: location.hostname })

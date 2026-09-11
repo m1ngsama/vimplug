@@ -27,7 +27,6 @@ async function suggest(query: string, only?: 'bookmark'): Promise<Row[]> {
   const rows = (res as { rows?: Suggested[] } | null)?.rows ?? []
   return rows.map(r => ({
     label: r.title || r.url,
-    // The source matters: one row switches to a tab you already have, another opens a page.
     sub: `${LABEL[r.kind]}  ${r.url}`,
     value: r.tabId === undefined ? `url:${r.url}` : `tab:${r.tabId}`,
   }))
@@ -56,7 +55,6 @@ export async function startOverlay(
       rows: [],
       onInput: onFind,
       onPick: () => {},
-      // Enter commits: the panel closes and the matches stay for n and N.
       onSubmit: () => {},
       onClose,
       theme,
@@ -109,9 +107,6 @@ export async function startOverlay(
     if (url) openTarget(url, shift)
   }
 
-  // What you typed is a row like any other, so Enter always means "take the highlighted
-  // row" and never has to guess between navigating and searching. A URL leads, because
-  // typing one is unambiguous; a phrase trails the matches it might have been looking for.
   const withRaw = (rows: Row[], query: string): Row[] => {
     const raw = query.trim()
     if (raw === '' || bookmarksOnly) return rows

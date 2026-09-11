@@ -4,7 +4,6 @@ export interface PagerCandidate {
   ariaLabel: string
 }
 
-// Whole words only: "nextdoor" is a neighbourhood, not the following page.
 const WORDS: Record<1 | -1, RegExp> = {
   1: /(^|\s)(next|older|more|forward)(\s|$)|^[›»→>]+$/i,
   [-1]: /(^|\s)(prev|previous|newer|back)(\s|$)|^[‹«←<]+$/i,

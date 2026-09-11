@@ -11,8 +11,6 @@ async function step(windowId: number, dir: 1 | -1, repeat: number): Promise<void
   if (target?.id !== undefined) await chrome.tabs.update(target.id, { active: true })
 }
 
-// The tab you were on a moment ago is the one you are most likely to want next, which is
-// why every serious tab switcher has a single key for it.
 let previousTabId: number | null = null
 let currentTabId: number | null = null
 
@@ -72,7 +70,7 @@ export async function runTabAction(id: string, tab: chrome.tabs.Tab, count = 1):
       if (tabId !== undefined) await chrome.tabs.remove(tabId)
       return true
     case 'restoreTab':
-      // Safari has no sessions API; there is nothing to reopen rather than a crash.
+      // Safari has no sessions API.
       await chrome.sessions?.restore().catch(() => {})
       return true
     case 'duplicateTab':

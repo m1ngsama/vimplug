@@ -1,19 +1,16 @@
 import { createServer } from 'node:http'
 
-// Content scripts do not match about:blank or data: URLs, so fixtures need a real origin.
 const PAGES: Record<string, string> = {
   '/tall': '<body style="height:5000px">hi</body>',
   '/textarea': '<body style="height:5000px"><textarea id="t"></textarea></body>',
   '/editable': '<body style="height:5000px"><div id="e" contenteditable></div></body>',
   '/shadow': '<body style="height:5000px"><div id="h"></div></body>',
-  // No query any test types may appear here, or a working find reads the same as a leaked
-  // scroll command. Incremental search means every prefix has to miss too.
+  // No test query, nor any prefix of one, may appear here: find is incremental.
   '/find': `<body>
       <div style="height:2000px">top</div>
       <p id="needle">findmethistext</p>
       <div style="height:2000px">bottom</div>
     </body>`,
-  // A control that only reacts to the pointer sequence, like YouTube's skip-ad button.
   '/pointer': `<body style="height:5000px">
       <button id="p">skip</button>
       <script>
@@ -22,7 +19,6 @@ const PAGES: Record<string, string> = {
         })
       </script>
     </body>`,
-  // The shape of Gmail, Slack and most docs sites: the page does not scroll, a pane does.
   '/pane': `<body style="margin:0;height:100vh;overflow:hidden">
       <div id="pane" style="height:100vh;overflow-y:auto" tabindex="0">
         <div style="height:5000px">pane content</div>
@@ -55,11 +51,8 @@ const PAGES: Record<string, string> = {
         }
       })
     </script></body>`,
-  // A site that focuses its own search box on load.
   '/steals': `<body style="height:5000px"><input id="s">
       <script>document.getElementById('s').focus()</script></body>`,
-  // A focus trap: the page takes focus back whenever anything else gains it. The shape of
-  // an editor, a modal, or any site that insists on keeping the caret.
   '/focusfight': `<body style="height:5000px">
       <input id="trap">
       <script>
@@ -68,13 +61,10 @@ const PAGES: Record<string, string> = {
         }, true)
       </script>
     </body>`,
-  // Refocuses on a timer, regardless of events, so hiding focus events is not enough.
   '/refocus': `<body style="height:5000px">
       <input id="trap">
       <script>setInterval(() => document.getElementById('trap').focus(), 50)</script>
     </body>`,
-  // GitHub's shape: a bare letter focuses the site's own search unless the user is judged
-  // to be typing. Retargeting shows such a check our host div, not our input.
   '/shortcuts': `<body style="height:5000px">
       <input id="site-search">
       <script>
@@ -86,7 +76,6 @@ const PAGES: Record<string, string> = {
         })
       </script>
     </body>`,
-  // Two matches far apart, so n has somewhere to go.
   '/twice': `<body>
       <div style="height:1500px">top</div>
       <p id="one">alpha marker</p>
@@ -94,20 +83,17 @@ const PAGES: Record<string, string> = {
       <p id="two">beta marker</p>
       <div style="height:1500px">end</div>
     </body>`,
-  // Two blocks whose text would run together into "cd" if nothing separated them.
   '/blocks': `<body style="height:3000px">
       <div style="height:1200px">top</div>
       <p>abc</p>
       <p>def</p>
       <div style="height:1200px">tail</div>
     </body>`,
-  // Text in a closed menu. Present in the DOM, not on screen.
   '/hidden': `<body style="height:3000px">
       <div style="height:1200px">top</div>
       <div style="display:none">hiddenword</div>
       <p>visible</p>
     </body>`,
-  // A match split across text nodes, and characters a regex would read as syntax.
   '/awkward': `<body>
       <div style="height:2000px">top</div>
       <p id="split">wo<span>rd</span>break</p>

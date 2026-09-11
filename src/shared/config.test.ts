@@ -91,8 +91,6 @@ test('a boolean option reads false only from the literal string', () => {
   assert.equal(resolveForHost('set scrollSmooth = true', 'a.com').options.scrollSmooth, true)
 })
 
-// A notation the parser cannot read produces no binding and no error anyone sees. This is
-// the only test that would notice.
 test('every action in the registry resolves to a binding from the shipped defaults', () => {
   const bound = new Set(
     resolveForHost(DEFAULT_DSL, 'example.com').bindings.normal.map(b => b.action),

@@ -5,9 +5,6 @@ const ALL = 'vimplug-find'
 const CURRENT = 'vimplug-find-current'
 const STYLE_ID = 'vimplug-find-style'
 
-// The Custom Highlight API paints without touching the document tree, and the one rule we
-// add targets only our named highlights. The theme tokens are the exception: see
-// ensureStyle.
 const STYLE = `
 ::highlight(${ALL}) { background: var(--vp-match); color: var(--vp-accent-fg) }
 ::highlight(${CURRENT}) { background: var(--vp-match-cur); color: var(--vp-accent-fg) }
@@ -18,8 +15,6 @@ interface Piece {
   start: number
 }
 
-// Inline elements continue a line, so text either side of one is a single run: a query for
-// "wordbreak" has to find wo<span>rd</span>break. Anything else starts a new line.
 const INLINE = new Set([
   'A', 'ABBR', 'B', 'BDI', 'BDO', 'BR', 'CITE', 'CODE', 'DATA', 'DFN', 'EM', 'I', 'KBD',
   'LABEL', 'MARK', 'OUTPUT', 'Q', 'S', 'SAMP', 'SMALL', 'SPAN', 'STRONG', 'SUB', 'SUP',
@@ -41,8 +36,6 @@ function walk(): { text: string; pieces: Piece[] } {
     const node = n as Text
     const parent = node.parentElement
     if (!parent || parent.closest('script, style, noscript')) continue
-    // Without a break between blocks the nodes run together and a query matches across two
-    // unrelated elements: one ending in "a" beside one starting "dl" answers to "adl".
     const block = blockOf(node)
     if (lastBlock !== null && block !== lastBlock) text += '\n'
     lastBlock = block
@@ -87,9 +80,7 @@ export function createFind(theme: Tokens): FindSession | null {
 
   const ensureStyle = () => {
     if (style) return
-    // Highlight pseudo-elements inherit from the element they mark, so the tokens have to
-    // reach the page root. This is the one place the engine touches the page's own style;
-    // clear() takes it back off.
+    // ::highlight() inherits from the element it marks, so the tokens sit on <html> until clear().
     applyTheme(document.documentElement, theme)
     style = document.createElement('style')
     style.id = STYLE_ID
@@ -111,8 +102,6 @@ export function createFind(theme: Tokens): FindSession | null {
   const reveal = () => {
     const cur = ranges[index]
     const rect = cur?.getBoundingClientRect()
-    // A box of nothing gives rect.top 0, and scrollBy would then walk the page upwards by
-    // a third of the viewport on every keystroke.
     if (!rect || (rect.width === 0 && rect.height === 0)) return
     window.scrollBy({
       top: rect.top - window.innerHeight / 3,
@@ -126,8 +115,6 @@ export function createFind(theme: Tokens): FindSession | null {
       const { text, pieces } = walk()
       ranges = collectMatches(text, query)
         .map(s => toRange(pieces, s.start, s.end))
-        // Pages carry text in closed menus and templates. It is not on screen, so it is
-        // not a match, and a hidden range has no box to scroll to anyway.
         .filter((r): r is Range => r !== null && r.getBoundingClientRect().width > 0)
       index = 0
       paint()

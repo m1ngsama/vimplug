@@ -24,9 +24,6 @@ async function loadDsl(): Promise<string> {
   return typeof dsl === 'string' ? dsl : DEFAULT_DSL
 }
 
-// Content scripts of one extension share an isolated world per frame, so this flag is
-// invisible to the page and survives a second injection. Re-registering scripts while a
-// page is loading can deliver the engine twice; two engines would double every keystroke.
 declare global {
   interface Window {
     __vimplugLoaded?: true
@@ -55,13 +52,11 @@ async function main(): Promise<void> {
   let hint: HintSession | null = null
 
   let overlay: Overlay | null = null
-  // Set before the overlay is built: its input takes focus synchronously, so a handle
-  // assigned from the promise would arrive after focusin has already re-synced the mode.
+  // Set before building: the input focuses synchronously, and focusin would re-sync the mode first.
   let overlayOpen = false
   const finder = createFind(theme)
   let awaitingMark: 'set' | 'jump' | null = null
 
-  // The runtime owns key identity so actions never need to know which key ran them.
   const dispatch = (id: string, key: string | null, times = 1): boolean =>
     scroller.press(id, key, times) || runAction(id, ctx, times)
 
@@ -104,7 +99,6 @@ async function main(): Promise<void> {
       return true
     },
     find: dir => {
-      // Opening needs no finder: without the Highlight API only the painting is skipped.
       if (dir === 'open') return ctx.startOverlay('find')
       if (!finder) return false
       finder.step(dir)
@@ -113,7 +107,6 @@ async function main(): Promise<void> {
     startOverlay: kind => {
       if (overlayOpen) return false
       overlayOpen = true
-      // Cancelling a search puts the page back, so where it sat has to be kept.
       const origin = kind === 'find' ? { x: window.scrollX, y: window.scrollY } : null
       modes.enter('command')
       void startOverlay(
@@ -132,8 +125,6 @@ async function main(): Promise<void> {
         id => dispatch(id, null),
         theme,
         query => {
-          // Typing past the last match must not leave the page on the result of whatever
-          // prefix matched before it.
           if ((finder?.search(query) ?? 0) === 0 && origin) window.scrollTo(origin.x, origin.y)
         },
       ).then(o => {
@@ -143,8 +134,7 @@ async function main(): Promise<void> {
     },
   }
 
-  // Safari ends the composition before delivering the final keydown, so isComposing is
-  // false on the key that closed the IME; justEnded covers it and clears on the next task.
+  // Safari ends composition before the final keydown, so isComposing is false on it; justEnded covers that key.
   let composing = false
   let justEnded = false
   document.addEventListener('compositionstart', () => (composing = true), true)
@@ -204,8 +194,6 @@ async function main(): Promise<void> {
     const key = fromEvent(e)
     if (!shouldHandle(key, boundIds, keyMatching)) return
 
-    // A digit only starts a count when no binding is half-typed, so g0 could still reach
-    // the matcher if it were ever bound.
     if (!matcher.pending && count.feed(key)) {
       e.preventDefault()
       return
@@ -215,22 +203,16 @@ async function main(): Promise<void> {
     if (r.kind === 'none') count.reset()
     if (r.kind === 'match' && dispatch(r.action, keyId(key, keyMatching), count.take())) {
       e.preventDefault()
-      // A key we acted on is not the page's too. Sites bind bare letters: MDN and GitHub
-      // both take `/` to their own search box, and preventDefault cannot undo a focus()
-      // they called themselves.
       e.stopImmediatePropagation()
     }
   }
 
   const onKeyup = (e: KeyboardEvent) => scroller.release(keyId(fromEvent(e), keyMatching))
 
-  // Passthrough detaches the main listener, so it needs its own way out. This one only
-  // observes Esc and never calls preventDefault, so the page keeps its own Esc handling.
   let escapeHatch: ((e: KeyboardEvent) => void) | null = null
   const setHatch = (on: boolean) => {
     if (on && !escapeHatch) {
       escapeHatch = e => {
-        // Escape ends an IME candidate list too, and that one is not a request to leave.
         if (e.key === 'Escape' && !fromInputMethod(e)) modes.enter('normal')
       }
       document.addEventListener('keydown', escapeHatch, true)
@@ -240,8 +222,6 @@ async function main(): Promise<void> {
     }
   }
 
-  // Invariant 1: the mode machine is the only thing that attaches or detaches the
-  // listener, so insert mode leaves nothing on the typing path.
   let attached = false
   const attach = () => {
     if (attached) return
@@ -262,7 +242,6 @@ async function main(): Promise<void> {
     else detach()
     setHatch(next === 'passthrough')
     showMode(next)
-    // Covers the mode machine's own timeout, so a stale overlay cannot outlive hint mode.
     if (prev === 'hint' && next !== 'hint') {
       hint?.cancel()
       hint = null
@@ -270,10 +249,7 @@ async function main(): Promise<void> {
     if (prev === 'pending' && next !== 'pending') awaitingMark = null
   })
 
-  // Our own overlay input takes focus; syncing on it would drop us back to normal and
-  // re-attach the global listener over the field the user is typing in.
-  // A key held when the window loses focus never delivers its keyup, and the axis would
-  // keep accelerating against a page nobody is looking at.
+  // A key held while the window loses focus never sends its keyup.
   window.addEventListener('blur', () => scroller.releaseAll())
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) scroller.releaseAll()

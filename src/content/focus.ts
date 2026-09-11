@@ -24,9 +24,6 @@ export function isEditable(el: Element | null): boolean {
   return DETECTORS.some(d => d(el))
 }
 
-// A focused iframe is handled by the engine instance inside it, or is cross-origin and
-// unobservable. Either way the outer document stays out of the way: better to miss a
-// keystroke than to steal one.
 export function modeForFocus(el: Element | null): Mode {
   if (el?.tagName === 'IFRAME') return 'passthrough'
   return isEditable(el) ? 'insert' : 'normal'

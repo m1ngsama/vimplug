@@ -5,8 +5,6 @@ import { DEFAULT_DSL } from '../../src/shared/config.ts'
 
 export { serveFixtures } from '../fixtures.ts'
 
-// Playwright cannot load a Safari extension, so the Safari artifact is injected instead
-// and the few chrome.* calls it makes are shimmed. Extension plumbing is left to test/e2e.
 const ENGINE = readFileSync(resolve('dist/safari/content.js'), 'utf8')
 
 // addInitScript runs before documentElement exists, earlier than document_start.
@@ -20,8 +18,7 @@ function atDocumentStart(src: string): string {
   })()`
 }
 
-// loadDsl only falls back when the reply is not a string, so '' would read as a valid
-// config with no bindings at all.
+// '' is a valid config with no bindings; loadDsl only falls back on a non-string.
 function shim(dsl: string): string {
   return `window.chrome = {
     runtime: {
@@ -61,8 +58,7 @@ export function state(
   }))
 }
 
-// keyCode is the part Safari still sets when it fires compositionend before the last
-// keydown, and a real IME cannot be driven through Playwright.
+// Safari sets keyCode 229 on the keydown after compositionend, and a real IME can't be driven here.
 export function composingKey(page: Page, key: string, code: string): Promise<void> {
   return page.evaluate(
     ([k, c]) => {

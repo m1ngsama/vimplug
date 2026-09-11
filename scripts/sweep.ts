@@ -1,9 +1,6 @@
 import { webkit, type Page } from '@playwright/test'
 import { loadEngine } from '../test/engine/harness.ts'
 
-// Fixtures cover what we thought of. These are pages we did not write, and one pass over
-// them has found defects the whole fixture suite missed. Not a CI job: it needs the
-// network, and someone else's redesign would turn it red for no reason.
 const SITES: Array<[name: string, url: string, query: string]> = [
   ['GitHub PR', 'https://github.com/m1ngsama/vimplug/pull/9', 'files'],
   ['Wikipedia', 'https://en.wikipedia.org/wiki/Vim_(text_editor)', 'editor'],

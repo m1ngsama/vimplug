@@ -27,9 +27,6 @@ type FilterResult =
   | { kind: 'filter'; indexes: number[]; by: 'label' | 'text' }
   | { kind: 'none' }
 
-// Typed characters are tried as a label first; anything else narrows by link text, which
-// is what makes hints usable on a page full of similar-looking links. `by` tells the
-// caller which happened, because only a label prefix can be marked inside the label.
 export function filterHints(items: HintItem[], typed: string): FilterResult {
   const t = typed.toLowerCase()
 

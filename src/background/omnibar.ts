@@ -8,8 +8,6 @@ export interface Suggestion {
   visits?: number
 }
 
-// Switching to a tab already open is cheaper than opening a second copy of it, and a page
-// deliberately bookmarked is a stronger signal than one merely visited.
 const KIND_WEIGHT: Record<SuggestionKind, number> = { tab: 100, bookmark: 50, history: 0 }
 
 function score(item: Suggestion, query: string): number {
@@ -32,7 +30,6 @@ export function rankSuggestions(items: Suggestion[], query: string): Suggestion[
     return terms.every(t => hay.includes(t))
   })
 
-  // One row per destination: the same page reached from three sources is still one page.
   const best = new Map<string, Suggestion>()
   for (const i of matched) {
     const seen = best.get(i.url)

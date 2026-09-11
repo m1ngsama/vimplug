@@ -94,7 +94,6 @@ test.describe('find mode', () => {
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(first)
   })
 
-  // Typing past the last match must not leave the view sitting on a prefix's result.
   test('a query that stops matching returns to where the search began', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')
@@ -118,7 +117,6 @@ test.describe('find mode', () => {
     expect(painted).toBe(0)
   })
 
-  // Incremental: every prefix has to miss too, so the first character must be absent.
   test('a query matching nothing leaves the page where it was', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')
@@ -147,8 +145,6 @@ test.describe('a page fighting for focus', () => {
     await expect.poll(async () => (await state(page)).focusInOverlay).toBe(true)
   })
 
-  // Hiding focus events is not enough against a page that refocuses on a timer: it never
-  // needed to hear about us in the first place.
   test('/ holds the caret against a page that refocuses on a timer', async ({ page }) => {
     await loadEngine(page, `${base}/refocus`)
     await page.keyboard.press('/')
@@ -160,9 +156,6 @@ test.describe('a page fighting for focus', () => {
     expect(await page.inputValue('#trap')).toBe('')
   })
 
-  // The bug this was all about: on GitHub, typing a query ran the site's own s shortcut,
-  // because a shadow root retargets our input to a plain div and every "is the user
-  // typing?" check on the web then says no.
   test("a site's single-key shortcuts do not fire on what is typed in the panel", async ({
     page,
   }) => {
@@ -223,7 +216,6 @@ test.describe('IME composition', () => {
 })
 
 test.describe('mode indicator', () => {
-  // Closed shadow root: the host is assertable, the text is not.
   test('normal mode shows nothing', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await expect.poll(async () => (await state(page)).panels).toBe(0)

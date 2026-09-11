@@ -39,11 +39,8 @@ export function scrollDelta(
   }
 }
 
-// An absolute jump must not be added on top of motion still in flight: the delta is
-// measured from the live scroll position, which the pending animation has not reached yet.
 const ABSOLUTE = new Set(['scrollToTop', 'scrollToBottom', 'scrollToStart', 'scrollToEnd'])
 
-// Only the single-step keys scroll continuously while held; a half-page key is a jump.
 const HELD: Record<string, { axis: 'y' | 'x'; dir: -1 | 1 } | undefined> = {
   scrollDown: { axis: 'y', dir: 1 },
   scrollUp: { axis: 'y', dir: -1 },
@@ -54,7 +51,6 @@ const HELD: Record<string, { axis: 'y' | 'x'; dir: -1 | 1 } | undefined> = {
 const idle = (): AxisState => ({ current: 0, target: 0, dir: 0, heldMs: 0, movingMs: 0 })
 
 
-
 export class Scroller {
   #axes: Record<'x' | 'y', AxisState> = { x: idle(), y: idle() }
   #held = new Map<string, 'x' | 'y'>()
@@ -62,8 +58,6 @@ export class Scroller {
   #frame: number | null = null
   #last = 0
 
-  // A constructor parameter property would need emitted code, which Node's type
-  // stripping cannot do, and the unit tests run straight from TypeScript.
   readonly #opts: () => ScrollOptions
 
   readonly #focused: () => Element | null
@@ -74,10 +68,7 @@ export class Scroller {
     this.#focused = focused
   }
 
-  // keyId null means a one-shot press with no key to release, such as the command palette.
   press(action: string, keyId: string | null, count = 1): boolean {
-    // The box is chosen per press, from the direction being asked for, so a pane that has
-    // hit its edge hands the scroll on to the region around it.
     const probe = scrollDelta(action, this.#opts(), windowBox())
     if (!probe) return false
     const axis: 'x' | 'y' = probe.left !== 0 ? 'x' : 'y'
@@ -88,17 +79,13 @@ export class Scroller {
 
     const raw = scrollDelta(action, this.#opts(), this.#box)
     if (!raw) return false
-    // A count multiplies a relative move. It cannot multiply a jump to the top.
     const scale = ABSOLUTE.has(action) ? 1 : count
     const delta = { top: raw.top * scale, left: raw.left * scale }
 
-    // An OS key repeat must not stack impulses; the held ramp already covers it.
     if (keyId !== null && this.#held.has(keyId)) return true
 
     if (ABSOLUTE.has(action)) this.#cancelMotion()
 
-    // A motion starting from rest gets the full ease-in; one joining a move already under
-    // way must not restart it, or every repeat of d would stutter back to zero speed.
     for (const key of ['x', 'y'] as const) {
       if (settled(this.#axes[key])) this.#axes[key].movingMs = 0
     }
@@ -125,8 +112,6 @@ export class Scroller {
     this.#axes[axis].dir = 0
   }
 
-  // Resets the virtual coordinates without moving the page, so the jump that follows is
-  // measured from where the page actually is.
   #cancelMotion(): void {
     this.#axes = { x: idle(), y: idle() }
     this.#applied = { x: 0, y: 0 }
@@ -149,8 +134,6 @@ export class Scroller {
       for (const key of ['x', 'y'] as const) {
         this.#axes[key] = advance(this.#axes[key], dt, o)
       }
-      // Easing only approaches its target, so the final frame lands on it exactly; an
-      // absolute jump that stops half a pixel short is visibly wrong.
       const done = settled(this.#axes.x) && settled(this.#axes.y)
 
       for (const key of ['x', 'y'] as const) {

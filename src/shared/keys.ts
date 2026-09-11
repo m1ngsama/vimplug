@@ -56,7 +56,6 @@ const PUNCT: Record<string, string> = {
   '`': 'Backquote',
 }
 
-// US-QWERTY shifted glyphs, so `?` binds to the physical Slash key with shift held.
 const SHIFTED: Record<string, string> = {
   '~': 'Backquote',
   '!': 'Digit1',
@@ -101,9 +100,6 @@ function blank(): Key {
 }
 
 function parseAngle(body: string): Key | null {
-  // `<` opens the modifier notation, so a literal one is escaped the way vim escapes it.
-  // This lives here rather than in NAMED so it cannot hijack how a plain comma is written
-  // back out.
   if (body.toLowerCase() === 'lt') {
     return { ...blank(), code: 'Comma', key: '<', shift: true }
   }
@@ -171,7 +167,6 @@ export function keyId(k: Key, matching: KeyMatching): string {
   return prefix + base
 }
 
-// Shift is excluded: `F` and `f` are distinct bindings, not one key plus a modifier.
 export function hasModifier(k: Key): boolean {
   return k.ctrl || k.meta || k.alt
 }
@@ -180,8 +175,6 @@ const REV_NAMED = new Map(Object.entries(NAMED).map(([name, code]) => [code, nam
 const REV_PUNCT = new Map(Object.entries(PUNCT).map(([ch, code]) => [code, ch]))
 const REV_SHIFTED = new Map(Object.entries(SHIFTED).map(([ch, code]) => [code, ch]))
 
-// shiftImplied covers escapes that already stand for the shifted key, so the notation
-// does not gain a redundant S- that then fails to parse back.
 function baseOf(k: Key): { text: string; named: boolean; shiftImplied?: boolean } {
   const named = REV_NAMED.get(k.code)
   if (named) return { text: DISPLAY[named] ?? named, named: true }
@@ -200,7 +193,6 @@ function baseOf(k: Key): { text: string; named: boolean; shiftImplied?: boolean 
   return { text: k.code, named: true }
 }
 
-// Inverse of parseKeys, for rendering a captured keypress back into the DSL.
 export function toNotation(k: Key): string {
   const base = baseOf(k)
   let mods = ''

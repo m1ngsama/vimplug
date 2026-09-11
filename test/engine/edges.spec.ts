@@ -15,8 +15,7 @@ async function settled(page: Page, from: number): Promise<number> {
   return last
 }
 
-// A step is not a whole number of pixels everywhere: headless Linux Chromium reports 62
-// where macOS reports 60. Measure one and compare against it.
+// Linux headless Chromium steps 62px where macOS steps 60: measure a step, never hardcode it.
 async function step(page: Page): Promise<number> {
   await page.keyboard.press('j')
   const y = await settled(page, 0)

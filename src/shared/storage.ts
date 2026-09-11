@@ -9,10 +9,6 @@ interface Stored {
   dsl: string
 }
 
-// Version 0 stored the DSL as a bare string. Reads accept both shapes and writes always
-// produce the current one, so the upgrade happens the first time settings are saved.
-// A newer version than this build knows is passed through rather than discarded: an older
-// browser must not wipe what a newer one wrote.
 export function migrate(raw: unknown): string {
   if (typeof raw === 'string') return raw
   if (typeof raw === 'object' && raw !== null) {

@@ -25,8 +25,6 @@ export const TOKEN_VARS: Record<TokenName, string> = {
   scrim: '--vp-scrim',
 }
 
-// Every accent is a light yellow, orange or blue and every accentFg is dark: dark text on
-// a bright label is the pairing that stays readable over whatever page sits behind it.
 export const SCHEMES: Record<string, Tokens> = {
   'default-dark': {
     bg: '#21201c', fg: '#f5f4f1', muted: '#a39f96', border: '#3a3833',

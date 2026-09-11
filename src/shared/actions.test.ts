@@ -20,7 +20,6 @@ test('every action ships with at least one default binding', () => {
   for (const a of ACTIONS) assert.ok(a.defaultKeys.length > 0, a.id)
 })
 
-// Transcribed from the vimkey README. Losing any of these is a parity regression.
 test('every vimkey key is bound out of the box', () => {
   const bound = new Set(ACTIONS.flatMap(a => a.defaultKeys))
   const vimkey = [

@@ -52,7 +52,6 @@ test('SCHEME_NAMES offers system plus every built-in', () => {
   for (const name of Object.keys(SCHEMES)) assert.ok(SCHEME_NAMES.includes(name), name)
 })
 
-// Data self-check: a scheme added later that forgets a token fails here, not on a page.
 test('every built-in scheme defines every token', () => {
   const names = Object.keys(TOKEN_VARS)
   for (const [scheme, tokens] of Object.entries(SCHEMES)) {
@@ -76,7 +75,6 @@ const contrast = (a: string, b: string) => {
   return (x! + 0.05) / (y! + 0.05)
 }
 
-// A hint whose text cannot be read is a bug in our palette, not in anyone's config.
 test('hint text is legible on hint background in every built-in scheme', () => {
   for (const [scheme, t] of Object.entries(SCHEMES)) {
     const ratio = contrast(t.accent, t.accentFg)

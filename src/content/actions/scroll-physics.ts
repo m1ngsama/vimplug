@@ -11,25 +11,14 @@ export interface ScrollOptions {
   scrollSmooth: boolean
 }
 
-// Native smooth scrolling cannot be driven by key repeat: each scrollBy replaces the
-// animation in flight rather than adding to it, so a held key restarts the easing 30
-// times a second and never leaves its slow phase. The engine keeps its own target and
-// eases toward it, which composes.
+// Native smooth scrollBy restarts its easing on every key repeat, so the engine eases toward its own target.
 const RAMP_MS = 220
-const MAX_SPEED = 22 // multiples of scrollStep per second
+const MAX_STEPS_PER_SECOND = 22
 
-// A fixed time constant makes long moves violent: a half page and a single step would
-// take the same time, so the half page travels seven times faster. Easing duration grows
-// with the distance left to cover, capped so a jump to the end of a long page stays brisk.
-// Held scrolling keeps only a small follow lag, so it stays at the responsive end.
 const TAU_MIN_MS = 40
 const TAU_MAX_MS = 140
 const TAU_PER_PX = 0.15
 
-// Exponential easing is pure ease-out: velocity peaks on the very first frame, so motion
-// starts by lurching. This envelope spends the opening moments accelerating instead,
-// which is the difference between a jolt and a glide. Sustained scrolling passes through
-// it once and is unaffected thereafter.
 const EASE_IN_MS = 120
 
 export function advance(s: AxisState, dt: number, o: ScrollOptions): AxisState {
@@ -39,7 +28,7 @@ export function advance(s: AxisState, dt: number, o: ScrollOptions): AxisState {
   const movingMs = s.movingMs + dt
   if (s.dir !== 0) {
     heldMs += dt
-    const speed = o.scrollStep * MAX_SPEED * Math.min(1, heldMs / RAMP_MS)
+    const speed = o.scrollStep * MAX_STEPS_PER_SECOND * Math.min(1, heldMs / RAMP_MS)
     target += speed * s.dir * (dt / 1000)
   }
 

@@ -26,7 +26,6 @@ function selection(): ModifiableSelection | null {
     : null
 }
 
-// Anchors a collapsed caret at the first visible text so `v` has somewhere to start.
 export function beginVisual(): boolean {
   const sel = selection()
   if (!sel) return false

@@ -43,7 +43,6 @@ const DEFAULT_OPTIONS: Options = {
   volumeStep: 0.1,
   searchEngine: 'https://www.google.com/search?q=%s',
 
-  // An empty override means "not overridden", so clearing one restores the scheme value.
   theme: 'system',
   themeBg: '',
   themeFg: '',
@@ -76,8 +75,6 @@ interface OptionDef {
   choices?: string[]
 }
 
-// One list drives the DSL parser and the settings UI, so an option cannot exist in one
-// and not the other. Labels live with the UI so their copy stays out of content scripts.
 export const OPTION_SCHEMA: readonly OptionDef[] = [
   { key: 'hintChars', type: 'text' },
   { key: 'keyMatching', type: 'choice', choices: ['physical', 'logical'] },
@@ -159,7 +156,6 @@ export function resolveForHost(src: string, host: string): SiteResolution {
     maps,
   )
 
-  // Ascending specificity, so the most specific block applies last and wins.
   const hits = stmts
     .filter((s): s is SiteStmt => s.kind === 'site' && matches(s.pattern, host))
     .map((s, i) => ({ s, i, spec: specificity(s.pattern) }))
