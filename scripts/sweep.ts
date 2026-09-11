@@ -18,7 +18,7 @@ interface State {
   panels: number
   ours: boolean
   y: number
-  kids: number
+  hints: number
 }
 
 const look = (page: Page): Promise<State> =>
@@ -32,7 +32,10 @@ const look = (page: Page): Promise<State> =>
       panels: document.querySelectorAll('[data-vimplug-ui]').length,
       ours: a instanceof HTMLElement && 'vimplugUi' in a.dataset,
       y: Math.round(window.scrollY),
-      kids: document.body.childElementCount,
+      // Counting every body child flakes: V2EX adds ad iframes while hints are up.
+      hints: [...document.body.children].filter(
+        c => c instanceof HTMLElement && c.style.zIndex === '2147483647' && !('vimplugUi' in c.dataset),
+      ).length,
     }
   })
 
@@ -80,13 +83,13 @@ async function check(page: Page, query: string): Promise<string[]> {
   await page.keyboard.press('Escape')
   await pause(400)
 
-  const kids = (await look(page)).kids
+  const hints = (await look(page)).hints
   await page.keyboard.press('f')
   await pause(700)
-  if ((await look(page)).kids <= kids) bad.push('f drew no hints')
+  if ((await look(page)).hints !== hints + 1) bad.push('f drew no hints')
   await page.keyboard.press('Escape')
   await pause(500)
-  if ((await look(page)).kids !== kids) bad.push('Escape left hints behind')
+  if ((await look(page)).hints !== hints) bad.push('Escape left hints behind')
 
   return bad
 }
