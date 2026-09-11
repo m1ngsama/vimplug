@@ -33,6 +33,12 @@ const PAGES: Record<string, string> = {
       <a id="a2" href="/textarea">two</a>
       <button id="b1" onclick="document.title='clicked'">three</button>
     </body>`,
+  // A feed row: avatar and name are one link, the way V2EX and most forums draw them.
+  '/row': `<body style="height:5000px"><div>
+      <a href="/tall"><span style="display:inline-block;width:40px;height:40px"></span></a>
+      <a href="/tall">name</a>
+      <a href="/textarea">other</a>
+    </div></body>`,
   '/cmdk': `<body style="height:5000px"><div id="out"></div><script>
       document.addEventListener('keydown', e => {
         if (e.metaKey && e.key === 'k') {

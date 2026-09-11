@@ -1,5 +1,5 @@
 import { generateLabels } from './labels.ts'
-import { collectTargets } from './collect.ts'
+import { collectTargets, groupTargets } from './collect.ts'
 import { hintText, filterHints } from './text.ts'
 import { applyTheme, type Tokens } from '../../shared/theme.ts'
 
@@ -107,7 +107,8 @@ export function startHint(o: HintOptions): HintSession | null {
   const targets = o.targets ?? collectTargets(document)
   if (targets.length === 0) return null
 
-  const labels = generateLabels(targets.length, o.chars.toLowerCase())
+  const groups = groupTargets(targets)
+  const labels = generateLabels(groups.length, o.chars.toLowerCase())
   if (labels.length === 0) return null
 
   const host = document.createElement('div')
@@ -117,7 +118,8 @@ export function startHint(o: HintOptions): HintSession | null {
   style.textContent = STYLE
   shadow.append(style)
 
-  const items: Item[] = targets.map((el, i) => {
+  const items: Item[] = groups.map((group, i) => {
+    const el = group[0]!
     const r = el.getBoundingClientRect()
     const node = document.createElement('span')
     node.className = 'h'
@@ -125,7 +127,8 @@ export function startHint(o: HintOptions): HintSession | null {
     node.style.top = `${Math.max(0, r.top)}px`
     node.style.left = `${Math.max(0, r.left)}px`
     shadow.append(node)
-    return { label: labels[i]!, text: hintText(el), el, node }
+    // A newline cannot be typed, so no text match spans two members of a group.
+    return { label: labels[i]!, text: group.map(hintText).join('\n'), el, node }
   })
 
   applyTheme(host, o.theme)

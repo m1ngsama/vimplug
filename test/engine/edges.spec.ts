@@ -314,6 +314,20 @@ test.describe('hints', () => {
     await page.mouse.wheel(0, 400)
     await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before)
   })
+
+  test('one link drawn twice in a row takes one label', async ({ page }) => {
+    await loadEngine(page, `${base}/row`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('j')
+    await expect(page).toHaveURL(`${base}/textarea`)
+  })
+
+  test('a merged hint answers to the text of every link in it', async ({ page }) => {
+    await loadEngine(page, `${base}/row`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('n')
+    await expect(page).toHaveURL(`${base}/tall`)
+  })
 })
 
 test.describe('panes', () => {

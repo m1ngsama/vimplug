@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { isClickable } from './collect.ts'
+import { isClickable, groupTargets } from './collect.ts'
 
 const el = (o: Record<string, unknown>) =>
   ({
@@ -55,4 +55,40 @@ test('a plain div is not clickable', () => {
   assert.equal(isClickable(el({ tagName: 'DIV' })), false)
   assert.equal(isClickable(el({ tagName: 'SPAN' })), false)
   assert.equal(isClickable(el({ tagName: 'P' })), false)
+})
+
+const link = (href: string, top: number, bottom = top + 20) =>
+  el({
+    tagName: 'A',
+    'attr:href': href,
+    href: new URL(href, 'https://x.test/').href,
+    getBoundingClientRect: () => ({ top, bottom }),
+  })
+
+test('one link drawn twice in a row gets one hint', () => {
+  const avatar = link('/member/a', 0, 48)
+  const name = link('https://x.test/member/a', 30)
+  const title = link('/t/1', 5)
+  assert.deepEqual(groupTargets([avatar, title, name]), [[avatar, name], [title]])
+})
+
+test('the same link in another row keeps its own hint', () => {
+  const a = link('/go/node', 0)
+  const b = link('/go/node', 72)
+  assert.deepEqual(groupTargets([a, b]), [[a], [b]])
+})
+
+test('links whose behavior is up to a script are never merged', () => {
+  const a = link('#', 0)
+  const b = link('#', 0)
+  const c = link('javascript:void(0)', 0)
+  const d = link('javascript:void(0)', 0)
+  assert.deepEqual(groupTargets([a, b, c, d]), [[a], [b], [c], [d]])
+})
+
+test('controls that are not links are never merged', () => {
+  const box = () => ({ top: 0, bottom: 20 })
+  const a = el({ tagName: 'BUTTON', getBoundingClientRect: box })
+  const b = el({ tagName: 'BUTTON', getBoundingClientRect: box })
+  assert.deepEqual(groupTargets([a, b]), [[a], [b]])
 })

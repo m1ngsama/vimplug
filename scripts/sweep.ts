@@ -9,6 +9,7 @@ const SITES: Array<[name: string, url: string, query: string]> = [
   ['Wikipedia', 'https://en.wikipedia.org/wiki/Vim_(text_editor)', 'editor'],
   ['MDN', 'https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent', 'value'],
   ['Hacker News', 'https://news.ycombinator.com/', 'comments'],
+  ['V2EX', 'https://www.v2ex.com/', 'explore'],
 ]
 
 const NONSENSE = 'adlkajhflkjahdslkf'

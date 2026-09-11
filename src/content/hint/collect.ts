@@ -30,6 +30,32 @@ function onScreen(el: Element): boolean {
   )
 }
 
+// Behind '#' and 'javascript:' a script decides what happens, so equal hrefs prove nothing.
+function linkOf(el: Element): string | null {
+  if (el.tagName !== 'A') return null
+  const raw = el.getAttribute('href') ?? ''
+  return raw === '' || /^(#|javascript:)/i.test(raw) ? null : (el as HTMLAnchorElement).href
+}
+
+// Only within a row: a node tag repeated down a feed still needs a hint where the eye is.
+export function groupTargets(targets: Element[]): Element[][] {
+  const groups: Element[][] = []
+  const rows: Array<{ href: string; top: number; bottom: number; group: Element[] }> = []
+  for (const el of targets) {
+    const href = linkOf(el)
+    const { top, bottom } = el.getBoundingClientRect()
+    const row = href && rows.find(r => r.href === href && top < r.bottom && r.top < bottom)
+    if (row) {
+      row.group.push(el)
+      continue
+    }
+    const group = [el]
+    groups.push(group)
+    if (href) rows.push({ href, top, bottom, group })
+  }
+  return groups
+}
+
 export function collectTargets(root: Document | ShadowRoot): Element[] {
   const out: Element[] = []
   for (const el of root.querySelectorAll('*')) {
