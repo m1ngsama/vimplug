@@ -49,6 +49,7 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'hintNewTab', description: 'Show hints, opening links in a new tab', group: 'Open', scope: 'content', defaultKeys: ['F'] },
 
   { id: 'openPrompt', description: 'Open a URL or search', group: 'Open', scope: 'content', defaultKeys: ['o'] },
+  { id: 'editUrl', description: 'Edit the page URL', group: 'Open', scope: 'content', defaultKeys: ['ge'] },
   { id: 'tabSearch', description: 'Search open tabs', group: 'Tabs', scope: 'content', defaultKeys: ['T'] },
   { id: 'openBookmark', description: 'Search bookmarks', group: 'Open', scope: 'content', defaultKeys: ['b'] },
   { id: 'lastTab', description: 'Back to the previous tab', group: 'Tabs', scope: 'background', defaultKeys: ['^'] },

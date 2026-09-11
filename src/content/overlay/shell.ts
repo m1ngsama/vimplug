@@ -11,6 +11,7 @@ export type CloseReason = 'cancel' | 'pick' | 'submit'
 
 interface OverlayConfig {
   placeholder: string
+  value?: string
   rows: Row[]
   onPick(value: string, query: string, shift: boolean): void
   onClose(reason: CloseReason): void
@@ -63,6 +64,7 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
   panel.className = 'panel'
   const input = document.createElement('input')
   input.placeholder = cfg.placeholder
+  input.value = cfg.value ?? ''
   const list = document.createElement('ul')
 
   // Our input lives in a shadow root, so retargeting shows the page a plain div as the

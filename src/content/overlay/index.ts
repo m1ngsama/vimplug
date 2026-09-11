@@ -7,7 +7,7 @@ import type { Tokens } from '../../shared/theme.ts'
 import { clipboardTarget, looksLikeUrl } from '../actions/clipboard.ts'
 import { openTarget } from '../actions/index.ts'
 
-export type OverlayKind = 'help' | 'open' | 'tabs' | 'palette' | 'find' | 'bookmarks'
+export type OverlayKind = 'help' | 'open' | 'edit' | 'tabs' | 'palette' | 'find' | 'bookmarks'
 
 interface Suggested {
   kind: 'tab' | 'bookmark' | 'history'
@@ -96,6 +96,7 @@ export async function startOverlay(
   }
 
   const bookmarksOnly = kind === 'bookmarks'
+  const initial = kind === 'edit' ? location.href : ''
   const pick = (value: string, shift: boolean) => {
     if (value.startsWith('tab:')) {
       void chrome.runtime
@@ -121,6 +122,7 @@ export async function startOverlay(
   const overlay = openOverlay({
     placeholder: bookmarksOnly ? 'Search bookmarks' : 'Open URL, search, or jump to a page',
     rows: [],
+    value: initial,
     live: true,
     compose: withRaw,
     onInput: query => {
@@ -133,6 +135,6 @@ export async function startOverlay(
     theme,
   })
 
-  void suggest('', bookmarksOnly ? 'bookmark' : undefined).then(rows => overlay.setRows(rows))
+  void suggest(initial, bookmarksOnly ? 'bookmark' : undefined).then(rows => overlay.setRows(rows))
   return overlay
 }

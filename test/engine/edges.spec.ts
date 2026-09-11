@@ -285,6 +285,15 @@ test.describe('find over awkward text', () => {
 })
 
 test.describe('overlays keep every key', () => {
+  test('ge opens the page address for editing', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.type('ge')
+    for (let i = 0; i < 4; i += 1) await page.keyboard.press('Backspace')
+    await page.keyboard.type('textarea')
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(`${base}/textarea`)
+  })
+
   test('a space reaches the input rather than scrolling the page', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await page.keyboard.press('o')

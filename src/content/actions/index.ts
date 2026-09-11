@@ -14,6 +14,7 @@ const SCOPE = new Map(ACTIONS.map(a => [a.id, a.scope]))
 const OVERLAY_FOR: Record<string, OverlayKind | undefined> = {
   help: 'help',
   openPrompt: 'open',
+  editUrl: 'edit',
   tabSearch: 'tabs',
   commandPalette: 'palette',
   openBookmark: 'bookmarks',

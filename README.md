@@ -65,6 +65,7 @@ Defaults. Every one is rebindable; `?` shows the bindings actually in force.
 | `f` | Hint clickable elements |
 | `F` | Hint, opening links in a new tab |
 | `o` | Open a URL or search |
+| `ge` | Edit the page URL and open it |
 | `T` | Search open tabs |
 | `t` | New tab |
 | `b` | Search bookmarks |
