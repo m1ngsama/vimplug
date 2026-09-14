@@ -495,6 +495,13 @@ test.describe('hints', () => {
     await page.keyboard.press('j')
     await expect(page).toHaveTitle('clicked')
   })
+
+  test('a focusable container neither hides what it holds nor takes a hint', async ({ page }) => {
+    await loadEngine(page, `${base}/focusable`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('j')
+    await expect(page).toHaveTitle('clicked')
+  })
 })
 
 test.describe('panes', () => {

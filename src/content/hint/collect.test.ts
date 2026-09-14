@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { isClickable, groupTargets } from './collect.ts'
+import { isControl, isFocusable, groupTargets } from './collect.ts'
 
 const el = (o: Record<string, unknown>) =>
   ({
@@ -10,59 +10,63 @@ const el = (o: Record<string, unknown>) =>
   }) as unknown as Element
 
 test('links with an href are clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'A', 'attr:href': '/x' })), true)
+  assert.equal(isControl(el({ tagName: 'A', 'attr:href': '/x' })), true)
 })
 
 test('an anchor without href is not clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'A' })), false)
+  assert.equal(isControl(el({ tagName: 'A' })), false)
 })
 
 test('form controls are clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'BUTTON' })), true)
-  assert.equal(isClickable(el({ tagName: 'INPUT', type: 'text' })), true)
-  assert.equal(isClickable(el({ tagName: 'SELECT' })), true)
-  assert.equal(isClickable(el({ tagName: 'TEXTAREA' })), true)
+  assert.equal(isControl(el({ tagName: 'BUTTON' })), true)
+  assert.equal(isControl(el({ tagName: 'INPUT', type: 'text' })), true)
+  assert.equal(isControl(el({ tagName: 'SELECT' })), true)
+  assert.equal(isControl(el({ tagName: 'TEXTAREA' })), true)
 })
 
 test('a details summary is clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'SUMMARY' })), true)
+  assert.equal(isControl(el({ tagName: 'SUMMARY' })), true)
 })
 
 test('an aria-disabled control is not clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'BUTTON', 'attr:aria-disabled': 'true' })), false)
+  assert.equal(isControl(el({ tagName: 'BUTTON', 'attr:aria-disabled': 'true' })), false)
 })
 
 test('a disabled control is not clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'BUTTON', 'attr:disabled': '' })), false)
+  assert.equal(isControl(el({ tagName: 'BUTTON', 'attr:disabled': '' })), false)
 })
 
 test('hidden inputs are not clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'INPUT', type: 'hidden' })), false)
+  assert.equal(isControl(el({ tagName: 'INPUT', type: 'hidden' })), false)
 })
 
 test('aria roles make an element clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'DIV', 'attr:role': 'button' })), true)
-  assert.equal(isClickable(el({ tagName: 'DIV', 'attr:role': 'link' })), true)
-  assert.equal(isClickable(el({ tagName: 'SPAN', 'attr:role': 'checkbox' })), true)
+  assert.equal(isControl(el({ tagName: 'DIV', 'attr:role': 'button' })), true)
+  assert.equal(isControl(el({ tagName: 'DIV', 'attr:role': 'link' })), true)
+  assert.equal(isControl(el({ tagName: 'SPAN', 'attr:role': 'checkbox' })), true)
 })
 
-test('onclick and tabindex make an element clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'DIV', 'attr:onclick': 'x()' })), true)
-  assert.equal(isClickable(el({ tagName: 'DIV', 'attr:tabindex': '0' })), true)
+test('onclick makes an element clickable', () => {
+  assert.equal(isControl(el({ tagName: 'DIV', 'attr:onclick': 'x()' })), true)
 })
 
-test('tabindex of -1 is not clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'DIV', 'attr:tabindex': '-1' })), false)
+test('tabindex makes an element focusable, not a control', () => {
+  assert.equal(isFocusable(el({ tagName: 'DIV', 'attr:tabindex': '0' })), true)
+  assert.equal(isControl(el({ tagName: 'DIV', 'attr:tabindex': '0' })), false)
+})
+
+test('tabindex of -1 is not focusable', () => {
+  assert.equal(isFocusable(el({ tagName: 'DIV', 'attr:tabindex': '-1' })), false)
 })
 
 test('contenteditable is clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'DIV', isContentEditable: true })), true)
+  assert.equal(isControl(el({ tagName: 'DIV', isContentEditable: true })), true)
 })
 
 test('a plain div is not clickable', () => {
-  assert.equal(isClickable(el({ tagName: 'DIV' })), false)
-  assert.equal(isClickable(el({ tagName: 'SPAN' })), false)
-  assert.equal(isClickable(el({ tagName: 'P' })), false)
+  assert.equal(isControl(el({ tagName: 'DIV' })), false)
+  assert.equal(isControl(el({ tagName: 'SPAN' })), false)
+  assert.equal(isControl(el({ tagName: 'P' })), false)
 })
 
 const link = (href: string, top: number, bottom = top + 20) =>

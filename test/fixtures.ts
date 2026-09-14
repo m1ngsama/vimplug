@@ -69,6 +69,17 @@ const PAGES: Record<string, string> = {
         })
       </script>
     </body>`,
+  '/focusable': `<body style="height:5000px">
+      <div tabindex="0">
+        <a href="/tall">page</a>
+        <div tabindex="0"><div id="row" style="cursor:pointer">row</div></div>
+      </div>
+      <script>
+        document.getElementById('row').addEventListener('click', () => {
+          document.title = 'clicked'
+        })
+      </script>
+    </body>`,
   '/covered': `<body style="height:5000px">
       <a href="/tall">under</a>
       <div style="position:fixed;inset:0;background:#fff">

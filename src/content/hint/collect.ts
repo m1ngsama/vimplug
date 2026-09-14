@@ -1,8 +1,11 @@
 const CONTROLS = new Set(['BUTTON', 'SELECT', 'TEXTAREA', 'SUMMARY'])
 const ROLES = new Set(['button', 'link', 'checkbox', 'radio', 'menuitem', 'tab', 'switch'])
 
-export function isClickable(el: Element): boolean {
-  if (el.getAttribute('disabled') !== null || el.getAttribute('aria-disabled') === 'true') return false
+const disabled = (el: Element): boolean =>
+  el.getAttribute('disabled') !== null || el.getAttribute('aria-disabled') === 'true'
+
+export function isControl(el: Element): boolean {
+  if (disabled(el)) return false
 
   const tag = el.tagName
   if (tag === 'A') return el.getAttribute('href') !== null
@@ -12,10 +15,12 @@ export function isClickable(el: Element): boolean {
 
   const role = el.getAttribute('role')
   if (role !== null && ROLES.has(role)) return true
-  if (el.getAttribute('onclick') !== null) return true
+  return el.getAttribute('onclick') !== null
+}
 
+export function isFocusable(el: Element): boolean {
   const tabindex = el.getAttribute('tabindex')
-  return tabindex !== null && tabindex !== '-1'
+  return !disabled(el) && tabindex !== null && tabindex !== '-1'
 }
 
 function onScreen(el: Element): boolean {
@@ -80,28 +85,29 @@ const pointer = (el: Element | null): boolean =>
 
 export function collectTargets(root: Document | ShadowRoot): Element[] {
   const found: Element[] = []
-  const scripted = new Set<Element>()
+  const controls = new Set<Element>()
   const walk = (r: Document | ShadowRoot) => {
     for (const el of r.querySelectorAll('*')) {
-      if (isClickable(el)) {
-        if (onScreen(el)) found.push(el)
-      } else if (onScreen(el) && pointer(el) && !pointer(up(el))) {
+      if (isControl(el)) {
+        if (onScreen(el)) {
+          found.push(el)
+          controls.add(el)
+        }
+      } else if (onScreen(el) && (isFocusable(el) || (pointer(el) && !pointer(up(el))))) {
         found.push(el)
-        scripted.add(el)
       }
       const shadow = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot
       if (shadow) walk(shadow)
     }
   }
   walk(root)
-  if (scripted.size === 0) return found.filter(reachable)
+  if (controls.size === found.length) return found.filter(reachable)
 
-  const real = new Set(found.filter(el => !scripted.has(el)))
-  const wrappers = new Set<Element>()
-  for (const t of real) for (let e = up(t); e && !wrappers.has(e); e = up(e)) wrappers.add(e)
-  const inReal = (el: Element): boolean => {
-    for (let e = up(el); e; e = up(e)) if (real.has(e)) return true
+  const holders = new Set<Element>()
+  for (const t of found) for (let e = up(t); e && !holders.has(e); e = up(e)) holders.add(e)
+  const inControl = (el: Element): boolean => {
+    for (let e = up(el); e; e = up(e)) if (controls.has(e)) return true
     return false
   }
-  return found.filter(el => (!scripted.has(el) || (!wrappers.has(el) && !inReal(el))) && reachable(el))
+  return found.filter(el => (controls.has(el) || (!holders.has(el) && !inControl(el))) && reachable(el))
 }
