@@ -1,4 +1,4 @@
-import { collectMatches, stepIndex } from './matches.ts'
+import { collectMatches, stepIndex, type Span } from './matches.ts'
 import { applyTheme, TOKEN_VARS, type Tokens } from '../../shared/theme.ts'
 
 const ALL = 'vimplug-find'
@@ -29,13 +29,17 @@ function blockOf(node: Text): Element | null {
 
 function walk(): { text: string; pieces: Piece[] } {
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+  const rendered = new Map<Element, boolean>()
   const pieces: Piece[] = []
   let text = ''
   let lastBlock: Element | null = null
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     const node = n as Text
     const parent = node.parentElement
-    if (!parent || parent.closest('script, style, noscript')) continue
+    if (!parent) continue
+    let shown = rendered.get(parent)
+    if (shown === undefined) rendered.set(parent, (shown = parent.getClientRects().length > 0))
+    if (!shown) continue
     const block = blockOf(node)
     if (lastBlock !== null && block !== lastBlock) text += '\n'
     lastBlock = block
@@ -45,21 +49,22 @@ function walk(): { text: string; pieces: Piece[] } {
   return { text, pieces }
 }
 
-function toRange(pieces: Piece[], start: number, end: number): Range | null {
-  const range = document.createRange()
-  let placedStart = false
-  for (const p of pieces) {
-    const pEnd = p.start + p.node.data.length
-    if (!placedStart && start >= p.start && start < pEnd) {
-      range.setStart(p.node, start - p.start)
-      placedStart = true
-    }
-    if (placedStart && end > p.start && end <= pEnd) {
-      range.setEnd(p.node, end - p.start)
-      return range
-    }
+function toRanges(pieces: Piece[], spans: Span[]): Range[] {
+  const ranges: Range[] = []
+  let i = 0
+  const at = (offset: number, inclusive: boolean) => {
+    while (offset > pieces[i]!.start + pieces[i]!.node.data.length - (inclusive ? 0 : 1)) i += 1
+    return pieces[i]!
   }
-  return null
+  for (const s of spans) {
+    const range = document.createRange()
+    const start = at(s.start, false)
+    range.setStart(start.node, s.start - start.start)
+    const end = at(s.end, true)
+    range.setEnd(end.node, s.end - end.start)
+    ranges.push(range)
+  }
+  return ranges
 }
 
 export interface FindSession {
@@ -123,9 +128,7 @@ export function createFind(theme: Tokens): FindSession | null {
     search(query: string): number {
       ensureStyle()
       const { text, pieces } = walk()
-      ranges = collectMatches(text, query)
-        .map(s => toRange(pieces, s.start, s.end))
-        .filter((r): r is Range => r !== null && r.getBoundingClientRect().width > 0)
+      ranges = toRanges(pieces, collectMatches(text, query))
       index = 0
       paint()
       if (ranges.length > 0) reveal()
