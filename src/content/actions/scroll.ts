@@ -53,7 +53,7 @@ const idle = (): AxisState => ({ current: 0, target: 0, dir: 0, heldMs: 0, movin
 
 export class Scroller {
   #axes: Record<'x' | 'y', AxisState> = { x: idle(), y: idle() }
-  #held = new Map<string, 'x' | 'y'>()
+  #held = new Map<string, { axis: 'x' | 'y'; dir: -1 | 1 }>()
   #origin = { x: 0, y: 0 }
   #seen = { x: 0, y: 0 }
   #frame: number | null = null
@@ -100,7 +100,7 @@ export class Scroller {
       const axis = this.#axes[hold.axis]
       axis.dir = hold.dir
       axis.heldMs = 0
-      this.#held.set(keyId!, hold.axis)
+      this.#held.set(keyId!, hold)
     }
 
     this.#run()
@@ -108,10 +108,13 @@ export class Scroller {
   }
 
   release(keyId: string): void {
-    const axis = this.#held.get(keyId)
-    if (!axis) return
+    const hold = this.#held.get(keyId)
+    if (!hold) return
     this.#held.delete(keyId)
-    this.#axes[axis].dir = 0
+    const axis = this.#axes[hold.axis]
+    const still = [...this.#held.values()].findLast(h => h.axis === hold.axis)
+    if (still && still.dir !== axis.dir) axis.heldMs = 0
+    axis.dir = still?.dir ?? 0
   }
 
   #cancelMotion(): void {
@@ -132,7 +135,7 @@ export class Scroller {
   }
 
   releaseAll(): void {
-    for (const axis of this.#held.values()) this.#axes[axis].dir = 0
+    for (const { axis } of this.#held.values()) this.#axes[axis].dir = 0
     this.#held.clear()
   }
 

@@ -111,6 +111,21 @@ test.describe('marks', () => {
 })
 
 test.describe('scrolling', () => {
+  test('releasing j while k is still down leaves k scrolling', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.evaluate(() => window.scrollTo(0, 2000))
+    await page.keyboard.down('j')
+    await page.waitForTimeout(300)
+    await page.keyboard.down('k')
+    await page.keyboard.up('j')
+    await page.waitForTimeout(200)
+    const rolled = await page.evaluate(() => window.scrollY)
+    await page.waitForTimeout(300)
+    const later = await page.evaluate(() => window.scrollY)
+    await page.keyboard.up('k')
+    expect(later).toBeLessThan(rolled - 100)
+  })
+
   test('a scroll the page makes mid-motion is kept, not undone', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await page.keyboard.press('d')
