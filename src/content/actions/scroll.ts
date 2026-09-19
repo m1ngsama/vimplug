@@ -1,4 +1,4 @@
-import { advance, settled, type AxisState, type ScrollOptions } from './scroll-physics.ts'
+import { advance, frameClock, settled, type AxisState, type ScrollOptions } from './scroll-physics.ts'
 import { resolveScrollBox, windowBox, type ScrollBox } from './scroll-target.ts'
 
 interface ScrollDelta {
@@ -57,6 +57,7 @@ export class Scroller {
   #applied: Record<'x' | 'y', number> = { x: 0, y: 0 }
   #frame: number | null = null
   #last = 0
+  readonly #tick = frameClock()
 
   readonly #opts: () => ScrollOptions
 
@@ -127,7 +128,7 @@ export class Scroller {
     if (this.#frame !== null) return
     this.#last = performance.now()
     const step = (now: number) => {
-      const dt = now - this.#last
+      const dt = this.#tick(now - this.#last)
       this.#last = now
       const o = this.#opts()
 

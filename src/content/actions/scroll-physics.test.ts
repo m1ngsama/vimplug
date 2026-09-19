@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { advance, type AxisState } from './scroll-physics.ts'
+import { advance, frameClock, type AxisState } from './scroll-physics.ts'
 
 const smooth = { scrollStep: 60, scrollSmooth: true }
 const instant = { scrollStep: 60, scrollSmooth: false }
@@ -114,4 +114,26 @@ test('the ease-in is spent within a fifth of a second', () => {
   const settledStep =
     advance({ ...s, movingMs: 5000 }, 16, smooth).current - s.current
   assert.ok(Math.abs(step - settledStep) < 1, 'still ramping after 200ms')
+})
+
+const roundedFrames = (hz: number, n: number) =>
+  Array.from({ length: n }, (_, i) => Math.round(((i + 1) * 1000) / hz) - Math.round((i * 1000) / hz))
+
+test('frames rounded to whole milliseconds still advance evenly', () => {
+  const tick = frameClock()
+  const dts = roundedFrames(60, 120).map(tick).slice(60)
+  const spread = Math.max(...dts) - Math.min(...dts)
+  assert.ok(spread < 0.2, `frame lengths vary by ${spread}ms`)
+})
+
+test('a dropped frame advances by two frames', () => {
+  const tick = frameClock()
+  roundedFrames(60, 60).forEach(tick)
+  assert.ok(Math.abs(tick(33) - 2000 / 60) < 0.2)
+})
+
+test('the frame length adapts to a faster display', () => {
+  const tick = frameClock()
+  const dts = roundedFrames(120, 200).map(tick)
+  assert.ok(Math.abs(dts.at(-1)! - 1000 / 120) < 0.2, `settled on ${dts.at(-1)}ms`)
 })

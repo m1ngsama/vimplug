@@ -44,3 +44,12 @@ export function advance(s: AxisState, dt: number, o: ScrollOptions): AxisState {
 export function settled(s: AxisState): boolean {
   return s.dir === 0 && Math.abs(s.target - s.current) < 0.5
 }
+
+// Safari rounds rAF timestamps to whole milliseconds; stepping by them makes every frame a different length.
+export function frameClock(period = 1000 / 60): (elapsed: number) => number {
+  return elapsed => {
+    const frames = Math.max(1, Math.round(elapsed / period))
+    period += (elapsed / frames - period) / 16
+    return frames * period
+  }
+}
