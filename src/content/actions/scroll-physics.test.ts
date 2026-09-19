@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { advance, frameClock, type AxisState } from './scroll-physics.ts'
+import { advance, frameClock, push, settled, type AxisState } from './scroll-physics.ts'
 
 const smooth = { scrollStep: 60, scrollSmooth: true }
 const instant = { scrollStep: 60, scrollSmooth: false }
@@ -11,23 +11,24 @@ const idle = (over: Partial<AxisState> = {}): AxisState => ({
   dir: 0,
   heldMs: 0,
   movingMs: 0,
+  leftMs: 0,
   ...over,
 })
 
 test('a one-shot impulse converges on the target', () => {
-  let s = idle({ target: 60 })
+  let s = push(idle(), 60)
   for (let i = 0; i < 60; i += 1) s = advance(s, 16, smooth)
   assert.ok(Math.abs(s.current - 60) < 0.5, `settled at ${s.current}`)
 })
 
 test('smoothing moves part of the way each frame, never overshooting', () => {
-  const s = advance(idle({ target: 60 }), 16, smooth)
+  const s = advance(push(idle(), 60), 16, smooth)
   assert.ok(s.current > 0, 'did not move')
   assert.ok(s.current < 60, 'jumped the whole way')
 })
 
 test('without smoothing the position lands on the target at once', () => {
-  assert.equal(advance(idle({ target: 60 }), 16, instant).current, 60)
+  assert.equal(advance(push(idle(), 60), 16, instant).current, 60)
 })
 
 test('a tap adds nothing beyond its step', () => {
@@ -84,24 +85,33 @@ test('a held axis reverses direction without a discontinuity', () => {
   assert.ok(back.target < s.target)
 })
 
+test('a jump of any length lands within the same quarter second', () => {
+  for (const distance of [60, 400, 40000]) {
+    let s = push(idle(), distance)
+    let ms = 0
+    while (!settled(s)) {
+      s = advance(s, 16, smooth)
+      ms += 16
+    }
+    assert.ok(ms <= 240, `${distance}px took ${ms}ms`)
+  }
+})
+
+test('a released hold comes to rest within the same quarter second', () => {
+  let s = idle({ dir: 1 })
+  for (let i = 0; i < 60; i += 1) s = advance(s, 16, smooth)
+  s = { ...s, dir: 0 }
+  let ms = 0
+  while (!settled(s)) {
+    s = advance(s, 16, smooth)
+    ms += 16
+  }
+  assert.ok(ms <= 240, `took ${ms}ms`)
+})
+
 test('a zero-length frame changes nothing', () => {
   const s = idle({ target: 60, dir: 1 })
   assert.deepEqual(advance(s, 0, smooth), s)
-})
-
-test('a long move eases over more time than a short one', () => {
-  const short = advance(idle({ target: 60 }), 16, smooth)
-  const long = advance(idle({ target: 2000 }), 16, smooth)
-
-  const shortFraction = short.current / 60
-  const longFraction = long.current / 2000
-  assert.ok(longFraction < shortFraction, `${longFraction} should be gentler than ${shortFraction}`)
-})
-
-test('easing time is capped so a jump to the end of a long page stays brisk', () => {
-  let s = idle({ target: 20000 })
-  for (let i = 0; i < 45; i += 1) s = advance(s, 16, smooth)
-  assert.ok(s.current > 20000 * 0.9, `only reached ${s.current} after 720ms`)
 })
 
 test('held scrolling keeps a small follow lag, so it stays responsive', () => {
@@ -111,13 +121,13 @@ test('held scrolling keeps a small follow lag, so it stays responsive', () => {
 })
 
 test('motion eases in rather than peaking on its first frame', () => {
-  const first = advance(idle({ target: 2000 }), 16, smooth)
-  const later = advance(idle({ target: 2000, movingMs: 500 }), 16, smooth)
-  assert.ok(first.current < later.current / 5, `${first.current} vs ${later.current}`)
+  const first = advance(push(idle(), 2000), 16, smooth)
+  const later = advance(push(idle({ movingMs: 500 }), 2000), 16, smooth)
+  assert.ok(first.current < later.current / 3, `${first.current} vs ${later.current}`)
 })
 
 test('the ease-in is spent within a fifth of a second', () => {
-  let s = idle({ target: 2000 })
+  let s = push(idle(), 2000)
   for (let i = 0; i < 12; i += 1) s = advance(s, 16, smooth)
   const step = advance(s, 16, smooth).current - s.current
   const settledStep =

@@ -4,6 +4,7 @@ export interface AxisState {
   dir: -1 | 0 | 1
   heldMs: number
   movingMs: number
+  leftMs: number
 }
 
 export interface ScrollOptions {
@@ -17,11 +18,13 @@ const HOLD_MS = 80
 const RAMP_MS = 100
 const MAX_STEPS_PER_SECOND = 22
 
-const TAU_MIN_MS = 40
-const TAU_MAX_MS = 140
-const TAU_PER_PX = 0.15
+// Safari's own Home, End and Page Down land in about 210ms whatever the distance; an ease-out over this long matches them.
+const GLIDE_MS = 220
+const EASE_IN_MS = 60
 
-const EASE_IN_MS = 120
+export function push(s: AxisState, delta: number): AxisState {
+  return { ...s, target: s.target + delta, leftMs: GLIDE_MS }
+}
 
 export function advance(s: AxisState, dt: number, o: ScrollOptions): AxisState {
   if (dt <= 0) return s
@@ -35,13 +38,12 @@ export function advance(s: AxisState, dt: number, o: ScrollOptions): AxisState {
     target += speed * s.dir * (dt / 1000)
   }
 
-  const remaining = Math.abs(target - s.current)
-  const tau = Math.min(TAU_MAX_MS, TAU_MIN_MS + remaining * TAU_PER_PX)
+  const left = s.dir !== 0 ? GLIDE_MS : s.leftMs
   const easeIn = Math.min(1, movingMs / EASE_IN_MS)
-  const k = o.scrollSmooth ? (1 - Math.exp(-dt / tau)) * easeIn : 1
+  const k = o.scrollSmooth && left > dt ? (1 - (1 - dt / left) ** 3) * easeIn : 1
   const current = s.current + (target - s.current) * k
 
-  return { current, target, dir: s.dir, heldMs, movingMs }
+  return { current, target, dir: s.dir, heldMs, movingMs, leftMs: Math.max(0, left - dt) }
 }
 
 export function settled(s: AxisState): boolean {

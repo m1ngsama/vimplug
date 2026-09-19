@@ -1,4 +1,4 @@
-import { advance, frameClock, settled, type AxisState, type ScrollOptions } from './scroll-physics.ts'
+import { advance, frameClock, push, settled, type AxisState, type ScrollOptions } from './scroll-physics.ts'
 import { resolveScrollBox, windowBox, type ScrollBox } from './scroll-target.ts'
 
 interface ScrollDelta {
@@ -48,7 +48,7 @@ const HELD: Record<string, { axis: 'y' | 'x'; dir: -1 | 1 } | undefined> = {
   scrollLeft: { axis: 'x', dir: -1 },
 }
 
-const idle = (): AxisState => ({ current: 0, target: 0, dir: 0, heldMs: 0, movingMs: 0 })
+const idle = (): AxisState => ({ current: 0, target: 0, dir: 0, heldMs: 0, movingMs: 0, leftMs: 0 })
 
 
 export class Scroller {
@@ -92,8 +92,8 @@ export class Scroller {
       if (settled(this.#axes[key])) this.#axes[key].movingMs = 0
     }
 
-    this.#axes.y.target += delta.top
-    this.#axes.x.target += delta.left
+    if (delta.top !== 0) this.#axes.y = push(this.#axes.y, delta.top)
+    if (delta.left !== 0) this.#axes.x = push(this.#axes.x, delta.left)
 
     const hold = keyId === null ? undefined : HELD[action]
     if (hold) {
