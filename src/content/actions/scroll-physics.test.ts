@@ -30,8 +30,15 @@ test('without smoothing the position lands on the target at once', () => {
   assert.equal(advance(idle({ target: 60 }), 16, instant).current, 60)
 })
 
+test('a tap adds nothing beyond its step', () => {
+  let s = idle({ dir: 1 })
+  for (let i = 0; i < 4; i += 1) s = advance(s, 16, smooth)
+  assert.equal(s.target, 0)
+})
+
 test('holding grows the target over time', () => {
-  const a = advance(idle({ dir: 1 }), 16, smooth)
+  let a = idle({ dir: 1 })
+  for (let i = 0; i < 10; i += 1) a = advance(a, 16, smooth)
   const b = advance(a, 16, smooth)
   assert.ok(a.target > 0)
   assert.ok(b.target > a.target)
@@ -39,6 +46,7 @@ test('holding grows the target over time', () => {
 
 test('holding accelerates: a later frame covers more ground than an early one', () => {
   let s = idle({ dir: 1 })
+  for (let i = 0; i < 6; i += 1) s = advance(s, 16, smooth)
   const first = advance(s, 16, smooth)
   const firstGain = first.target - s.target
 
@@ -71,7 +79,8 @@ test('releasing stops the target growing but lets the position catch up', () => 
 test('a held axis reverses direction without a discontinuity', () => {
   let s = idle({ dir: 1 })
   for (let i = 0; i < 10; i += 1) s = advance(s, 16, smooth)
-  const back = advance({ ...s, dir: -1, heldMs: 0 }, 16, smooth)
+  let back: AxisState = { ...s, dir: -1, heldMs: 0 }
+  for (let i = 0; i < 10; i += 1) back = advance(back, 16, smooth)
   assert.ok(back.target < s.target)
 })
 

@@ -12,7 +12,9 @@ export interface ScrollOptions {
 }
 
 // Native smooth scrollBy restarts its easing on every key repeat, so the engine eases toward its own target.
-const RAMP_MS = 220
+// Held keys wait this long before scrolling on their own, so a tap moves exactly one step however long it lasts.
+const HOLD_MS = 80
+const RAMP_MS = 100
 const MAX_STEPS_PER_SECOND = 22
 
 const TAU_MIN_MS = 40
@@ -28,7 +30,8 @@ export function advance(s: AxisState, dt: number, o: ScrollOptions): AxisState {
   const movingMs = s.movingMs + dt
   if (s.dir !== 0) {
     heldMs += dt
-    const speed = o.scrollStep * MAX_STEPS_PER_SECOND * Math.min(1, heldMs / RAMP_MS)
+    const ramp = Math.min(1, Math.max(0, heldMs - HOLD_MS) / RAMP_MS)
+    const speed = o.scrollStep * MAX_STEPS_PER_SECOND * ramp
     target += speed * s.dir * (dt / 1000)
   }
 
