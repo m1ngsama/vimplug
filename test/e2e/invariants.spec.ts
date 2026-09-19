@@ -493,6 +493,16 @@ test('o suggests open tabs and switching to one activates it', async () => {
   await other.close()
 })
 
+test('T puts its panel up at once, before the tab list arrives', async () => {
+  const page = await open('/tall')
+  const shown = await page.evaluate(() => {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'T', code: 'KeyT', shiftKey: true }))
+    return document.querySelector('[data-vimplug-ui]') !== null
+  })
+  expect(shown).toBe(true)
+  await page.close()
+})
+
 test('o still opens a plain url when nothing matches', async () => {
   const page = await open('/tall')
   await pressOverlay(page, 'o')

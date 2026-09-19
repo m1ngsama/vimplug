@@ -41,7 +41,7 @@ async function listTabs(): Promise<Row[]> {
     .map(t => ({ label: t.title || t.url, sub: t.url, value: String(t.id) }))
 }
 
-export async function startOverlay(
+export function startOverlay(
   kind: OverlayKind,
   bindings: Binding[],
   searchEngine: string,
@@ -49,7 +49,7 @@ export async function startOverlay(
   runById: (id: string) => void,
   theme: Tokens,
   onFind?: (query: string) => number,
-): Promise<Overlay> {
+): Overlay {
   if (kind === 'find') {
     const panel = openOverlay({
       placeholder: 'Find in page',
@@ -87,15 +87,17 @@ export async function startOverlay(
   }
 
   if (kind === 'tabs') {
-    return openOverlay({
+    const overlay = openOverlay({
       placeholder: 'Search open tabs',
-      rows: await listTabs(),
+      rows: [],
       onPick: value => {
         void chrome.runtime.sendMessage({ type: 'activateTab', id: Number(value) }).catch(() => {})
       },
       onClose,
       theme,
     })
+    void listTabs().then(rows => overlay.setRows(rows))
+    return overlay
   }
 
   const bookmarksOnly = kind === 'bookmarks'

@@ -16,7 +16,6 @@ import { isMarkChar, saveMark, jumpMark } from './marks.ts'
 import { beginVisual, moveVisual, yankVisual, clearVisual } from './visual.ts'
 import { createIndicator } from './indicator.ts'
 import { shieldOurFocus } from './focus-shield.ts'
-import type { Overlay } from './overlay/shell.ts'
 
 async function loadDsl(): Promise<string> {
   const res = await chrome.runtime.sendMessage({ type: 'getDsl' }).catch(() => null)
@@ -52,7 +51,6 @@ async function main(): Promise<void> {
   let hint: HintSession | null = null
   let heldFromHint = false
 
-  let overlay: Overlay | null = null
   // Set before building: the input focuses synchronously, and focusin would re-sync the mode first.
   let overlayOpen = false
   const finder = createFind(theme)
@@ -117,12 +115,11 @@ async function main(): Promise<void> {
       const origin = kind === 'find' ? { x: window.scrollX, y: window.scrollY } : null
       if (origin) requestAnimationFrame(() => setTimeout(() => finder?.prepare()))
       modes.enter('command')
-      void startOverlay(
+      startOverlay(
         kind,
         site.bindings.normal,
         site.options.searchEngine,
         reason => {
-          overlay = null
           overlayOpen = false
           if (origin && reason === 'cancel') {
             finder?.clear()
@@ -138,9 +135,7 @@ async function main(): Promise<void> {
           if (found === 0 && origin) window.scrollTo(origin.x, origin.y)
           return found
         },
-      ).then(o => {
-        overlay = o
-      })
+      )
       return true
     },
   }
