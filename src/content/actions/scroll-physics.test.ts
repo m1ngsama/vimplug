@@ -141,6 +141,12 @@ test('a dropped frame advances by two frames', () => {
   assert.ok(Math.abs(tick(33) - 2000 / 60) < 0.2)
 })
 
+test('a long stall advances by no more than three frames', () => {
+  const tick = frameClock()
+  roundedFrames(60, 60).forEach(tick)
+  assert.ok(tick(235) < 3.1 * (1000 / 60))
+})
+
 test('the frame length adapts to a faster display', () => {
   const tick = frameClock()
   const dts = roundedFrames(120, 200).map(tick)

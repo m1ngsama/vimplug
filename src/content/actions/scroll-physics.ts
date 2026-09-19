@@ -49,10 +49,11 @@ export function settled(s: AxisState): boolean {
 }
 
 // Safari rounds rAF timestamps to whole milliseconds; stepping by them makes every frame a different length.
+// A longer stall is not made up for, or the page would lurch hundreds of pixels when it resumes.
 export function frameClock(period = 1000 / 60): (elapsed: number) => number {
   return elapsed => {
     const frames = Math.max(1, Math.round(elapsed / period))
     period += (elapsed / frames - period) / 16
-    return frames * period
+    return Math.min(frames, 3) * period
   }
 }
