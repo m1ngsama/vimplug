@@ -1,13 +1,13 @@
 import { collectMatches, stepIndex, type Span } from './matches.ts'
-import { applyTheme, TOKEN_VARS, type Tokens } from '../../shared/theme.ts'
+import type { Tokens } from '../../shared/theme.ts'
 
 const ALL = 'vimplug-find'
 const CURRENT = 'vimplug-find-current'
 const STYLE_ID = 'vimplug-find-style'
 
-const STYLE = `
-::highlight(${ALL}) { background: var(--vp-match); color: var(--vp-accent-fg) }
-::highlight(${CURRENT}) { background: var(--vp-match-cur); color: var(--vp-accent-fg) }
+const style = (t: Tokens) => `
+::highlight(${ALL}) { background: ${t.match}; color: ${t.accentFg} }
+::highlight(${CURRENT}) { background: ${t.matchCurrent}; color: ${t.accentFg} }
 `
 
 interface Piece {
@@ -71,6 +71,7 @@ export interface FindSession {
   search(query: string): number
   step(dir: 1 | -1): { index: number; total: number } | null
   select(): void
+  prepare(): void
   clear(): void
 }
 
@@ -80,18 +81,17 @@ export function createFind(theme: Tokens): FindSession | null {
   ).highlights
   if (!highlights || typeof Highlight === 'undefined') return null
 
-  let style: HTMLStyleElement | null = null
+  let sheet: HTMLStyleElement | null = null
   let ranges: Range[] = []
   let index = 0
 
-  const ensureStyle = () => {
-    if (style) return
-    // ::highlight() inherits from the element it marks, so the tokens sit on <html> until clear().
-    applyTheme(document.documentElement, theme)
-    style = document.createElement('style')
-    style.id = STYLE_ID
-    style.textContent = STYLE
-    document.head.append(style)
+  // Adding or removing any stylesheet restyles the whole page (110ms on a long Wikipedia article), so it goes in once and stays.
+  const prepare = () => {
+    if (sheet?.isConnected) return
+    sheet = document.createElement('style')
+    sheet.id = STYLE_ID
+    sheet.textContent = style(theme)
+    document.head.append(sheet)
   }
 
   const paint = () => {
@@ -125,8 +125,9 @@ export function createFind(theme: Tokens): FindSession | null {
 
   return {
     select,
+    prepare,
     search(query: string): number {
-      ensureStyle()
+      prepare()
       const { text, pieces } = walk()
       ranges = toRanges(pieces, collectMatches(text, query))
       index = 0
@@ -149,11 +150,6 @@ export function createFind(theme: Tokens): FindSession | null {
       ranges = []
       highlights.delete(ALL)
       highlights.delete(CURRENT)
-      style?.remove()
-      style = null
-      for (const cssVar of Object.values(TOKEN_VARS)) {
-        document.documentElement.style.removeProperty(cssVar)
-      }
     },
   }
 }

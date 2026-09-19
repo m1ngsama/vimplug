@@ -46,9 +46,9 @@ test.describe('find mode', () => {
     await page.waitForTimeout(150)
 
     const painted = await page.evaluate(() =>
-      document.documentElement.style.getPropertyValue('--vp-match'),
+      CSS.highlights.has('vimplug-find'),
     )
-    expect(painted).not.toBe('')
+    expect(painted).toBe(true)
   })
 
   test('Escape cancels the search and restores the pre-search position', async ({ page }) => {

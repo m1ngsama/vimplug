@@ -114,6 +114,7 @@ async function main(): Promise<void> {
       if (overlayOpen) return false
       overlayOpen = true
       const origin = kind === 'find' ? { x: window.scrollX, y: window.scrollY } : null
+      if (origin) requestAnimationFrame(() => setTimeout(() => finder?.prepare()))
       modes.enter('command')
       void startOverlay(
         kind,

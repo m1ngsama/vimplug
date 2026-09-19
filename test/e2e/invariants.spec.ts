@@ -643,20 +643,19 @@ test('a single override changes one token and leaves the others', async () => {
   await setDsl(DEFAULT_DSL)
 })
 
-test('find takes its colours off the page root and gives them back', async () => {
+test('find paints in the theme colours without touching the page root', async () => {
   await setDsl(`${DEFAULT_DSL}\nset theme = nord`)
   const page = await open('/find')
 
   await pressOverlay(page, '/')
   await page.keyboard.type('findme')
   await expect
-    .poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')))
-    .toBe('#a3be8c')
+    .poll(() => page.evaluate(() => document.getElementById('vimplug-find-style')?.textContent))
+    .toContain('#a3be8c')
+  expect(await page.evaluate(() => document.documentElement.getAttribute('style'))).toBeNull()
 
   await page.keyboard.press('Escape')
-  await expect
-    .poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')))
-    .toBe('')
+  await expect.poll(() => page.evaluate(() => CSS.highlights.has('vimplug-find'))).toBe(false)
 
   await page.close()
   await setDsl(DEFAULT_DSL)

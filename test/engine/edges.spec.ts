@@ -311,16 +311,16 @@ test.describe('find over awkward text', () => {
     await page.keyboard.press('Enter')
     await expect
       .poll(() =>
-        page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')),
+        page.evaluate(() => CSS.highlights.has('vimplug-find')),
       )
-      .not.toBe('')
+      .toBe(true)
 
     await page.keyboard.press('Escape')
     await expect
       .poll(() =>
-        page.evaluate(() => document.documentElement.style.getPropertyValue('--vp-match')),
+        page.evaluate(() => CSS.highlights.has('vimplug-find')),
       )
-      .toBe('')
+      .toBe(false)
   })
 })
 
