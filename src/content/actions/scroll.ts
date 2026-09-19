@@ -9,7 +9,7 @@ interface ScrollDelta {
 export function scrollDelta(
   action: string,
   opts: { scrollStep: number },
-  v: Omit<ScrollBox, 'by'>,
+  v: Omit<ScrollBox, 'to'>,
 ): ScrollDelta | null {
   const d = opts.scrollStep
   const half = v.height / 2
@@ -54,7 +54,8 @@ const idle = (): AxisState => ({ current: 0, target: 0, dir: 0, heldMs: 0, movin
 export class Scroller {
   #axes: Record<'x' | 'y', AxisState> = { x: idle(), y: idle() }
   #held = new Map<string, 'x' | 'y'>()
-  #applied: Record<'x' | 'y', number> = { x: 0, y: 0 }
+  #origin = { x: 0, y: 0 }
+  #seen = { x: 0, y: 0 }
   #frame: number | null = null
   #last = 0
   readonly #tick = frameClock()
@@ -115,8 +116,13 @@ export class Scroller {
 
   #cancelMotion(): void {
     this.#axes = { x: idle(), y: idle() }
-    this.#applied = { x: 0, y: 0 }
+    this.#anchor()
     this.#held.clear()
+  }
+
+  #anchor(): void {
+    this.#origin = { x: this.#box.scrollX, y: this.#box.scrollY }
+    this.#seen = { ...this.#origin }
   }
 
   releaseAll(): void {
@@ -126,6 +132,7 @@ export class Scroller {
 
   #run(): void {
     if (this.#frame !== null) return
+    this.#anchor()
     this.#last = performance.now()
     const step = (now: number) => {
       const dt = this.#tick(now - this.#last)
@@ -137,20 +144,20 @@ export class Scroller {
       }
       const done = settled(this.#axes.x) && settled(this.#axes.y)
 
+      // Positions are absolute: Safari floors each scroll to a zoomed pixel, and relative steps would drop that remainder every frame.
+      const next = { x: 0, y: 0 }
       for (const key of ['x', 'y'] as const) {
+        const at = key === 'x' ? this.#box.scrollX : this.#box.scrollY
+        this.#origin[key] += at - this.#seen[key]
         const axis = this.#axes[key]
-        const want = Math.round(done ? axis.target : axis.current)
-        const shift = want - this.#applied[key]
-        if (shift !== 0) {
-          this.#box.by(key === 'x' ? shift : 0, key === 'y' ? shift : 0)
-          this.#applied[key] = want
-        }
+        next[key] = this.#origin[key] + (done ? axis.target : axis.current)
       }
+      this.#box.to(next.x, next.y)
+      this.#seen = { x: this.#box.scrollX, y: this.#box.scrollY }
 
       if (done) {
         this.#frame = null
         this.#axes = { x: idle(), y: idle() }
-        this.#applied = { x: 0, y: 0 }
         return
       }
       this.#frame = requestAnimationFrame(step)

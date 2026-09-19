@@ -27,7 +27,6 @@ export async function jumpMark(ch: string): Promise<boolean> {
   const got = await chrome.storage.local.get(key)
   const pos = got[key] as MarkPosition | undefined
   if (!pos) return false
-  const box = scrolledBox()
-  box.by(pos.x - box.scrollX, pos.y - box.scrollY)
+  scrolledBox().to(pos.x, pos.y)
   return true
 }

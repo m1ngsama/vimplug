@@ -39,7 +39,7 @@ export interface ScrollBox {
   scrollY: number
   maxX: number
   maxY: number
-  by(dx: number, dy: number): void
+  to(x: number, y: number): void
 }
 
 function metricsOf(el: Element): ScrollMetrics {
@@ -73,7 +73,7 @@ function boxOfElement(el: Element): ScrollBox {
     get maxY() {
       return Math.max(0, el.scrollHeight - el.clientHeight)
     },
-    by: (dx, dy) => el.scrollBy({ left: dx, top: dy, behavior: 'instant' }),
+    to: (x, y) => el.scrollTo({ left: x, top: y, behavior: 'instant' }),
   }
 }
 
@@ -94,7 +94,7 @@ export function windowBox(): ScrollBox {
     get maxY() {
       return Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
     },
-    by: (dx, dy) => window.scrollBy({ left: dx, top: dy, behavior: 'instant' }),
+    to: (x, y) => window.scrollTo({ left: x, top: y, behavior: 'instant' }),
   }
 }
 

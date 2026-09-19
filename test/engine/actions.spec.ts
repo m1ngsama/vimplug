@@ -109,3 +109,14 @@ test.describe('marks', () => {
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1200)
   })
 })
+
+test.describe('scrolling', () => {
+  test('a scroll the page makes mid-motion is kept, not undone', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('d')
+    await page.evaluate(() => window.scrollBy(0, 1000))
+    await page.waitForTimeout(600)
+    const half = await page.evaluate(() => window.innerHeight / 2)
+    expect(await page.evaluate(() => window.scrollY)).toBe(1000 + half)
+  })
+})
