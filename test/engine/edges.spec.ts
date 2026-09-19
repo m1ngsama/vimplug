@@ -398,6 +398,15 @@ test.describe('hints', () => {
     await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before)
   })
 
+  test('hints opened while a scroll settles stay up', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    const before = await page.evaluate(() => document.body.childElementCount)
+    await page.keyboard.press('d')
+    await page.keyboard.press('f')
+    await page.waitForTimeout(400)
+    expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+  })
+
   test('one link drawn twice in a row takes one label', async ({ page }) => {
     await loadEngine(page, `${base}/row`)
     await page.keyboard.press('f')

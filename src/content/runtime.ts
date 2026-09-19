@@ -65,6 +65,7 @@ async function main(): Promise<void> {
     opts: site.options,
     enter: (m: Mode) => modes.enter(m),
     startHint: (newTab: boolean, frames = false, copy = false) => {
+      scroller.stop()
       const targets = frames
         ? Array.from(document.querySelectorAll('iframe')).filter(f => {
             const r = f.getBoundingClientRect()

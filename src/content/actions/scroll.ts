@@ -125,6 +125,12 @@ export class Scroller {
     this.#seen = { ...this.#origin }
   }
 
+  stop(): void {
+    if (this.#frame !== null) cancelAnimationFrame(this.#frame)
+    this.#frame = null
+    this.#cancelMotion()
+  }
+
   releaseAll(): void {
     for (const axis of this.#held.values()) this.#axes[axis].dir = 0
     this.#held.clear()
