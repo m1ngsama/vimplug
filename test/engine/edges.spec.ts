@@ -278,6 +278,14 @@ test.describe('find over awkward text', () => {
     await expect.poll(selected).toBe('marker@two')
   })
 
+  test('a letter that lengthens when lowercased does not shift the match', async ({ page }) => {
+    await loadEngine(page, `${base}/dotted`)
+    await page.keyboard.press('/')
+    await page.keyboard.type('marker')
+    await page.keyboard.press('Enter')
+    await expect.poll(() => page.evaluate(() => getSelection()?.toString())).toBe('marker')
+  })
+
   test('Enter on a query that matched nothing still leaves normal mode', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('/')

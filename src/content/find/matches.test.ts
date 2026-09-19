@@ -61,3 +61,7 @@ test('a match count reads as words', () => {
   assert.equal(matchSummary(1), '1 match')
   assert.equal(matchSummary(17), '17 matches')
 })
+
+test('a letter that lengthens when lowercased does not shift later matches', () => {
+  assert.deepEqual(collectMatches('İstanbul tea', 'tea'), [{ start: 9, end: 12 }])
+})

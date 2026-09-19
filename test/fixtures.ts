@@ -127,6 +127,11 @@ const PAGES: Record<string, string> = {
       <p id="two">beta marker</p>
       <div style="height:1500px">end</div>
     </body>`,
+  '/dotted': `<body>
+      <p>İstanbul</p>
+      <div style="height:1500px">top</div>
+      <p id="one">alpha marker</p>
+    </body>`,
   '/blocks': `<body style="height:3000px">
       <div style="height:1200px">top</div>
       <p>abc</p>

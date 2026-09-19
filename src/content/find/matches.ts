@@ -6,10 +6,20 @@ export interface Span {
 // Not /[A-Z]/: that would call an accent or a caseless script case sensitive.
 const isCaseSensitive = (query: string): boolean => query !== query.toLowerCase()
 
+// 'İ'.toLowerCase() is two characters long, which would shift every match after it.
+function fold(text: string): string {
+  const lower = text.toLowerCase()
+  if (lower.length === text.length) return lower
+  return text.replace(/[^]/gu, c => {
+    const l = c.toLowerCase()
+    return l.length === c.length ? l : c
+  })
+}
+
 export function collectMatches(text: string, query: string): Span[] {
   if (query.length === 0) return []
   const sensitive = isCaseSensitive(query)
-  const hay = sensitive ? text : text.toLowerCase()
+  const hay = sensitive ? text : fold(text)
   const needle = sensitive ? query : query.toLowerCase()
 
   const out: Span[] = []
