@@ -76,8 +76,8 @@ test('deepActiveElement returns null when nothing is focused', () => {
   assert.equal(deepActiveElement({ activeElement: null } as unknown as Document), null)
 })
 
-test('a focused iframe puts the outer document in passthrough', () => {
-  assert.equal(modeForFocus(el({ tagName: 'IFRAME' })), 'passthrough')
+test('a focused iframe leaves the outer document in normal', () => {
+  assert.equal(modeForFocus(el({ tagName: 'IFRAME' })), 'normal')
 })
 
 test('a focused text field is insert, anything else is normal', () => {

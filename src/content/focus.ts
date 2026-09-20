@@ -25,7 +25,6 @@ export function isEditable(el: Element | null): boolean {
 }
 
 export function modeForFocus(el: Element | null): Mode {
-  if (el?.tagName === 'IFRAME') return 'passthrough'
   return isEditable(el) ? 'insert' : 'normal'
 }
 

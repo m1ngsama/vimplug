@@ -87,6 +87,9 @@ const PAGES: Record<string, string> = {
       </div>
     </body>`,
   '/combobox': '<body style="height:5000px"><input id="c" role="combobox" aria-expanded="true"></body>',
+  '/framed': `<body style="height:5000px">
+      <iframe id="f" src="/textarea" style="width:300px;height:200px"></iframe>
+    </body>`,
   '/cmdk': `<body style="height:5000px"><div id="out"></div><script>
       document.addEventListener('keydown', e => {
         if (e.metaKey && e.key === 'k') {

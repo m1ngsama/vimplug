@@ -239,6 +239,14 @@ test.describe('mode indicator', () => {
     await expect.poll(async () => (await state(page)).panels).toBe(0)
   })
 
+  // The outer page never receives the keys that would retire it: keydown does not cross frames.
+  test('a focused iframe leaves no indicator on the outer page', async ({ page }) => {
+    await loadEngine(page, `${base}/framed`)
+    await page.evaluate(() => document.querySelector('iframe')?.focus())
+    await page.waitForTimeout(200)
+    expect((await state(page)).panels).toBe(0)
+  })
+
   test('Control leaves visual mode the way Escape does', async ({ page }) => {
     await loadEngine(page, `${base}/find`)
     await page.keyboard.press('v')
