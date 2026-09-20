@@ -92,6 +92,8 @@ Defaults. Every one is rebindable; `?` shows the bindings actually in force.
 | `?` | Keyboard help |
 | `<Esc>` | Leave the current mode |
 
+Hint and visual mode also leave on `Ctrl`, for keyboards with Caps Lock remapped to Control.
+
 `m` keeps vimkey's mute, so marks use `M` and `` ` `` rather than vim's `m`.
 
 Most keys take a count: `5j` scrolls five steps, `3K` moves three tabs on. A bare `0` stays

@@ -29,6 +29,9 @@ declare global {
   }
 }
 
+// Control counts too: Caps Lock is commonly remapped to it, which puts it under the Escape finger.
+const cancels = (e: KeyboardEvent): boolean => e.key === 'Escape' || e.key === 'Control'
+
 async function main(): Promise<void> {
   const site = resolveForHost(await loadDsl(), location.hostname)
   if (site.disabled) return
@@ -176,7 +179,7 @@ async function main(): Promise<void> {
     }
 
     if (modes.current === 'visual') {
-      if (e.key === 'Escape') {
+      if (cancels(e)) {
         e.preventDefault()
         clearVisual()
         modes.enter('normal')
@@ -199,7 +202,7 @@ async function main(): Promise<void> {
       e.preventDefault()
       e.stopPropagation()
       if (e.repeat) return
-      if (e.key === 'Escape') modes.enter('normal')
+      if (cancels(e)) modes.enter('normal')
       else if (e.key === 'Backspace') hint.back()
       else if (e.key === 'Enter') hint.confirm()
       else if (e.key.length === 1) hint.feed(e.key, e.shiftKey)

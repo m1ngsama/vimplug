@@ -388,6 +388,16 @@ test.describe('hints', () => {
     await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before)
   })
 
+  test('Control leaves hint mode the way Escape does', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    const before = await page.evaluate(() => document.body.childElementCount)
+    await page.keyboard.press('f')
+    expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+
+    await page.keyboard.press('Control')
+    await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before)
+  })
+
   test('a scroll retires hints, since it invalidates their positions', async ({ page }) => {
     await loadEngine(page, `${base}/links`)
     const before = await page.evaluate(() => document.body.childElementCount)

@@ -239,6 +239,15 @@ test.describe('mode indicator', () => {
     await expect.poll(async () => (await state(page)).panels).toBe(0)
   })
 
+  test('Control leaves visual mode the way Escape does', async ({ page }) => {
+    await loadEngine(page, `${base}/find`)
+    await page.keyboard.press('v')
+    await expect.poll(async () => (await state(page)).panels).toBe(1)
+
+    await page.keyboard.press('Control')
+    await expect.poll(async () => (await state(page)).panels).toBe(0)
+  })
+
   test('the indicator is themed rather than borrowing the page styles', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await page.keyboard.press('i')
