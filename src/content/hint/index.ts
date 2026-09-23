@@ -137,12 +137,17 @@ export function startHint(o: HintOptions): HintSession | null {
   let settling: ReturnType<typeof setTimeout> | undefined
 
   const invalidate = () => o.onEnd()
-  window.addEventListener('scroll', invalidate, { passive: true })
+  // The last frame of a halted scroll still reports its event after the hints are drawn.
+  const drawnAt = [scrollX, scrollY]
+  const moved = () => {
+    if (scrollX !== drawnAt[0] || scrollY !== drawnAt[1]) invalidate()
+  }
+  window.addEventListener('scroll', moved, { passive: true })
   window.addEventListener('resize', invalidate, { passive: true })
 
   const cleanup = () => {
     clearTimeout(settling)
-    window.removeEventListener('scroll', invalidate)
+    window.removeEventListener('scroll', moved)
     window.removeEventListener('resize', invalidate)
     host.remove()
   }
