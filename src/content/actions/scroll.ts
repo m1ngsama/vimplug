@@ -48,7 +48,7 @@ const HELD: Record<string, { axis: 'y' | 'x'; dir: -1 | 1 } | undefined> = {
   scrollLeft: { axis: 'x', dir: -1 },
 }
 
-const idle = (): AxisState => ({ current: 0, target: 0, dir: 0, heldMs: 0, movingMs: 0, leftMs: 0 })
+const idle = (): AxisState => ({ current: 0, target: 0, velocity: 0, dir: 0, heldMs: 0, leftMs: 0 })
 
 
 export class Scroller {
@@ -87,10 +87,6 @@ export class Scroller {
     if (keyId !== null && this.#held.has(keyId)) return true
 
     if (ABSOLUTE.has(action)) this.#cancelMotion()
-
-    for (const key of ['x', 'y'] as const) {
-      if (settled(this.#axes[key])) this.#axes[key].movingMs = 0
-    }
 
     if (delta.top !== 0) this.#axes.y = push(this.#axes.y, delta.top)
     if (delta.left !== 0) this.#axes.x = push(this.#axes.x, delta.left)

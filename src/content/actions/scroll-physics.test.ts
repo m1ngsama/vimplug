@@ -9,8 +9,8 @@ const idle = (over: Partial<AxisState> = {}): AxisState => ({
   current: 0,
   target: 0,
   dir: 0,
+  velocity: 0,
   heldMs: 0,
-  movingMs: 0,
   leftMs: 0,
   ...over,
 })
@@ -49,12 +49,12 @@ test('holding accelerates: a later frame covers more ground than an early one', 
   let s = idle({ dir: 1 })
   for (let i = 0; i < 6; i += 1) s = advance(s, 16, smooth)
   const first = advance(s, 16, smooth)
-  const firstGain = first.target - s.target
+  const firstGain = first.current - s.current
 
   s = first
   for (let i = 0; i < 30; i += 1) s = advance(s, 16, smooth)
   const later = advance(s, 16, smooth)
-  const laterGain = later.target - s.target
+  const laterGain = later.current - s.current
 
   assert.ok(laterGain > firstGain * 2, `${laterGain} vs ${firstGain}`)
 })
@@ -120,19 +120,36 @@ test('held scrolling keeps a small follow lag, so it stays responsive', () => {
   assert.ok(s.target - s.current < 100, `lag grew to ${s.target - s.current}`)
 })
 
-test('motion eases in rather than peaking on its first frame', () => {
-  const first = advance(push(idle(), 2000), 16, smooth)
-  const later = advance(push(idle({ movingMs: 500 }), 2000), 16, smooth)
-  assert.ok(first.current < later.current / 3, `${first.current} vs ${later.current}`)
+const frameSteps = (s: AxisState, frames: number, each?: (i: number, s: AxisState) => AxisState) => {
+  const steps: number[] = []
+  for (let i = 0; i < frames; i += 1) {
+    if (each) s = each(i, s)
+    const next = advance(s, 16, smooth)
+    steps.push(next.current - s.current)
+    s = next
+  }
+  return steps
+}
+
+test('taps in quick succession keep an even pace', () => {
+  const steps = frameSteps(idle(), 50, (i, s) => (i % 7 === 0 ? push(s, 60) : s)).slice(21, 49)
+  const ratio = Math.max(...steps) / Math.min(...steps)
+  assert.ok(ratio < 1.5, `frame steps range ${Math.min(...steps)} to ${Math.max(...steps)}`)
 })
 
-test('the ease-in is spent within a fifth of a second', () => {
-  let s = push(idle(), 2000)
-  for (let i = 0; i < 12; i += 1) s = advance(s, 16, smooth)
-  const step = advance(s, 16, smooth).current - s.current
-  const settledStep =
-    advance({ ...s, movingMs: 5000 }, 16, smooth).current - s.current
-  assert.ok(Math.abs(step - settledStep) < 1, 'still ramping after 200ms')
+test('a hold never slows down before it reaches full speed', () => {
+  const steps = frameSteps({ ...push(idle(), 60), dir: 1 }, 40)
+  for (let i = 1; i < steps.length; i += 1) {
+    assert.ok(steps[i]! >= steps[i - 1]! - 0.2, `frame ${i} slowed from ${steps[i - 1]} to ${steps[i]}`)
+  }
+})
+
+test('reversing mid-glide turns around without a jump in speed', () => {
+  let s = push(idle(), 60)
+  for (let i = 0; i < 6; i += 1) s = advance(s, 16, smooth)
+  const before = s.velocity
+  const after = advance(push(s, -60), 16, smooth).velocity
+  assert.ok(Math.abs(after - before) < Math.abs(before) / 2, `${before} to ${after}`)
 })
 
 const roundedFrames = (hz: number, n: number) =>
