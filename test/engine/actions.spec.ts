@@ -126,6 +126,27 @@ test.describe('scrolling', () => {
     expect(later).toBeLessThan(rolled - 100)
   })
 
+  test('a released hold stops where it is', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.down('j')
+    await page.waitForTimeout(400)
+    await page.keyboard.up('j')
+    await page.waitForTimeout(60)
+    const stopped = await page.evaluate(() => window.scrollY)
+    await page.waitForTimeout(250)
+    expect(stopped).toBeGreaterThan(100)
+    expect(await page.evaluate(() => window.scrollY)).toBe(stopped)
+  })
+
+  test('key repeats of a held d do not pile up half pages', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    for (let i = 0; i < 6; i += 1) await page.keyboard.down('d')
+    await page.keyboard.up('d')
+    await page.waitForTimeout(600)
+    const half = await page.evaluate(() => window.innerHeight / 2)
+    expect(await page.evaluate(() => window.scrollY)).toBe(half)
+  })
+
   test('a scroll the page makes mid-motion is kept, not undone', async ({ page }) => {
     await loadEngine(page, `${base}/tall`)
     await page.keyboard.press('d')

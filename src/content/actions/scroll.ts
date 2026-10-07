@@ -41,19 +41,11 @@ export function scrollDelta(
 
 const ABSOLUTE = new Set(['scrollToTop', 'scrollToBottom', 'scrollToStart', 'scrollToEnd'])
 
-const HELD: Record<string, { axis: 'y' | 'x'; dir: -1 | 1 } | undefined> = {
-  scrollDown: { axis: 'y', dir: 1 },
-  scrollUp: { axis: 'y', dir: -1 },
-  scrollRight: { axis: 'x', dir: 1 },
-  scrollLeft: { axis: 'x', dir: -1 },
-}
-
-const idle = (): AxisState => ({ current: 0, target: 0, velocity: 0, dir: 0, heldMs: 0, leftMs: 0 })
-
+const idle = (): AxisState => ({ current: 0, target: 0, speed: 0, dir: 0, heldMs: 0, step: 0 })
 
 export class Scroller {
   #axes: Record<'x' | 'y', AxisState> = { x: idle(), y: idle() }
-  #held = new Map<string, { axis: 'x' | 'y'; dir: -1 | 1 }>()
+  #held = new Map<string, { axis: 'x' | 'y'; dir: -1 | 1; step: number }>()
   #origin = { x: 0, y: 0 }
   #seen = { x: 0, y: 0 }
   #frame: number | null = null
@@ -91,12 +83,10 @@ export class Scroller {
     if (delta.top !== 0) this.#axes.y = push(this.#axes.y, delta.top)
     if (delta.left !== 0) this.#axes.x = push(this.#axes.x, delta.left)
 
-    const hold = keyId === null ? undefined : HELD[action]
-    if (hold) {
-      const axis = this.#axes[hold.axis]
-      axis.dir = hold.dir
-      axis.heldMs = 0
-      this.#held.set(keyId!, hold)
+    if (keyId !== null && !ABSOLUTE.has(action)) {
+      const step = Math.abs(delta.top || delta.left)
+      this.#axes[axis] = { ...this.#axes[axis], dir, step, heldMs: 0 }
+      this.#held.set(keyId, { axis, dir, step })
     }
 
     this.#run()
@@ -111,6 +101,7 @@ export class Scroller {
     const still = [...this.#held.values()].findLast(h => h.axis === hold.axis)
     if (still && still.dir !== axis.dir) axis.heldMs = 0
     axis.dir = still?.dir ?? 0
+    axis.step = still?.step ?? 0
   }
 
   #cancelMotion(): void {

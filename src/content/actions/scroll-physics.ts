@@ -1,10 +1,10 @@
 export interface AxisState {
   current: number
   target: number
-  velocity: number
+  speed: number
   dir: -1 | 0 | 1
   heldMs: number
-  leftMs: number
+  step: number
 }
 
 export interface ScrollOptions {
@@ -12,59 +12,44 @@ export interface ScrollOptions {
   scrollSmooth: boolean
 }
 
-// Native smooth scrollBy restarts its easing on every key repeat, so the engine eases toward its own target.
-// Held keys wait this long before scrolling on their own, so a tap moves exactly one step however long it lasts.
-const HOLD_MS = 80
-const RAMP_MS = 250
-const FOLLOW_MS = 40
-const MAX_STEPS_PER_SECOND = 22
+const MIN_MS = 100
+const SETTLE_MS = 75
+const CRUISE_PX = 150
+const FRAME_MS = 1000 / 60
 
-// Safari's own Home, End and Page Down land in about 210ms whatever the distance; a glide over this long matches them.
-const GLIDE_MS = 220
+const duration = (px: number) => Math.max(MIN_MS, 20 * Math.log(px))
 
-// A motion already under way keeps its speed; a new target only bends its path, or every tap would jolt it.
+const cruise = (step: number) => Math.min(1.6 * step, Math.max(0.5 * step, CRUISE_PX)) / duration(step)
+
 export function push(s: AxisState, delta: number): AxisState {
-  const velocity = s.velocity || delta / GLIDE_MS
-  return { ...s, target: s.target + delta, velocity, leftMs: GLIDE_MS }
-}
-
-const topSpeed = (o: ScrollOptions) => (o.scrollStep * MAX_STEPS_PER_SECOND) / 1000
-
-function holdSpeed(heldMs: number, o: ScrollOptions): number {
-  const x = Math.min(1, heldMs / RAMP_MS)
-  return topSpeed(o) * x * x * (3 - 2 * x)
+  const target = s.target + delta
+  const gap = Math.abs(target - s.current)
+  return { ...s, target, speed: gap / duration(gap) }
 }
 
 export function advance(s: AxisState, dt: number, o: ScrollOptions): AxisState {
   if (dt <= 0) return s
-  const heldMs = s.dir !== 0 ? s.heldMs + dt : s.heldMs
-  const holding = s.dir !== 0 && heldMs > HOLD_MS
+  const held = s.dir !== 0
+  const heldMs = held ? s.heldMs + dt : s.heldMs
 
-  if (!o.scrollSmooth) {
-    const target = holding ? s.target + holdSpeed(heldMs, o) * s.dir * dt : s.target
-    return { ...s, current: target, target, velocity: 0, heldMs, leftMs: 0 }
+  let speed = s.speed
+  if (held && heldMs > SETTLE_MS) {
+    const want = cruise(s.step)
+    const k = 1.05 ** (dt / FRAME_MS)
+    speed = speed < want ? Math.min(want, speed * k) : Math.max(want, speed / k)
   }
 
-  if (holding) {
-    const want = s.dir * Math.min(topSpeed(o), Math.max(holdSpeed(heldMs, o), s.velocity * s.dir))
-    const velocity = want + (s.velocity - want) * Math.exp(-dt / FOLLOW_MS)
-    const current = s.current + ((s.velocity + velocity) / 2) * dt
-    return { ...s, current, target: current + (velocity * GLIDE_MS) / 3, velocity, heldMs, leftMs: GLIDE_MS }
-  }
+  const gap = s.target - s.current
+  const reach = speed * dt
+  const past = o.scrollSmooth ? reach - Math.abs(gap) : heldMs > MIN_MS ? reach : 0
+  if (past < 0) return { ...s, current: s.current + Math.sign(gap) * reach, speed, heldMs }
 
-  if (s.leftMs <= dt) return { ...s, current: s.target, velocity: 0, heldMs, leftMs: 0 }
-
-  const t = s.leftMs
-  const u = dt / t
-  const d = s.target - s.current
-  const v = s.velocity
-  const current = s.current + v * t * (u - 2 * u * u + u ** 3) + d * (3 * u * u - 2 * u ** 3)
-  const velocity = v * (1 - 4 * u + 3 * u * u) + (d / t) * (6 * u - 6 * u * u)
-  return { ...s, current, velocity, heldMs, leftMs: t - dt }
+  const current = s.target + (held ? s.dir * past : 0)
+  return { ...s, current, target: current, speed: held ? speed : 0, heldMs }
 }
 
 export function settled(s: AxisState): boolean {
-  return s.dir === 0 && s.leftMs === 0 && Math.abs(s.target - s.current) < 0.5
+  return s.dir === 0 && Math.abs(s.target - s.current) < 0.5
 }
 
 // Safari rounds rAF timestamps to whole milliseconds; stepping by them makes every frame a different length.

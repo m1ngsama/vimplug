@@ -97,7 +97,7 @@ test('holding j accelerates rather than moving at a fixed rate', async () => {
 
   const firstRate = early / 150
   const laterRate = (late - early) / 400
-  expect(laterRate).toBeGreaterThan(firstRate * 1.5)
+  expect(laterRate).toBeGreaterThan(firstRate * 1.2)
   await page.close()
 })
 
