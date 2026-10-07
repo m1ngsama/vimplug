@@ -14,7 +14,7 @@ execFileSync(
     '-project', 'xcode/vimplug/vimplug.xcodeproj',
     '-scheme', 'vimplug',
     '-configuration', 'Release',
-    '-destination', 'platform=macOS',
+    '-destination', 'generic/platform=macOS',
     '-derivedDataPath', 'dist/xcode',
     '-quiet',
     'CODE_SIGN_IDENTITY=-',

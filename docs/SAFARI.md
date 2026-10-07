@@ -7,39 +7,35 @@ engine depends on it.
 
 ## Installing
 
-Xcode is required — Safari loads a web extension only from inside an app bundle, and only
-Xcode builds one.
+README has the steps for the prebuilt app. Building it yourself needs Xcode — Safari loads
+a web extension only from inside an app bundle, and only Xcode builds one.
 
 ```sh
 pnpm install && pnpm build:app
 ```
 
-That leaves `dist/vimplug.app`, ad-hoc signed and stamped with the version from
-`package.json`. Drag it to `/Applications` and open it once; the app's only job is to
-register the extension with Safari. Then:
-
-1. Safari > Settings > Advanced > check "Show features for web developers".
-2. Safari > Settings > Developer > check "Allow unsigned extensions". **This resets when
-   Safari quits.** An ad-hoc signed build needs it ticked again at every launch.
-3. Safari > Settings > Extensions > enable vimplug and set site access to "Always Allow on
-   Every Website". Without site access `registerContentScripts` silently injects nothing,
-   which looks identical to a broken build.
-
-Updating later is the same command plus a copy over the installed app:
+That leaves `dist/vimplug.app`, a universal binary, ad-hoc signed and stamped with the
+version from `package.json`. Copy it over the installed app and open it once; the app's
+only job is to register the extension with Safari.
 
 ```sh
-pnpm build:app && ditto dist/vimplug.app /Applications/vimplug.app
+ditto dist/vimplug.app /Applications/vimplug.app
 ```
 
 The app is signed ad-hoc rather than left unsigned because entitlements are only written
 when something signs, and Safari will not load an appex that lost its sandbox entitlement.
-An ad-hoc signature satisfies Safari but not Gatekeeper, so a copy that reaches another Mac
-through a browser or AirDrop arrives quarantined and is refused. Build on the machine that
-will run it.
+An ad-hoc signature satisfies Safari but not Gatekeeper, so a copy that reaches a Mac
+through a browser or AirDrop arrives quarantined and is refused. `curl` does not
+quarantine what it downloads, which is why README installs with it;
+`xattr -dr com.apple.quarantine /Applications/vimplug.app` clears a copy that was.
+
+`pnpm package:app` zips the app as `dist/vimplug-safari.zip`. The Release workflow runs it
+on a macOS runner and attaches the zip to each published release.
 
 ## Distribution and signing
 
-Step 2 above is the whole cost of having no Apple Developer Program membership, and nothing
+Re-ticking "Allow unsigned extensions" at every Safari launch is the whole cost of having no
+Apple Developer Program membership, and nothing
 in this repository can remove it. Tracked in
 [#10](https://github.com/m1ngsama/vimplug/issues/10). The facts, current as of Safari 26:
 
@@ -184,7 +180,7 @@ python3 -m http.server 8000
 | 5 | The toolbar button | Click it on any site | The badge reads `off`, the page reloads, keys do nothing; clicking again restores it. No automated counterpart on any platform: Playwright drives pages, not the browser's own toolbar. |
 | 6 | Permissions Safari withholds | Press `o` and type part of an open tab's title; then press `b`; then `X` | The tab is offered and Enter switches to it. `b` finds nothing and `X` cannot reopen a tab, and neither throws — Safari grants no `history`, `bookmarks` or `sessions`. |
 | 7 | Storage survives a restart | Scroll down, press `Ma`, quit and reopen Safari, press `` `a `` | The position is restored |
-| 8 | The installed app registers the extension | `pnpm build:app`, move `dist/vimplug.app` to `/Applications`, open it once | vimplug appears under Settings > Extensions without any temporary extension loaded. This is the path README sends people down, and only an ad-hoc signed bundle in Safari can confirm it. |
+| 8 | The installed app registers the extension | Install the release zip as README describes, open the app once | vimplug appears under Settings > Extensions without any temporary extension loaded. This is the path README sends people down, and only an ad-hoc signed bundle in Safari can confirm it. |
 
 Check 1 has been open since the project started and is the reason this table still exists.
 

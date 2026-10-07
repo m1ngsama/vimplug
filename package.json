@@ -17,7 +17,8 @@
     "build:safari": "TARGET=safari vite build && TARGET=safari node scripts/manifest.ts && node scripts/check-size.ts safari",
     "build": "pnpm build:chrome && pnpm build:safari",
     "build:app": "pnpm build:safari && node scripts/build-app.ts",
-    "package": "pnpm build && rm -f dist/vimplug-chrome.zip && cd dist/chrome && zip -qr ../vimplug-chrome.zip ."
+    "package": "pnpm build && rm -f dist/vimplug-chrome.zip && cd dist/chrome && zip -qr ../vimplug-chrome.zip .",
+    "package:app": "pnpm build:app && rm -f dist/vimplug-safari.zip && ditto -c -k --keepParent dist/vimplug.app dist/vimplug-safari.zip"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

@@ -20,19 +20,26 @@ answered as the specification for what must not go wrong.
 
 ## Install
 
-There is no signed release. Safari only keeps an extension installed if its containing app
-carries an Apple Developer ID, which costs $99 a year, so vimplug is built from source
-until that is funded ([#10](https://github.com/m1ngsama/vimplug/issues/10)). Chrome and Edge
-have the same story for now.
+Every [release](https://github.com/m1ngsama/vimplug/releases/latest) carries a build for
+Safari and one for Chrome and Edge. Neither is signed and neither updates itself: a signed
+Safari app needs an Apple Developer ID at $99 a year
+([#10](https://github.com/m1ngsama/vimplug/issues/10)), and vimplug is not in a browser
+store yet. To update, install the new release the same way.
 
-**Safari.** Needs Safari 16.4+ (macOS 13.3+) and Xcode.
+**Safari.** Needs Safari 16.4+ (macOS 13.3+).
 
 ```sh
-pnpm install && pnpm build:app
+curl -L https://github.com/m1ngsama/vimplug/releases/latest/download/vimplug-safari.zip -o /tmp/vimplug-safari.zip
+rm -rf /Applications/vimplug.app
+ditto -x -k /tmp/vimplug-safari.zip /Applications
+open /Applications/vimplug.app
 ```
 
-Drag `dist/vimplug.app` to `/Applications` and open it once — that is what puts vimplug in
-Safari's extension list. Then, in Safari:
+Opening the app once is what puts vimplug in Safari's extension list. If you download the
+zip with a browser instead, macOS quarantines it and refuses to open the app until you run
+`xattr -dr com.apple.quarantine /Applications/vimplug.app`.
+
+Then, in Safari:
 
 1. Settings > Advanced > check "Show features for web developers".
 2. Settings > Developer > check "Allow unsigned extensions". **This resets every time
@@ -45,11 +52,17 @@ Safari's extension list. Then, in Safari:
 [docs/SAFARI.md](docs/SAFARI.md) covers the rest, including what Safari withholds and what
 signing would change.
 
-**Chrome or Edge.** Build, then load `dist/chrome` at `chrome://extensions` with developer
-mode on.
+**Chrome or Edge.** Download
+[`vimplug-chrome.zip`](https://github.com/m1ngsama/vimplug/releases/latest/download/vimplug-chrome.zip)
+and unzip it into a folder you will keep. Open `chrome://extensions`, turn on developer
+mode, click "Load unpacked" and pick that folder.
+
+**From source.** Needs Node 26 and pnpm; the Safari app also needs Xcode.
 
 ```sh
-pnpm install && pnpm build
+pnpm install
+pnpm build:app   # dist/vimplug.app
+pnpm build       # dist/chrome
 ```
 
 ## Keys
