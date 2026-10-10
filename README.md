@@ -120,8 +120,9 @@ Scrolling acts on the pane under the cursor, not only the document, so `j` works
 whose page does not itself scroll.
 
 Safari does not grant extensions access to history, bookmarks or closed tabs, so there `o`
-searches open tabs only, `b` finds nothing, and `X` cannot reopen a tab. Everything else
-behaves the same on both browsers.
+searches open tabs only and `b` finds nothing. `X` reopens the last 25 tabs closed since
+Safari started, at their URL but without their back history. Everything else behaves the
+same on both browsers.
 
 While hints are showing, characters that are not a hint label narrow the hints by link
 text. The last candidate left fires once you pause, or at once on Enter, and Backspace

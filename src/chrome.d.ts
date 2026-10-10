@@ -5,7 +5,10 @@ declare namespace chrome {
       set(items: Record<string, unknown>): Promise<void>
     }
     const local: StorageArea
-    const onChanged: { addListener(cb: () => void): void }
+    const session: StorageArea
+    const onChanged: {
+      addListener(cb: (changes: Record<string, unknown>, area: string) => void): void
+    }
   }
 
   namespace tabs {
@@ -16,6 +19,7 @@ declare namespace chrome {
       title?: string
       url?: string
       active: boolean
+      incognito: boolean
     }
     function query(info: {
       windowId?: number
@@ -23,7 +27,12 @@ declare namespace chrome {
       active?: boolean
     }): Promise<Tab[]>
     function update(tabId: number, props: { active?: boolean; url?: string }): Promise<Tab>
-    function create(props: { url?: string; active?: boolean; windowId?: number }): Promise<Tab>
+    function create(props: {
+      url?: string
+      active?: boolean
+      windowId?: number
+      index?: number
+    }): Promise<Tab>
     function remove(tabId: number): Promise<void>
     function duplicate(tabId: number): Promise<Tab | undefined>
     function reload(tabId: number): Promise<void>
@@ -31,8 +40,9 @@ declare namespace chrome {
     function get(tabId: number): Promise<Tab>
     const onActivated: { addListener(cb: (info: { tabId: number }) => void): void }
     const onUpdated: {
-      addListener(cb: (tabId: number, change: { status?: string }, tab: Tab) => void): void
+      addListener(cb: (tabId: number, change: { status?: string; url?: string }, tab: Tab) => void): void
     }
+    const onRemoved: { addListener(cb: (tabId: number) => void): void }
   }
 
   namespace action {
@@ -67,9 +77,7 @@ declare namespace chrome {
     function create(props: { url?: string }): Promise<unknown>
   }
 
-  namespace sessions {
-    function restore(sessionId?: string): Promise<unknown>
-  }
+  const sessions: { restore(sessionId?: string): Promise<unknown> } | undefined
 
   interface MessageSender {
     tab?: tabs.Tab
