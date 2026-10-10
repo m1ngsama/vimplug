@@ -23,6 +23,7 @@ export function runFocusInput(action: string, count = 1): boolean {
   if (action !== 'focusInput') return false
   const all = Array.from(document.querySelectorAll('input, textarea, [contenteditable]'))
   const target = nthTextField(all, onScreen, count)
-  if (target instanceof HTMLElement) target.focus()
+  if (!(target instanceof HTMLElement)) return false
+  target.focus()
   return true
 }

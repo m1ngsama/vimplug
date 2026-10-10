@@ -37,6 +37,28 @@ function track(...tabs: chrome.tabs.Tab[]): void {
   void updateTabLog(s => tabs.forEach(t => noteOpen(s, t)))
 }
 
+interface Position {
+  x: number
+  y: number
+}
+
+const pendingScroll = new Map<number, Position>()
+
+const scrollTab = (id: number, { x, y }: Position): Promise<unknown> =>
+  chrome.tabs.sendMessage(id, { type: 'scrollTo', x, y }, { frameId: 0 }).catch(() => {})
+
+async function gotoMark(url: string, at: Position): Promise<void> {
+  const open = (await chrome.tabs.query({})).find(t => t.url === url)
+  if (open?.id === undefined) {
+    const tab = await chrome.tabs.create({ url })
+    if (tab.id !== undefined) pendingScroll.set(tab.id, at)
+    return
+  }
+  await chrome.tabs.update(open.id, { active: true })
+  await chrome.windows.update?.(open.windowId, { focused: true })
+  await scrollTab(open.id, at)
+}
+
 async function start(): Promise<void> {
   track(...(await chrome.tabs.query({})))
   await sync()
@@ -49,9 +71,14 @@ chrome.tabs.onActivated.addListener(info => {
     return refreshBadge(tab)
   })
 })
-chrome.tabs.onUpdated.addListener((_id, change, tab) => {
+chrome.tabs.onUpdated.addListener((id, change, tab) => {
   if (change.url !== undefined || change.status === 'complete') track(tab)
   if (change.status === 'complete') void refreshBadge(tab)
+  const at = change.status === 'complete' ? pendingScroll.get(id) : undefined
+  if (at) {
+    pendingScroll.delete(id)
+    void scrollTab(id, at)
+  }
 })
 chrome.tabs.onRemoved.addListener(id => void updateTabLog(s => noteClosed(s, id)))
 
@@ -144,6 +171,13 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         .catch(() => false)
         .then(ok => reply({ ok }))
     else reply({ ok: false })
+    return true
+  }
+
+  if (type === 'gotoMark') {
+    const m = msg as { url?: unknown; x?: unknown; y?: unknown }
+    if (typeof m.url === 'string') void gotoMark(m.url, { x: Number(m.x) || 0, y: Number(m.y) || 0 })
+    reply({ ok: true })
     return true
   }
 

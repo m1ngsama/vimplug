@@ -773,3 +773,30 @@ test('^ returns to the tab used before this one', async () => {
   await first.close()
   await second.close()
 })
+
+test('an uppercase mark is reached from another tab, and reopens a closed page', async () => {
+  const marked = await open('/tall?marked')
+  await marked.evaluate(() => window.scrollTo(0, 1200))
+  await marked.keyboard.press('Shift+m')
+  await marked.keyboard.press('Shift+a')
+  await marked.waitForTimeout(200)
+  await marked.evaluate(() => window.scrollTo(0, 0))
+
+  const other = await open('/links')
+  await other.keyboard.press('`')
+  await other.keyboard.press('Shift+a')
+  await expect.poll(activeTabUrl).toBe(`${base}/tall?marked`)
+  await expect.poll(() => marked.evaluate(() => window.scrollY)).toBe(1200)
+
+  await marked.close()
+  await other.bringToFront()
+  await other.keyboard.press('`')
+  const [reopened] = await Promise.all([
+    ctx.waitForEvent('page'),
+    other.keyboard.press('Shift+a'),
+  ])
+  await expect.poll(activeTabUrl).toBe(`${base}/tall?marked`)
+  await expect.poll(() => reopened.evaluate(() => window.scrollY)).toBe(1200)
+  await reopened.close()
+  await other.close()
+})

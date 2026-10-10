@@ -316,3 +316,64 @@ test.describe('hinting several links', () => {
     await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0)
   })
 })
+
+test.describe('getting around a page', () => {
+  const scrollY = (page: Page) => page.evaluate(() => window.scrollY)
+  const maxY = (page: Page) =>
+    page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)
+
+  test(']] steps a page number in the URL when no link offers the next page', async ({ page }) => {
+    await loadEngine(page, `${base}/pager-none?page=2`)
+    await page.keyboard.press(']')
+    await page.keyboard.press(']')
+    await expect(page).toHaveURL(`${base}/pager-none?page=3`)
+  })
+
+  test('50% scrolls to the middle of the page', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('5')
+    await page.keyboard.press('0')
+    await page.keyboard.press('Shift+5')
+    const half = Math.round((await maxY(page)) / 2)
+    await expect.poll(() => scrollY(page)).toBeGreaterThan(half - 2)
+    expect(await scrollY(page)).toBeLessThan(half + 2)
+  })
+
+  test('` twice returns to where a jump started, and back again', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.evaluate(() => window.scrollTo(0, 1200))
+    await page.keyboard.press('Shift+g')
+    const bottom = await maxY(page)
+    await expect.poll(() => scrollY(page)).toBe(bottom)
+
+    await page.keyboard.press('`')
+    await page.keyboard.press('`')
+    await expect.poll(() => scrollY(page)).toBe(1200)
+
+    await page.keyboard.press('`')
+    await page.keyboard.press('`')
+    await expect.poll(() => scrollY(page)).toBe(bottom)
+  })
+
+  test('j scrolls the pane that was last clicked', async ({ page }) => {
+    await loadEngine(page, `${base}/panes`)
+    const top = (id: string) => page.evaluate(i => document.getElementById(i)!.scrollTop, id)
+    await page.mouse.click(50, 50)
+    await page.keyboard.press('j')
+    await expect.poll(() => top('left')).toBeGreaterThan(0)
+    expect(await top('right')).toBe(0)
+  })
+
+  test('gi leaves its last key to a page with no text field', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.evaluate(() =>
+      document.addEventListener('keydown', e => {
+        if (e.key === 'i') document.title = 'page-saw-it'
+      }),
+    )
+    await page.keyboard.press('g')
+    await page.keyboard.press('i')
+    await expect(page).toHaveTitle('page-saw-it')
+    expect((await page.evaluate(() => document.querySelectorAll('[data-vimplug-ui]').length))).toBe(0)
+  })
+})

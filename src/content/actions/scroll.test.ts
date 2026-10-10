@@ -69,3 +69,11 @@ test('a page scroll moves one viewport height', () => {
   assert.deepEqual(scrollDelta('scrollPageDown', opts, view()), { top: 800, left: 0 })
   assert.deepEqual(scrollDelta('scrollPageUp', opts, view()), { top: -800, left: 0 })
 })
+
+test('a percentage is measured against the whole scroll range', () => {
+  assert.deepEqual(scrollDelta('scrollToPercent', opts, view({ scrollY: 500 }), 50), {
+    top: 2000,
+    left: 0,
+  })
+  assert.deepEqual(scrollDelta('scrollToPercent', opts, view(), 250), { top: 5000, left: 0 })
+})

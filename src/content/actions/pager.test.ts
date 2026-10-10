@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { pagerScore, pickPager, type PagerCandidate } from './pager.ts'
+import { pagerScore, pickPager, stepUrlNumber, type PagerCandidate } from './pager.ts'
 
 const c = (over: Partial<PagerCandidate> = {}): PagerCandidate => ({
   text: '',
@@ -85,4 +85,17 @@ test('a tie goes to the last candidate, where the pager usually sits', () => {
 test('pickPager reports nothing when no candidate qualifies', () => {
   assert.equal(pickPager([c({ text: 'Contact' })], 1), -1)
   assert.equal(pickPager([], 1), -1)
+})
+
+test('a page number in the URL steps when the page offers no link', () => {
+  assert.equal(stepUrlNumber('https://a.com/list?page=2', 1), 'https://a.com/list?page=3')
+  assert.equal(stepUrlNumber('https://a.com/list?q=x&p=2#top', -1), 'https://a.com/list?q=x&p=1#top')
+  assert.equal(stepUrlNumber('https://a.com/blog/page/9/', 1), 'https://a.com/blog/page/10/')
+  assert.equal(stepUrlNumber('https://a.com/blog/page-09', 1), 'https://a.com/blog/page-10')
+})
+
+test('a number that is not a page number is left alone', () => {
+  assert.equal(stepUrlNumber('https://a.com/2024/post-3?id=7', 1), null)
+  assert.equal(stepUrlNumber('https://a.com:8080/pager', 1), null)
+  assert.equal(stepUrlNumber('https://a.com/list?page=0', -1), null)
 })
