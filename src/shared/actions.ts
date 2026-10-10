@@ -45,6 +45,7 @@ export const ACTIONS: readonly ActionDef[] = [
 
   { id: 'focusInput', description: 'Focus the first text field', group: 'Navigation', scope: 'content', defaultKeys: ['gi'] },
   { id: 'passthrough', description: 'Suspend vimplug until Esc', group: 'Modes', scope: 'content', defaultKeys: ['i'] },
+  { id: 'passNextKey', description: 'Send the next key to the page', group: 'Modes', scope: 'content', defaultKeys: [] },
 
   { id: 'volumeUp', description: 'Raise media volume', group: 'Media', scope: 'content', defaultKeys: ['='] },
   { id: 'volumeDown', description: 'Lower media volume', group: 'Media', scope: 'content', defaultKeys: ['-'] },
@@ -66,7 +67,13 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'moveTabRight', description: 'Move the tab right', group: 'Tabs', scope: 'background', defaultKeys: ['>'] },
   { id: 'firstTab', description: 'First tab', group: 'Tabs', scope: 'background', defaultKeys: ['g0'] },
   { id: 'lastTabInWindow', description: 'Last tab', group: 'Tabs', scope: 'background', defaultKeys: ['g$'] },
-  { id: 'toggleMuteTab', description: 'Mute or unmute the tab', group: 'Tabs', scope: 'background', defaultKeys: [] },
+  { id: 'toggleMuteTab', description: 'Mute or unmute the tab', group: 'Tabs', scope: 'background', defaultKeys: ['<A-m>'] },
+  { id: 'togglePinTab', description: 'Pin or unpin the tab', group: 'Tabs', scope: 'background', defaultKeys: ['<A-p>'] },
+  { id: 'moveTabToWindow', description: 'Move the tab to a new window', group: 'Tabs', scope: 'background', defaultKeys: ['W'] },
+  { id: 'zoomIn', description: 'Zoom in', group: 'Tabs', scope: 'background', defaultKeys: ['zi'] },
+  { id: 'zoomOut', description: 'Zoom out', group: 'Tabs', scope: 'background', defaultKeys: ['zo'] },
+  { id: 'zoomReset', description: 'Reset the zoom', group: 'Tabs', scope: 'background', defaultKeys: ['z0'] },
+  { id: 'viewSource', description: 'View the page source', group: 'Open', scope: 'background', defaultKeys: ['gs'] },
   { id: 'closeOtherTabs', description: 'Close every other tab', group: 'Tabs', scope: 'background', defaultKeys: [] },
   { id: 'closeTabsLeft', description: 'Close the tabs to the left', group: 'Tabs', scope: 'background', defaultKeys: [] },
   { id: 'closeTabsRight', description: 'Close the tabs to the right', group: 'Tabs', scope: 'background', defaultKeys: [] },
@@ -78,6 +85,7 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'help', description: 'Show keyboard help', group: 'Modes', scope: 'content', defaultKeys: ['?'] },
 
   { id: 'hintFrame', description: 'Focus an iframe by hint', group: 'Open', scope: 'content', defaultKeys: ['gf'] },
+  { id: 'focusTopFrame', description: 'Return focus from an iframe to the page', group: 'Navigation', scope: 'content', defaultKeys: ['gF'] },
 
   { id: 'commandPalette', description: 'Run any action by name', group: 'Modes', scope: 'content', defaultKeys: [':'] },
   { id: 'repeatLast', description: 'Repeat the last action', group: 'Modes', scope: 'content', defaultKeys: ['.'] },

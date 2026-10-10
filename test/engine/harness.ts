@@ -24,6 +24,7 @@ function shim(dsl: string): string {
   window.chrome = {
     runtime: {
       getURL: (p) => p,
+      onMessage: { addListener() {} },
       sendMessage: async (msg) => {
         ;(window.__vimplugSent ??= []).push(msg)
         if (msg.type === 'getDsl') return { dsl: ${JSON.stringify(dsl)} }
