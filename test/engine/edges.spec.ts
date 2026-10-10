@@ -561,3 +561,26 @@ test.describe('input methods', () => {
     await expect.poll(async () => (await state(page)).panels).toBe(1)
   })
 })
+
+test.describe('shifted keys inside a sequence', () => {
+  const actions = (page: Page) =>
+    page.evaluate(() =>
+      ((window as any).__vimplugSent ?? []).filter((m: { type: string }) => m.type === 'runAction'),
+    )
+
+  test('pressing Shift keeps the count typed before it', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('3')
+    await page.keyboard.press('Shift+k')
+    await expect.poll(() => actions(page)).toEqual([{ type: 'runAction', id: 'nextTab', count: 3 }])
+  })
+
+  test('pressing Shift keeps the prefix typed before it', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('g')
+    await page.keyboard.press('Shift+4')
+    await expect
+      .poll(() => actions(page))
+      .toEqual([{ type: 'runAction', id: 'lastTabInWindow', count: 1 }])
+  })
+})

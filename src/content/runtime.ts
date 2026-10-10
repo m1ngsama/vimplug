@@ -32,6 +32,8 @@ declare global {
 // Control counts too: Caps Lock is commonly remapped to it, which puts it under the Escape finger.
 const cancels = (e: KeyboardEvent): boolean => e.key === 'Escape' || e.key === 'Control'
 
+const MODIFIER_KEYS = new Set(['Shift', 'Control', 'Alt', 'Meta', 'CapsLock'])
+
 async function main(): Promise<void> {
   const site = resolveForHost(await loadDsl(), location.hostname)
   if (site.disabled) return
@@ -208,6 +210,8 @@ async function main(): Promise<void> {
       else if (e.key.length === 1) hint.feed(e.key, e.shiftKey)
       return
     }
+
+    if (MODIFIER_KEYS.has(e.key)) return
 
     const key = fromEvent(e)
     if (!shouldHandle(key, boundIds, keyMatching)) return
