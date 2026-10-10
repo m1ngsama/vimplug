@@ -1,6 +1,7 @@
 import { readDsl, writeDsl } from '../shared/storage.ts'
 import { registrationFor, isDisabled, hostOf, REGISTRATION_ID } from './injection.ts'
 import { runTabAction, noteActiveTab } from './tabs.ts'
+import { noteOpen, noteClosed, updateClosedTabs } from './closed-tabs.ts'
 import { rankSuggestions, type Suggestion } from './omnibar.ts'
 import { disabledHosts } from '../shared/config.ts'
 import { toggleSite } from '../shared/dsl/edits.ts'
@@ -32,20 +33,41 @@ chrome.action.onClicked.addListener(tab => {
   })()
 })
 
+// Safari has no sessions API, so restoreTab there replays tabs we saw close.
+const tracksClosedTabs = !chrome.sessions
+
+function track(...tabs: chrome.tabs.Tab[]): void {
+  if (tracksClosedTabs) void updateClosedTabs(s => tabs.forEach(t => noteOpen(s, t)))
+}
+
+async function start(): Promise<void> {
+  track(...(await chrome.tabs.query({})))
+  await sync()
+}
+
 chrome.tabs.onActivated.addListener(info => {
   noteActiveTab(info.tabId)
-  void chrome.tabs.get(info.tabId).then(refreshBadge)
+  void chrome.tabs.get(info.tabId).then(tab => {
+    track(tab)
+    return refreshBadge(tab)
+  })
 })
 chrome.tabs.onUpdated.addListener((_id, change, tab) => {
+  if (change.url !== undefined || change.status === 'complete') track(tab)
   if (change.status === 'complete') void refreshBadge(tab)
 })
+if (tracksClosedTabs) {
+  chrome.tabs.onRemoved.addListener(id => void updateClosedTabs(s => noteClosed(s, id)))
+}
 
 chrome.runtime.onInstalled.addListener(() => {
   void chrome.action.setBadgeBackgroundColor({ color: '#8a6d1f' })
-  void sync()
+  void start()
 })
-chrome.runtime.onStartup.addListener(() => void sync())
-chrome.storage.onChanged.addListener(() => void sync())
+chrome.runtime.onStartup.addListener(() => void start())
+chrome.storage.onChanged.addListener((_changes, area) => {
+  if (area === 'local') void sync()
+})
 
 async function collect(query: string, bookmarksOnly: boolean): Promise<Suggestion[]> {
   const marks = await (chrome.bookmarks?.search({ query }) ?? Promise.resolve([])).catch(() => [])

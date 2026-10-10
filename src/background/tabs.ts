@@ -1,3 +1,5 @@
+import { reopenClosedTab } from './closed-tabs.ts'
+
 export function resolveTabTarget(index: number, total: number, dir: 1 | -1, repeat = 1): number {
   if (total <= 0) return 0
   return (((index + dir * repeat) % total) + total) % total
@@ -70,8 +72,8 @@ export async function runTabAction(id: string, tab: chrome.tabs.Tab, count = 1):
       if (tabId !== undefined) await chrome.tabs.remove(tabId)
       return true
     case 'restoreTab':
-      // Safari has no sessions API.
-      await chrome.sessions?.restore().catch(() => {})
+      if (chrome.sessions) await chrome.sessions.restore().catch(() => {})
+      else await reopenClosedTab(tab)
       return true
     case 'duplicateTab':
       if (tabId !== undefined) await chrome.tabs.duplicate(tabId)

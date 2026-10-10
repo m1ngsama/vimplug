@@ -144,8 +144,9 @@ each pinned by a test in `src/shared/manifest-def.test.ts`:
 
 Without those three permissions Safari degrades rather than breaks: `o` still searches
 open tabs and still opens URLs and searches, but offers no history or bookmarks; `b` finds
-nothing; and `X` cannot reopen a closed tab. Every call is guarded, so the absent APIs
-produce empty results instead of errors.
+nothing. Every call is guarded, so the absent APIs produce empty results instead of errors.
+`X` falls back to a stack of our own in `storage.session`: the last 25 tabs closed since
+Safari started, reopened at their URL and position but without their back history.
 
 ## `excludeMatches` is ignored
 
@@ -178,7 +179,7 @@ python3 -m http.server 8000
 | 3 | The settings page is reachable | Settings > Extensions > vimplug > Settings | The page opens. Safari ignores `open_in_tab`, so this button is the only way in. |
 | 4 | Settings reach the page | Rebind "Scroll down" to `d`, then export from Text, edit the file, import it back | The rebind works on any page and the edited configuration is in force |
 | 5 | The toolbar button | Click it on any site | The badge reads `off`, the page reloads, keys do nothing; clicking again restores it. No automated counterpart on any platform: Playwright drives pages, not the browser's own toolbar. |
-| 6 | Permissions Safari withholds | Press `o` and type part of an open tab's title; then press `b`; then `X` | The tab is offered and Enter switches to it. `b` finds nothing and `X` cannot reopen a tab, and neither throws — Safari grants no `history`, `bookmarks` or `sessions`. |
+| 6 | Permissions Safari withholds | Press `o` and type part of an open tab's title; then press `b`; then close a tab with `x` and press `X` | The tab is offered and Enter switches to it. `b` finds nothing and does not throw. `X` reopens the closed tab where it was — Safari grants no `history`, `bookmarks` or `sessions`. |
 | 7 | Storage survives a restart | Scroll down, press `Ma`, quit and reopen Safari, press `` `a `` | The position is restored |
 | 8 | The installed app registers the extension | Install the release zip as README describes, open the app once | vimplug appears under Settings > Extensions without any temporary extension loaded. This is the path README sends people down, and only an ad-hoc signed bundle in Safari can confirm it. |
 
