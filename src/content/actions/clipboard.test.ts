@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { clipboardTarget, looksLikeUrl } from './clipboard.ts'
+import { clipboardTarget, copyText, looksLikeUrl } from './clipboard.ts'
 
 const SEARCH = 'https://www.google.com/search?q=%s'
 
@@ -55,4 +55,18 @@ test('looksLikeUrl separates navigation from search', () => {
   assert.equal(looksLikeUrl('how to cook rice'), false)
   assert.equal(looksLikeUrl('textarea'), false)
   assert.equal(looksLikeUrl(''), false)
+})
+
+test('the page can be copied as its URL, its title or a Markdown link', () => {
+  assert.equal(copyText('copyUrl', 'Home', 'https://a.com/'), 'https://a.com/')
+  assert.equal(copyText('copyTitle', 'Home', 'https://a.com/'), 'Home')
+  assert.equal(copyText('copyMarkdownLink', 'Home', 'https://a.com/'), '[Home](https://a.com/)')
+  assert.equal(copyText('openClipboard', 'Home', 'https://a.com/'), null)
+})
+
+test('brackets in a title do not break the Markdown link', () => {
+  assert.equal(
+    copyText('copyMarkdownLink', '[RFC] Plan', 'https://a.com/'),
+    '[\\[RFC\\] Plan](https://a.com/)',
+  )
 })

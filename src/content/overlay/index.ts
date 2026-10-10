@@ -49,6 +49,7 @@ export function startOverlay(
   runById: (id: string) => void,
   theme: Tokens,
   onFind?: (query: string) => number,
+  newTab = false,
 ): Overlay {
   if (kind === 'find') {
     const panel = openOverlay({
@@ -111,7 +112,7 @@ export function startOverlay(
     }
     const raw = value.startsWith('url:') || value.startsWith('raw:') ? value.slice(4) : value
     const url = clipboardTarget(raw, searchEngine)
-    if (url) openTarget(url, shift)
+    if (url) openTarget(url, shift || newTab)
   }
 
   const withRaw = (rows: Row[], query: string): Row[] => {

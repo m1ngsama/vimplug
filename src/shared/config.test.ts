@@ -91,11 +91,12 @@ test('a boolean option reads false only from the literal string', () => {
   assert.equal(resolveForHost('set scrollSmooth = true', 'a.com').options.scrollSmooth, true)
 })
 
-test('every action in the registry resolves to a binding from the shipped defaults', () => {
+test('every default key in the registry resolves to a binding', () => {
   const bound = new Set(
-    resolveForHost(DEFAULT_DSL, 'example.com').bindings.normal.map(b => b.action),
+    resolveForHost(DEFAULT_DSL, 'example.com').bindings.normal.map(b => b.notation),
   )
-  for (const a of ACTIONS) assert.ok(bound.has(a.id), `${a.id} has no usable default binding`)
+  for (const a of ACTIONS)
+    for (const k of a.defaultKeys) assert.ok(bound.has(k), `${a.id}: ${k} does not parse`)
 })
 
 test('the shipped defaults contain no parse errors at all', () => {

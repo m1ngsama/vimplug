@@ -64,3 +64,8 @@ test('horizontal ends behave the same way', () => {
 test('an unrelated action yields no delta', () => {
   assert.equal(scrollDelta('copyUrl', opts, view()), null)
 })
+
+test('a page scroll moves one viewport height', () => {
+  assert.deepEqual(scrollDelta('scrollPageDown', opts, view()), { top: 800, left: 0 })
+  assert.deepEqual(scrollDelta('scrollPageUp', opts, view()), { top: -800, left: 0 })
+})

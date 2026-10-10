@@ -156,3 +156,71 @@ test.describe('scrolling', () => {
     expect(await page.evaluate(() => window.scrollY)).toBe(1000 + half)
   })
 })
+
+test.describe('bindings shared with other vim extensions', () => {
+  const sent = (page: Page) => page.evaluate(() => (window as any).__vimplugSent ?? [])
+
+  test('O opens what was typed in a new tab', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('Shift+O')
+    await page.keyboard.type('example.com')
+    await page.keyboard.press('Enter')
+    await expect.poll(() => sent(page)).toContainEqual({ type: 'openUrl', url: 'https://example.com' })
+    expect(page.url()).toBe(`${base}/tall`)
+  })
+
+  test('gE edits the page URL and opens it in a new tab', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('g')
+    await page.keyboard.press('Shift+E')
+    await page.keyboard.type('?x=1')
+    await page.keyboard.press('Enter')
+    await expect
+      .poll(() => sent(page))
+      .toContainEqual({ type: 'openUrl', url: `${base}/tall?x=1` })
+  })
+
+  test('R, gt and gT reach the background', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('Shift+R')
+    await page.keyboard.press('g')
+    await page.keyboard.press('t')
+    await page.keyboard.press('g')
+    await page.keyboard.press('Shift+T')
+    await expect
+      .poll(async () => (await sent(page)).filter((m: any) => m.type === 'runAction').map((m: any) => m.id))
+      .toEqual(['reloadHard', 'nextTab', 'prevTab'])
+  })
+
+  test('. repeats the last action with its count', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.keyboard.press('3')
+    await page.keyboard.press('Shift+K')
+    await page.keyboard.press('.')
+    await expect
+      .poll(async () => (await sent(page)).filter((m: any) => m.type === 'runAction'))
+      .toEqual([
+        { type: 'runAction', id: 'nextTab', count: 3 },
+        { type: 'runAction', id: 'nextTab', count: 3 },
+      ])
+  })
+
+  test('. before any action leaves the key to the page', async ({ page }) => {
+    await loadEngine(page, `${base}/tall`)
+    await page.evaluate(() =>
+      document.addEventListener('keydown', e => {
+        if (e.key === '.') document.title = 'page-saw-it'
+      }),
+    )
+    await page.keyboard.press('.')
+    await expect(page).toHaveTitle('page-saw-it')
+  })
+
+  test('2gu climbs two URL levels', async ({ page }) => {
+    await loadEngine(page, `${base}/x/y/z`)
+    await page.keyboard.press('2')
+    await page.keyboard.press('g')
+    await page.keyboard.press('u')
+    await expect(page).toHaveURL(`${base}/x`)
+  })
+})

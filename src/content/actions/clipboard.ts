@@ -17,13 +17,29 @@ export function clipboardTarget(text: string, searchEngine: string): string {
   return searchEngine.replace('%s', encodeURIComponent(t))
 }
 
+const COPIES: Record<string, [notice: string, text: (title: string, url: string) => string]> = {
+  copyUrl: ['Copied URL', (_title, url) => url],
+  copyTitle: ['Copied title', title => title],
+  copyMarkdownLink: [
+    'Copied Markdown link',
+    (title, url) => `[${title.replace(/[[\]]/g, '\\$&')}](${url})`,
+  ],
+}
+
+export const copyNotice = (action: string): string | undefined => COPIES[action]?.[0]
+
+export function copyText(action: string, title: string, url: string): string | null {
+  return COPIES[action]?.[1](title, url) ?? null
+}
+
 export async function runClipboard(
   action: string,
   searchEngine: string,
   openTarget: (url: string, newTab: boolean) => void,
 ): Promise<boolean> {
-  if (action === 'copyUrl') {
-    await navigator.clipboard.writeText(location.href)
+  const text = copyText(action, document.title, location.href)
+  if (text !== null) {
+    await navigator.clipboard.writeText(text)
     return true
   }
   if (action === 'openClipboard' || action === 'openClipboardNewTab') {

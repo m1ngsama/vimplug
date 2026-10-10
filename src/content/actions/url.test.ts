@@ -30,3 +30,10 @@ test('anything unparseable is left alone', () => {
   assert.equal(parentUrl('not a url'), null)
   assert.equal(rootUrl('not a url'), null)
 })
+
+test('gu with a count climbs that many levels and stops at the root', () => {
+  assert.equal(parentUrl('https://a.com/x/y/z', 2), 'https://a.com/x')
+  assert.equal(parentUrl('https://a.com/x/y?q=1', 2), 'https://a.com/x')
+  assert.equal(parentUrl('https://a.com/x', 5), 'https://a.com/')
+  assert.equal(parentUrl('https://a.com/', 2), null)
+})

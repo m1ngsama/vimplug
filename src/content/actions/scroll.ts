@@ -34,6 +34,10 @@ export function scrollDelta(
       return { top: half, left: 0 }
     case 'scrollHalfUp':
       return { top: -half, left: 0 }
+    case 'scrollPageDown':
+      return { top: v.height, left: 0 }
+    case 'scrollPageUp':
+      return { top: -v.height, left: 0 }
     default:
       return null
   }
