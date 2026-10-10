@@ -18,7 +18,7 @@ test('every action has a non-empty description', () => {
 
 test('the keys Vimium, Surfingkeys and Tridactyl users reach for are bound', () => {
   const bound = new Set(ACTIONS.flatMap(a => a.defaultKeys))
-  for (const k of ['O', 'B', 'gE', 'R', 'gt', 'gT', 'yl', 'ym', '.', '*', '#', '<A-f>', 'gs', 'W', 'gF', '<A-p>', '<A-m>', 'zi', 'zo', 'z0'])
+  for (const k of ['O', 'B', 'gE', 'R', 'gt', 'gT', 'yl', 'ym', '.', '*', '#', '<A-f>', 'gs', 'W', 'gF', '<A-p>', '<A-m>', 'zi', 'zo', 'z0', '%'])
     assert.ok(bound.has(k), `unbound: ${k}`)
 })
 

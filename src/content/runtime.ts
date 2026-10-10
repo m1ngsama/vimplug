@@ -12,7 +12,7 @@ import { startHint, type HintSession } from './hint/index.ts'
 import { resolveTheme } from '../shared/theme.ts'
 import { startOverlay } from './overlay/index.ts'
 import { createFind, type FindSession } from './find/index.ts'
-import { isMarkChar, saveMark, jumpMark } from './marks.ts'
+import { isMarkChar, saveMark, jumpMark, rememberPosition } from './marks.ts'
 import { beginVisual, moveVisual, yankVisual, clearVisual } from './visual.ts'
 import { createIndicator } from './indicator.ts'
 import { shieldOurFocus } from './focus-shield.ts'
@@ -33,6 +33,15 @@ declare global {
 const cancels = (e: KeyboardEvent): boolean => e.key === 'Escape' || e.key === 'Control'
 
 const MODIFIER_KEYS = new Set(['Shift', 'Control', 'Alt', 'Meta', 'CapsLock'])
+const JUMPS = new Set([
+  'scrollToTop',
+  'scrollToBottom',
+  'scrollToPercent',
+  'findNext',
+  'findPrev',
+  'findSelection',
+  'findSelectionBack',
+])
 
 async function main(): Promise<void> {
   const site = resolveForHost(await loadDsl(), location.hostname)
@@ -51,6 +60,16 @@ async function main(): Promise<void> {
   const scroller = new Scroller(
     () => site.options,
     () => deepActiveElement(document),
+    () => clicked,
+  )
+  let clicked: Element | null = null
+  document.addEventListener(
+    'mousedown',
+    e => {
+      const at = e.composedPath()[0]
+      if (at instanceof Element) clicked = at
+    },
+    { capture: true, passive: true },
   )
 
   let hint: HintSession | null = null
@@ -66,6 +85,8 @@ async function main(): Promise<void> {
   const dispatch = (id: string, key: string | null, times = 1): boolean => {
     if (id === 'repeatLast')
       return last !== null && dispatch(last[0], null, times > 1 ? times : last[1])
+    if (id === 'scrollToPercent' && times === 1) return false
+    if (JUMPS.has(id)) rememberPosition()
     const ran = scroller.press(id, key, times) || runAction(id, ctx, times)
     if (ran) last = [id, times]
     return ran
@@ -149,7 +170,10 @@ async function main(): Promise<void> {
             finder?.clear()
             window.scrollTo(origin.x, origin.y)
           }
-          if (origin && reason === 'submit') finder?.select()
+          if (origin && reason === 'submit') {
+            rememberPosition(origin)
+            finder?.select()
+          }
           modes.enter('normal')
         },
         id => dispatch(id, null),
@@ -194,11 +218,13 @@ async function main(): Promise<void> {
     }
 
     if (awaitingMark) {
+      if (MODIFIER_KEYS.has(e.key)) return
       e.preventDefault()
       const kind = awaitingMark
       awaitingMark = null
-      if (isMarkChar(e.key)) {
-        void (kind === 'set' ? saveMark(e.key) : jumpMark(e.key))
+      const ch = e.shiftKey && e.key.length === 1 ? e.key.toUpperCase() : e.key
+      if (isMarkChar(ch) || (kind === 'jump' && ch === '`')) {
+        void (kind === 'set' ? saveMark(ch) : jumpMark(ch))
       }
       modes.enter('normal')
       return
@@ -322,7 +348,9 @@ async function main(): Promise<void> {
 
   if (window === top) {
     chrome.runtime.onMessage.addListener(msg => {
-      if ((msg as { type?: unknown } | null)?.type !== 'focusTop') return
+      const m = msg as { type?: unknown; x?: number; y?: number } | null
+      if (m?.type === 'scrollTo') window.scrollTo(m.x ?? 0, m.y ?? 0)
+      if (m?.type !== 'focusTop') return
       ;(document.activeElement as HTMLElement | null)?.blur()
       window.focus()
     })

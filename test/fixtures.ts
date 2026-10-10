@@ -24,6 +24,10 @@ const PAGES: Record<string, string> = {
         <div style="height:5000px">pane content</div>
       </div>
     </body>`,
+  '/panes': `<body style="margin:0;display:flex;height:100vh;overflow:hidden">
+      <div id="left" style="width:150px;overflow-y:auto"><div style="height:5000px">left</div></div>
+      <div id="right" style="flex:1;overflow-y:auto"><div style="height:5000px">right</div></div>
+    </body>`,
   '/pager': `<body style="height:3000px">
       <p>An article. <a href="/pager-more">Learn more</a></p>
       <nav><a href="/pager-next">Next</a></nav>

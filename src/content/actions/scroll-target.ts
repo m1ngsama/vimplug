@@ -120,12 +120,15 @@ export function resolveScrollBox(
   focused: Element | null,
   axis: 'x' | 'y',
   dir?: -1 | 1,
+  clicked: Element | null = null,
 ): ScrollBox {
   const centre = () =>
     document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2)
 
   const found =
-    scrollableFrom(meaningfulFocus(focused), axis, dir) ?? scrollableFrom(centre(), axis, dir)
+    scrollableFrom(meaningfulFocus(focused), axis, dir) ??
+    scrollableFrom(clicked?.isConnected ? clicked : null, axis, dir) ??
+    scrollableFrom(centre(), axis, dir)
 
   return found ? boxOfElement(found) : windowBox()
 }

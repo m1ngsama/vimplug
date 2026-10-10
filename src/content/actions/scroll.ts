@@ -10,6 +10,7 @@ export function scrollDelta(
   action: string,
   opts: { scrollStep: number },
   v: Omit<ScrollBox, 'to'>,
+  count = 1,
 ): ScrollDelta | null {
   const d = opts.scrollStep
   const half = v.height / 2
@@ -18,6 +19,8 @@ export function scrollDelta(
       return { top: 0 - v.scrollY, left: 0 }
     case 'scrollToBottom':
       return { top: Math.max(0, v.maxY - v.scrollY), left: 0 }
+    case 'scrollToPercent':
+      return { top: (v.maxY * Math.min(count, 100)) / 100 - v.scrollY, left: 0 }
     case 'scrollToStart':
       return { top: 0, left: 0 - v.scrollX }
     case 'scrollToEnd':
@@ -43,7 +46,13 @@ export function scrollDelta(
   }
 }
 
-const ABSOLUTE = new Set(['scrollToTop', 'scrollToBottom', 'scrollToStart', 'scrollToEnd'])
+const ABSOLUTE = new Set([
+  'scrollToTop',
+  'scrollToBottom',
+  'scrollToPercent',
+  'scrollToStart',
+  'scrollToEnd',
+])
 
 const idle = (): AxisState => ({ current: 0, target: 0, speed: 0, dir: 0, heldMs: 0, step: 0 })
 
@@ -61,9 +70,16 @@ export class Scroller {
   readonly #focused: () => Element | null
   #box: ScrollBox = windowBox()
 
-  constructor(opts: () => ScrollOptions, focused: () => Element | null = () => null) {
+  readonly #clicked: () => Element | null
+
+  constructor(
+    opts: () => ScrollOptions,
+    focused: () => Element | null = () => null,
+    clicked: () => Element | null = () => null,
+  ) {
     this.#opts = opts
     this.#focused = focused
+    this.#clicked = clicked
   }
 
   press(action: string, keyId: string | null, count = 1): boolean {
@@ -72,10 +88,10 @@ export class Scroller {
     const axis: 'x' | 'y' = probe.left !== 0 ? 'x' : 'y'
     const dir: -1 | 1 = (probe.left || probe.top) >= 0 ? 1 : -1
     if (settled(this.#axes.x) && settled(this.#axes.y)) {
-      this.#box = resolveScrollBox(this.#focused(), axis, dir)
+      this.#box = resolveScrollBox(this.#focused(), axis, dir, this.#clicked())
     }
 
-    const raw = scrollDelta(action, this.#opts(), this.#box)
+    const raw = scrollDelta(action, this.#opts(), this.#box, count)
     if (!raw) return false
     const scale = ABSOLUTE.has(action) ? 1 : count
     const delta = { top: raw.top * scale, left: raw.left * scale }

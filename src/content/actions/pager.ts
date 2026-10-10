@@ -44,6 +44,18 @@ const DECLARED: Record<1 | -1, string> = {
   [-1]: 'link[rel~="prev"][href], link[rel~="previous"][href]',
 }
 
+const PAGE_NUMBER = /([?&](?:page|p|pg|paged)=|\/page[/-]?)(\d+)/i
+
+export function stepUrlNumber(url: string, dir: 1 | -1): string | null {
+  const m = PAGE_NUMBER.exec(url)
+  if (!m) return null
+  const [whole, lead, digits] = m as unknown as [string, string, string]
+  const n = Number(digits) + dir
+  if (n < 0) return null
+  const next = String(n).padStart(digits.length, '0')
+  return url.slice(0, m.index) + lead + next + url.slice(m.index + whole.length)
+}
+
 export function runPager(action: string): boolean {
   const dir: 1 | -1 | null =
     action === 'pageNext' ? 1 : action === 'pagePrev' ? -1 : null
@@ -66,7 +78,11 @@ export function runPager(action: string): boolean {
     })),
     dir,
   )
-  if (hit === -1) return false
-  links[hit]!.click()
-  return true
+  if (hit !== -1) {
+    links[hit]!.click()
+    return true
+  }
+  const stepped = stepUrlNumber(location.href, dir)
+  if (stepped) location.href = stepped
+  return stepped !== null
 }

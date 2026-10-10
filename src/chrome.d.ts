@@ -83,6 +83,7 @@ declare namespace chrome {
 
   namespace windows {
     function create(props: { url?: string; tabId?: number }): Promise<unknown>
+    const update: ((windowId: number, props: { focused?: boolean }) => Promise<unknown>) | undefined
   }
 
   const sessions: { restore(sessionId?: string): Promise<unknown> } | undefined

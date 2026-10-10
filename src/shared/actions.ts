@@ -21,6 +21,7 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'scrollPageUp', description: 'Scroll a page up', group: 'Scroll', scope: 'content', defaultKeys: [] },
   { id: 'scrollToTop', description: 'Scroll to the top', group: 'Scroll', scope: 'content', defaultKeys: ['gg'] },
   { id: 'scrollToBottom', description: 'Scroll to the bottom', group: 'Scroll', scope: 'content', defaultKeys: ['G'] },
+  { id: 'scrollToPercent', description: 'Scroll to a percentage of the page, given as a count', group: 'Scroll', scope: 'content', defaultKeys: ['%'] },
   { id: 'scrollToStart', description: 'Scroll to the left edge', group: 'Scroll', scope: 'content', defaultKeys: ['0'] },
   { id: 'scrollToEnd', description: 'Scroll to the right edge', group: 'Scroll', scope: 'content', defaultKeys: ['$'] },
   { id: 'escape', description: 'Leave the current mode', group: 'Modes', scope: 'content', defaultKeys: ['<Esc>'] },
