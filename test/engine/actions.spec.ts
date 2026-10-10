@@ -224,3 +224,95 @@ test.describe('bindings shared with other vim extensions', () => {
     await expect(page).toHaveURL(`${base}/x`)
   })
 })
+
+test.describe('find from the selection', () => {
+  const selectFirstMarker = (page: Page) =>
+    page.evaluate(() => {
+      const text = document.getElementById('one')!.firstChild!
+      getSelection()!.setBaseAndExtent(text, 6, text, 12)
+    })
+  const selectedIn = (page: Page) =>
+    page.evaluate(() => getSelection()?.anchorNode?.parentElement?.id ?? '')
+
+  test('* jumps to the next occurrence of the selected text and wraps', async ({ page }) => {
+    await loadEngine(page, `${base}/twice`)
+    await selectFirstMarker(page)
+    await page.keyboard.press('Shift+8')
+    await expect.poll(() => selectedIn(page)).toBe('two')
+    await page.keyboard.press('Shift+8')
+    await expect.poll(() => selectedIn(page)).toBe('one')
+  })
+
+  test('# jumps to the previous occurrence', async ({ page }) => {
+    await loadEngine(page, `${base}/twice`)
+    await selectFirstMarker(page)
+    await page.keyboard.press('Shift+8')
+    await expect.poll(() => selectedIn(page)).toBe('two')
+    await page.keyboard.press('Shift+3')
+    await expect.poll(() => selectedIn(page)).toBe('one')
+  })
+
+  test('* with nothing selected leaves the key to the page', async ({ page }) => {
+    await loadEngine(page, `${base}/twice`)
+    await page.evaluate(() =>
+      document.addEventListener('keydown', e => {
+        if (e.code === 'Digit8') document.title = 'page-saw-it'
+      }),
+    )
+    await page.keyboard.press('Shift+8')
+    await expect(page).toHaveTitle('page-saw-it')
+  })
+})
+
+test.describe('visual mode motions', () => {
+  const selected = (page: Page) => page.evaluate(() => getSelection()!.toString())
+
+  test('a count repeats the motion', async ({ page }) => {
+    await loadEngine(page, `${base}/visual`)
+    await page.keyboard.press('v')
+    await page.keyboard.press('3')
+    await page.keyboard.press('l')
+    await expect.poll(() => selected(page)).toBe('one')
+  })
+
+  test('o moves the cursor to the other end of the selection', async ({ page }) => {
+    await loadEngine(page, `${base}/visual`)
+    await page.keyboard.press('v')
+    await page.keyboard.press('3')
+    await page.keyboard.press('l')
+    await page.keyboard.press('o')
+    await page.keyboard.press('l')
+    await expect.poll(() => selected(page)).toBe('ne')
+  })
+
+  test('V selects the whole line', async ({ page }) => {
+    await loadEngine(page, `${base}/visual`)
+    await page.keyboard.press('v')
+    await page.keyboard.press('Shift+V')
+    await expect.poll(() => selected(page)).toBe('one two three four')
+  })
+})
+
+test.describe('hinting several links', () => {
+  test('<A-f> opens each chosen link in a background tab and keeps the hints', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    await page.keyboard.press('Alt+f')
+    for (let i = 0; i < 2; i += 1) {
+      await page.keyboard.press('t')
+      await page.keyboard.press('Enter')
+    }
+    const opened = { type: 'openUrl', url: `${base}/textarea`, active: false }
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          ((window as any).__vimplugSent ?? []).filter((m: { type: string }) => m.type === 'openUrl'),
+        ),
+      )
+      .toEqual([opened, opened])
+    expect(page.url()).toBe(`${base}/links`)
+
+    await page.keyboard.press('Escape')
+    await page.keyboard.press('j')
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0)
+  })
+})

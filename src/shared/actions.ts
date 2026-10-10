@@ -52,6 +52,7 @@ export const ACTIONS: readonly ActionDef[] = [
 
   { id: 'hint', description: 'Show hints for clickable elements', group: 'Open', scope: 'content', defaultKeys: ['f'] },
   { id: 'hintNewTab', description: 'Show hints, opening links in a new tab', group: 'Open', scope: 'content', defaultKeys: ['F'] },
+  { id: 'hintMulti', description: 'Show hints, opening several links in background tabs', group: 'Open', scope: 'content', defaultKeys: ['<A-f>'] },
 
   { id: 'openPrompt', description: 'Open a URL or search', group: 'Open', scope: 'content', defaultKeys: ['o'] },
   { id: 'openPromptNewTab', description: 'Open a URL or search in a new tab', group: 'Open', scope: 'content', defaultKeys: ['O'] },
@@ -84,6 +85,8 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'find', description: 'Search within the page', group: 'Navigation', scope: 'content', defaultKeys: ['/'] },
   { id: 'findNext', description: 'Next search match', group: 'Navigation', scope: 'content', defaultKeys: ['n'] },
   { id: 'findPrev', description: 'Previous search match', group: 'Navigation', scope: 'content', defaultKeys: ['N'] },
+  { id: 'findSelection', description: 'Find the next occurrence of the selection', group: 'Navigation', scope: 'content', defaultKeys: ['*'] },
+  { id: 'findSelectionBack', description: 'Find the previous occurrence of the selection', group: 'Navigation', scope: 'content', defaultKeys: ['#'] },
 
   { id: 'setMark', description: 'Set a mark at this position', group: 'Navigation', scope: 'content', defaultKeys: ['M'] },
   { id: 'jumpMark', description: 'Jump to a mark', group: 'Navigation', scope: 'content', defaultKeys: ['`'] },

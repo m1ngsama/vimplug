@@ -73,7 +73,7 @@ async function main(): Promise<void> {
   const ctx: ActionContext = {
     opts: site.options,
     enter: (m: Mode) => modes.enter(m),
-    startHint: (newTab: boolean, frames = false, copy = false) => {
+    startHint: ({ newTab = false, frames = false, copy = false, keep = false }) => {
       scroller.stop()
       const targets = frames
         ? Array.from(document.querySelectorAll('iframe')).filter(f => {
@@ -85,6 +85,7 @@ async function main(): Promise<void> {
         chars: site.options.hintChars,
         newTab,
         copy,
+        keep,
         theme,
         open: openTarget,
         notify: indicator.flash,
@@ -118,6 +119,12 @@ async function main(): Promise<void> {
       const at = finder.step(dir)
       if (at) indicator.flash(`${at.index + 1}/${at.total}`)
       return true
+    },
+    findSelection: dir => {
+      const sel = getSelection()
+      const query = sel?.toString().trim()
+      if (!finder || !sel || !query) return false
+      return finder.search(query, sel.getRangeAt(0)) > 0 && ctx.find(dir)
     },
     notify: indicator.flash,
     startOverlay: (kind, newTab) => {
@@ -201,8 +208,8 @@ async function main(): Promise<void> {
           () => indicator.flash('Copy failed'),
         )
         modes.enter('normal')
-      } else if (moveVisual(e.key)) {
-        e.preventDefault()
+      } else if (!MODIFIER_KEYS.has(e.key)) {
+        if (count.feed(fromEvent(e)) || moveVisual(e.key, count.take())) e.preventDefault()
       }
       return
     }
@@ -277,6 +284,7 @@ async function main(): Promise<void> {
     else detach()
     setHatch(next === 'passthrough' || next === 'insert')
     indicator.mode(next)
+    count.reset()
     if (prev === 'hint' && next !== 'hint') {
       hint?.cancel()
       hint = null

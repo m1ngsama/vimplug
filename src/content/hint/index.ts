@@ -72,6 +72,7 @@ export interface HintOptions {
   chars: string
   newTab: boolean
   copy: boolean
+  keep: boolean
   theme: Tokens
   open(url: string, newTab: boolean, background?: boolean): void
   notify(text: string): void
@@ -152,7 +153,12 @@ export function startHint(o: HintOptions): HintSession | null {
     host.remove()
   }
 
-  const fire = (item: Item) => {
+  const fire = (item: Item): void => {
+    if (o.keep) {
+      activate(item.el, o, true)
+      typed = ''
+      return show()
+    }
     cleanup()
     activate(item.el, o, shifted)
     o.onEnd()
