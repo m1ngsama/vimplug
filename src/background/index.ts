@@ -87,8 +87,8 @@ chrome.runtime.onInstalled.addListener(() => {
   void start()
 })
 chrome.runtime.onStartup.addListener(() => void start())
-chrome.storage.onChanged.addListener((_changes, area) => {
-  if (area === 'local') void sync()
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && 'dsl' in changes) void sync()
 })
 
 async function collect(query: string, bookmarksOnly: boolean): Promise<Suggestion[]> {

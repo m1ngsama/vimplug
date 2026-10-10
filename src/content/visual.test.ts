@@ -24,3 +24,10 @@ test('an unrelated key has no command', () => {
   assert.equal(selectionCommand('Escape'), null)
   assert.equal(selectionCommand('z'), null)
 })
+
+test('brackets move by sentence and paragraph', () => {
+  assert.deepEqual(selectionCommand(')'), ['extend', 'forward', 'sentence'])
+  assert.deepEqual(selectionCommand('('), ['extend', 'backward', 'sentence'])
+  assert.deepEqual(selectionCommand('}'), ['extend', 'forward', 'paragraph'])
+  assert.deepEqual(selectionCommand('{'), ['extend', 'backward', 'paragraph'])
+})

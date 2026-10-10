@@ -7,6 +7,7 @@ import type { Tokens } from '../../shared/theme.ts'
 import { clipboardTarget, looksLikeUrl } from '../actions/clipboard.ts'
 import { openTarget } from '../actions/index.ts'
 import { matchSummary } from '../find/matches.ts'
+import { findHistory, rememberFind } from '../find/history.ts'
 
 export type OverlayKind = 'help' | 'open' | 'edit' | 'tabs' | 'palette' | 'find' | 'bookmarks'
 
@@ -60,7 +61,8 @@ export function startOverlay(
         panel.setStatus(query === '' ? '' : matchSummary(found))
       },
       onPick: () => {},
-      onSubmit: () => {},
+      onSubmit: rememberFind,
+      history: findHistory(),
       onClose,
       theme,
     })

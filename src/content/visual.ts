@@ -9,6 +9,10 @@ const MOVES: Record<string, SelectionCommand> = {
   b: ['extend', 'backward', 'word'],
   '0': ['extend', 'backward', 'lineboundary'],
   $: ['extend', 'forward', 'lineboundary'],
+  ')': ['extend', 'forward', 'sentence'],
+  '(': ['extend', 'backward', 'sentence'],
+  '}': ['extend', 'forward', 'paragraph'],
+  '{': ['extend', 'backward', 'paragraph'],
 }
 
 export function selectionCommand(key: string): SelectionCommand | null {

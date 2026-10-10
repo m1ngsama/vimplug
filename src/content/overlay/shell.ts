@@ -17,6 +17,7 @@ interface OverlayConfig {
   onClose(reason: CloseReason): void
   onInput?(query: string): void
   onSubmit?(query: string): void
+  history?: string[]
   live?: boolean
   compose?(rows: Row[], query: string): Row[]
   theme: Tokens
@@ -120,7 +121,21 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
     cfg.onInput?.(input.value)
   })
 
+  let recalled = -1
+  const recall = (step: 1 | -1) => {
+    const past = cfg.history ?? []
+    recalled = Math.max(-1, Math.min(recalled + step, past.length - 1))
+    input.value = past[recalled] ?? ''
+    render()
+    cfg.onInput?.(input.value)
+  }
+
   input.addEventListener('keydown', e => {
+    if (cfg.history && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      e.preventDefault()
+      recall(e.key === 'ArrowUp' ? 1 : -1)
+      return
+    }
     if (e.key === 'Escape') {
       e.preventDefault()
       close()
