@@ -7,7 +7,9 @@ declare namespace chrome {
     const local: StorageArea
     const session: StorageArea
     const onChanged: {
-      addListener(cb: (changes: Record<string, unknown>, area: string) => void): void
+      addListener(
+        cb: (changes: Record<string, { newValue?: unknown }>, area: string) => void,
+      ): void
     }
   }
 
@@ -52,6 +54,8 @@ declare namespace chrome {
     }
     const onRemoved: { addListener(cb: (tabId: number) => void): void }
   }
+
+  const extension: { inIncognitoContext?: boolean } | undefined
 
   namespace action {
     const onClicked: { addListener(cb: (tab: tabs.Tab) => void): void }

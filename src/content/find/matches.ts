@@ -16,8 +16,26 @@ function fold(text: string): string {
   })
 }
 
+const REGEX_MARK = '\\r'
+
+function regexMatches(text: string, source: string): Span[] {
+  let re: RegExp
+  try {
+    re = new RegExp(source, isCaseSensitive(source) ? 'g' : 'gi')
+  } catch {
+    return []
+  }
+  return Array.from(text.matchAll(re))
+    .filter(m => m[0].length > 0)
+    .map(m => ({ start: m.index, end: m.index + m[0].length }))
+}
+
 export function collectMatches(text: string, query: string): Span[] {
   if (query.length === 0) return []
+  if (query.includes(REGEX_MARK)) {
+    const source = query.replace(REGEX_MARK, '')
+    return source === '' ? [] : regexMatches(text, source)
+  }
   const sensitive = isCaseSensitive(query)
   const hay = sensitive ? text : fold(text)
   const needle = sensitive ? query : query.toLowerCase()

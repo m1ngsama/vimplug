@@ -20,7 +20,7 @@ function atDocumentStart(src: string): string {
 
 // '' is a valid config with no bindings; loadDsl only falls back on a non-string.
 function shim(dsl: string): string {
-  return `const store = {}
+  return `const read = () => JSON.parse(sessionStorage.getItem('vimplugStore') ?? '{}')
   window.chrome = {
     runtime: {
       getURL: (p) => p,
@@ -36,8 +36,10 @@ function shim(dsl: string): string {
     },
     storage: {
       local: {
-        get: async (key) => (key in store ? { [key]: store[key] } : {}),
-        set: async (items) => { Object.assign(store, items) },
+        get: async (key) => (key in read() ? { [key]: read()[key] } : {}),
+        set: async (items) => {
+          sessionStorage.setItem('vimplugStore', JSON.stringify({ ...read(), ...items }))
+        },
       },
       onChanged: { addListener() {} },
     },

@@ -65,3 +65,20 @@ test('a match count reads as words', () => {
 test('a letter that lengthens when lowercased does not shift later matches', () => {
   assert.deepEqual(collectMatches('İstanbul tea', 'tea'), [{ start: 9, end: 12 }])
 })
+
+test('a query ending in \\r is a regular expression', () => {
+  assert.deepEqual(collectMatches('a1 b22 c', '\\d+\\r'), [
+    { start: 1, end: 2 },
+    { start: 4, end: 6 },
+  ])
+  assert.deepEqual(collectMatches('Ab ab', 'a.\\r'), [
+    { start: 0, end: 2 },
+    { start: 3, end: 5 },
+  ])
+})
+
+test('a broken or empty-matching regular expression finds nothing rather than throwing', () => {
+  assert.deepEqual(collectMatches('abc', '(\\r'), [])
+  assert.deepEqual(collectMatches('abc', 'x*\\r'), [])
+  assert.deepEqual(collectMatches('abc', '\\r'), [])
+})

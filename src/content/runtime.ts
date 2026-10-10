@@ -5,13 +5,15 @@ import { fromEvent } from './event-keys.ts'
 import { boundKeyIds, shouldHandle } from './dispatch.ts'
 import { deepActiveElement, modeForFocus, ownsEscape } from './focus.ts'
 import { runAction, openTarget, type ActionContext } from './actions/index.ts'
+import { clipboardTarget } from './actions/clipboard.ts'
 import { Scroller } from './actions/scroll.ts'
 import { keyId } from '../shared/keys.ts'
 import { CountBuffer } from '../shared/count.ts'
 import { startHint, type HintSession } from './hint/index.ts'
 import { resolveTheme } from '../shared/theme.ts'
 import { startOverlay } from './overlay/index.ts'
-import { createFind, type FindSession } from './find/index.ts'
+import { createFind } from './find/index.ts'
+import { findHistory, loadFindHistory } from './find/history.ts'
 import { isMarkChar, saveMark, jumpMark, rememberPosition } from './marks.ts'
 import { beginVisual, moveVisual, yankVisual, clearVisual } from './visual.ts'
 import { createIndicator } from './indicator.ts'
@@ -78,6 +80,7 @@ async function main(): Promise<void> {
   // Set before building: the input focuses synchronously, and focusin would re-sync the mode first.
   let overlayOpen = false
   const finder = createFind(theme)
+  void loadFindHistory()
   let awaitingMark: 'set' | 'jump' | null = null
   let passNext = false
 
@@ -138,6 +141,14 @@ async function main(): Promise<void> {
     find: dir => {
       if (dir === 'open') return ctx.startOverlay('find')
       if (!finder) return false
+      if (!finder.active) {
+        const last = findHistory()[0]
+        const total = last ? finder.search(last) : 0
+        if (total === 0) return false
+        finder.select()
+        indicator.flash(`1/${total}`)
+        return true
+      }
       const at = finder.step(dir)
       if (at) indicator.flash(`${at.index + 1}/${at.total}`)
       return true
@@ -243,6 +254,12 @@ async function main(): Promise<void> {
           },
           () => indicator.flash('Copy failed'),
         )
+        modes.enter('normal')
+      } else if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault()
+        const url = clipboardTarget(getSelection()?.toString() ?? '', site.options.searchEngine)
+        if (url) openTarget(url, e.shiftKey || e.key === 'P')
+        clearVisual()
         modes.enter('normal')
       } else if (!MODIFIER_KEYS.has(e.key)) {
         if (count.feed(fromEvent(e)) || moveVisual(e.key, count.take())) e.preventDefault()

@@ -377,3 +377,72 @@ test.describe('getting around a page', () => {
     expect((await page.evaluate(() => document.querySelectorAll('[data-vimplug-ui]').length))).toBe(0)
   })
 })
+
+test.describe('find remembers and reaches further', () => {
+  const selected = (page: Page) => page.evaluate(() => getSelection()!.toString())
+  const find = async (page: Page, query: string) => {
+    await page.keyboard.press('/')
+    await expect.poll(async () => (await page.evaluate(() => document.querySelectorAll('[data-vimplug-ui]').length))).toBe(1)
+    await page.keyboard.type(query)
+    await page.keyboard.press('Enter')
+  }
+
+  test('n after a reload finds the last query again', async ({ page }) => {
+    await loadEngine(page, `${base}/twice`)
+    await find(page, 'beta')
+    await expect.poll(() => selected(page)).toBe('beta')
+
+    await loadEngine(page, `${base}/twice`)
+    await page.keyboard.press('n')
+    await expect.poll(() => selected(page)).toBe('beta')
+  })
+
+  test('Up in the find box brings back the previous query', async ({ page }) => {
+    await loadEngine(page, `${base}/twice`)
+    await find(page, 'beta')
+    await page.keyboard.press('Escape')
+    await page.evaluate(() => getSelection()!.removeAllRanges())
+
+    await page.keyboard.press('/')
+    await expect.poll(async () => (await page.evaluate(() => document.querySelectorAll('[data-vimplug-ui]').length))).toBe(1)
+    await page.keyboard.press('ArrowUp')
+    await page.keyboard.press('Enter')
+    await expect.poll(() => selected(page)).toBe('beta')
+  })
+
+  test('n with nothing ever searched leaves the key to the page', async ({ page }) => {
+    await loadEngine(page, `${base}/twice`)
+    await page.evaluate(() =>
+      document.addEventListener('keydown', e => {
+        if (e.key === 'n') document.title = 'page-saw-it'
+      }),
+    )
+    await page.keyboard.press('n')
+    await expect(page).toHaveTitle('page-saw-it')
+  })
+
+  test('find reaches text inside an open shadow root', async ({ page }) => {
+    await loadEngine(page, `${base}/shadow`)
+    await page.evaluate(() => {
+      document.getElementById('h')!.attachShadow({ mode: 'open' }).innerHTML = '<p>zebraword</p>'
+    })
+    await find(page, 'zebra')
+    await expect
+      .poll(() => page.evaluate(() => (CSS as any).highlights.get('vimplug-find')?.size ?? 0))
+      .toBe(1)
+  })
+})
+
+test.describe('visual mode opens the selection', () => {
+  test('P searches for the selected text in a new tab', async ({ page }) => {
+    await loadEngine(page, `${base}/visual`)
+    await page.keyboard.press('v')
+    await page.keyboard.press('3')
+    await page.keyboard.press('l')
+    await page.keyboard.press('Shift+p')
+    await expect
+      .poll(() => page.evaluate(() => (window as any).__vimplugSent ?? []))
+      .toContainEqual({ type: 'openUrl', url: 'https://www.google.com/search?q=one' })
+    expect(await page.evaluate(() => getSelection()!.toString())).toBe('')
+  })
+})

@@ -28,24 +28,31 @@ function blockOf(node: Text): Element | null {
 }
 
 function walk(): { text: string; pieces: Piece[] } {
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
   const rendered = new Map<Element, boolean>()
   const pieces: Piece[] = []
   let text = ''
   let lastBlock: Element | null = null
-  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-    const node = n as Text
-    const parent = node.parentElement
-    if (!parent) continue
-    let shown = rendered.get(parent)
-    if (shown === undefined) rendered.set(parent, (shown = parent.getClientRects().length > 0))
-    if (!shown) continue
-    const block = blockOf(node)
-    if (lastBlock !== null && block !== lastBlock) text += '\n'
-    lastBlock = block
-    pieces.push({ node, start: text.length })
-    text += node.data
+  const visit = (root: Node) => {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT)
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (n instanceof Element) {
+        if (n.shadowRoot) visit(n.shadowRoot)
+        continue
+      }
+      const node = n as Text
+      const parent = node.parentElement
+      if (!parent) continue
+      let shown = rendered.get(parent)
+      if (shown === undefined) rendered.set(parent, (shown = parent.getClientRects().length > 0))
+      if (!shown) continue
+      const block = blockOf(node)
+      if (lastBlock !== null && block !== lastBlock) text += '\n'
+      lastBlock = block
+      pieces.push({ node, start: text.length })
+      text += node.data
+    }
   }
+  visit(document.body)
   return { text, pieces }
 }
 
@@ -68,6 +75,7 @@ function toRanges(pieces: Piece[], spans: Span[]): Range[] {
 }
 
 export interface FindSession {
+  readonly active: boolean
   search(query: string, from?: Range): number
   step(dir: 1 | -1): { index: number; total: number } | null
   select(): void
@@ -123,7 +131,23 @@ export function createFind(theme: Tokens): FindSession | null {
     sel.addRange(cur.cloneRange())
   }
 
+  // ::highlight rules in the document do not reach into a shadow tree.
+  let shared: CSSStyleSheet | null = null
+  const styleShadowRoots = () => {
+    for (const r of ranges) {
+      const root = r.startContainer.getRootNode()
+      if (!(root instanceof ShadowRoot)) continue
+      shared ??= new CSSStyleSheet()
+      shared.replaceSync(style(theme))
+      if (!root.adoptedStyleSheets.includes(shared))
+        root.adoptedStyleSheets = [...root.adoptedStyleSheets, shared]
+    }
+  }
+
   return {
+    get active() {
+      return ranges.length > 0
+    },
     select,
     prepare,
     search(query: string, from?: Range): number {
@@ -134,6 +158,7 @@ export function createFind(theme: Tokens): FindSession | null {
         ? ranges.findIndex(r => r.compareBoundaryPoints(Range.START_TO_START, from) >= 0)
         : 0
       index = Math.max(0, at)
+      styleShadowRoots()
       paint()
       if (ranges.length > 0) reveal()
       return ranges.length
