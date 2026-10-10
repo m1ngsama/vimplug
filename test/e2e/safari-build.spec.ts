@@ -17,6 +17,9 @@ async function open(path: string): Promise<Page> {
   return page
 }
 
+// The tab closes on keydown, so the keyup that press() sends has no page left to land on.
+const closeWithX = (page: Page) => page.keyboard.down('x').catch(() => {})
+
 async function tabUrls(): Promise<(string | undefined)[]> {
   const [sw] = ctx.serviceWorkers()
   return await sw!.evaluate(async () => (await chrome.tabs.query({})).map(t => t.url))
@@ -45,9 +48,9 @@ test('X reopens closed tabs, most recent first, without the sessions API', async
   const second = await open('/find')
 
   await first.bringToFront()
-  await first.keyboard.press('x')
+  await closeWithX(first)
   await second.bringToFront()
-  await second.keyboard.press('x')
+  await closeWithX(second)
   await expect.poll(tabUrls).toEqual(['about:blank', `${base}/tall`])
 
   await keep.bringToFront()
