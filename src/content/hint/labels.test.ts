@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { generateLabels } from './labels.ts'
+import { spread, generateLabels } from './labels.ts'
 import { resolveForHost } from '../../shared/config.ts'
 
 const noPrefixCollision = (labels: string[]) => {
@@ -64,4 +64,22 @@ test('an empty alphabet yields no labels rather than looping', () => {
 
 test('a single-character alphabet yields no labels', () => {
   assert.deepEqual(generateLabels(3, 'a'), [])
+})
+
+test('a label that would cover another moves to its right', () => {
+  const box = (x: number, y: number) => ({ x, y, w: 20, h: 18 })
+  assert.deepEqual(spread([box(0, 0), box(5, 4), box(100, 0)]), [
+    { x: 0, y: 0 },
+    { x: 21, y: 4 },
+    { x: 100, y: 0 },
+  ])
+})
+
+test('a label pushed onto a third keeps moving until it is clear', () => {
+  const box = (x: number, y: number) => ({ x, y, w: 20, h: 18 })
+  assert.deepEqual(spread([box(0, 0), box(22, 0), box(5, 0)]), [
+    { x: 0, y: 0 },
+    { x: 22, y: 0 },
+    { x: 43, y: 0 },
+  ])
 })

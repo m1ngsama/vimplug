@@ -94,6 +94,8 @@ declare namespace chrome {
 
   interface MessageSender {
     tab?: tabs.Tab
+    url?: string
+    frameId?: number
   }
 
   namespace runtime {

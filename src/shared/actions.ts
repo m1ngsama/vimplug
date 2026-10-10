@@ -55,6 +55,7 @@ export const ACTIONS: readonly ActionDef[] = [
   { id: 'hint', description: 'Show hints for clickable elements', group: 'Open', scope: 'content', defaultKeys: ['f'] },
   { id: 'hintNewTab', description: 'Show hints, opening links in a new tab', group: 'Open', scope: 'content', defaultKeys: ['F'] },
   { id: 'hintMulti', description: 'Show hints, opening several links in background tabs', group: 'Open', scope: 'content', defaultKeys: ['<A-f>'] },
+  { id: 'hintHover', description: 'Show hints, hovering instead of clicking', group: 'Open', scope: 'content', defaultKeys: ['gh'] },
 
   { id: 'openPrompt', description: 'Open a URL or search', group: 'Open', scope: 'content', defaultKeys: ['o'] },
   { id: 'openPromptNewTab', description: 'Open a URL or search in a new tab', group: 'Open', scope: 'content', defaultKeys: ['O'] },

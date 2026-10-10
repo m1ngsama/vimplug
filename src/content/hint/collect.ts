@@ -23,16 +23,35 @@ export function isFocusable(el: Element): boolean {
   return !disabled(el) && tabindex !== null && tabindex !== '-1'
 }
 
+const viewOf = (el: Element): Window => el.ownerDocument.defaultView ?? window
+
 function onScreen(el: Element): boolean {
   const r = el.getBoundingClientRect()
+  const view = viewOf(el)
   return (
     r.width > 0 &&
     r.height > 0 &&
     r.bottom > 0 &&
     r.right > 0 &&
-    r.top < window.innerHeight &&
-    r.left < window.innerWidth
+    r.top < view.innerHeight &&
+    r.left < view.innerWidth
   )
+}
+
+export function frameOffset(el: Element): { x: number; y: number } {
+  const at = { x: 0, y: 0 }
+  for (let f = viewOf(el).frameElement; f; f = viewOf(f).frameElement) {
+    const r = f.getBoundingClientRect()
+    at.x += r.left + f.clientLeft
+    at.y += r.top + f.clientTop
+  }
+  return at
+}
+
+function hiddenToggleLabel(el: Element): Element | null {
+  const input = el as HTMLInputElement
+  if (el.tagName !== 'INPUT' || (input.type !== 'checkbox' && input.type !== 'radio')) return null
+  return Array.from(input.labels ?? []).find(onScreen) ?? null
 }
 
 function linkOf(el: Element): string | null {
@@ -66,9 +85,10 @@ function reachable(el: Element): boolean {
   if (FIELDS.has(el.tagName)) return true
   const r = el.getBoundingClientRect()
   const left = Math.max(r.left, 0) + INSET
-  const right = Math.min(r.right, window.innerWidth) - INSET
+  const view = viewOf(el)
+  const right = Math.min(r.right, view.innerWidth) - INSET
   const top = Math.max(r.top, 0) + INSET
-  const bottom = Math.min(r.bottom, window.innerHeight) - INSET
+  const bottom = Math.min(r.bottom, view.innerHeight) - INSET
   const root = el.getRootNode() as Document | ShadowRoot
   const points = [[(left + right) / 2, (top + bottom) / 2], [left, top], [right, top], [left, bottom], [right, bottom]]
   return points.some(([x, y]) => {
@@ -84,23 +104,28 @@ const pointer = (el: Element | null): boolean =>
   el !== null && getComputedStyle(el).cursor === 'pointer'
 
 export function collectTargets(root: Document | ShadowRoot): Element[] {
-  const found: Element[] = []
+  const seen = new Set<Element>()
   const controls = new Set<Element>()
   const walk = (r: Document | ShadowRoot) => {
     for (const el of r.querySelectorAll('*')) {
       if (isControl(el)) {
-        if (onScreen(el)) {
-          found.push(el)
-          controls.add(el)
+        const target = onScreen(el) ? el : hiddenToggleLabel(el)
+        if (target) {
+          seen.add(target)
+          controls.add(target)
         }
       } else if (onScreen(el) && (isFocusable(el) || (pointer(el) && !pointer(up(el))))) {
-        found.push(el)
+        seen.add(el)
       }
       const shadow = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot
       if (shadow) walk(shadow)
+      // contentDocument is null for a cross-origin frame.
+      const inner = el.tagName === 'IFRAME' ? (el as HTMLIFrameElement).contentDocument : null
+      if (inner && onScreen(el)) walk(inner)
     }
   }
   walk(root)
+  const found = [...seen]
   if (controls.size === found.length) return found.filter(reachable)
 
   const holders = new Set<Element>()

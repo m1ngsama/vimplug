@@ -1,5 +1,5 @@
-import { generateLabels } from './labels.ts'
-import { collectTargets, groupTargets } from './collect.ts'
+import { generateLabels, spread } from './labels.ts'
+import { collectTargets, frameOffset, groupTargets } from './collect.ts'
 import { hintText, filterHints } from './text.ts'
 import { applyTheme, type Tokens } from '../../shared/theme.ts'
 
@@ -45,10 +45,14 @@ const STYLE = `
 
 const FOCUSABLE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'IFRAME'])
 const SETTLE_MS = 200
+// The size .h renders at: 11px bold monospace, 3px padding and a 1px border each side.
+const LABEL_CHAR_PX = 6.7
+const LABEL_PAD_PX = 8
+const LABEL_HEIGHT_PX = 18.5
 
-function realClick(el: Element): void {
+function pointAt(el: Element) {
   const r = el.getBoundingClientRect()
-  const base = {
+  return {
     bubbles: true,
     cancelable: true,
     composed: true,
@@ -56,6 +60,21 @@ function realClick(el: Element): void {
     clientX: r.left + r.width / 2,
     clientY: r.top + r.height / 2,
   }
+}
+
+function hover(el: Element): void {
+  const base = pointAt(el)
+  const entering = { ...base, bubbles: false }
+  el.dispatchEvent(new PointerEvent('pointerover', base))
+  el.dispatchEvent(new PointerEvent('pointerenter', entering))
+  el.dispatchEvent(new MouseEvent('mouseover', base))
+  el.dispatchEvent(new MouseEvent('mouseenter', entering))
+  el.dispatchEvent(new PointerEvent('pointermove', base))
+  el.dispatchEvent(new MouseEvent('mousemove', base))
+}
+
+function realClick(el: Element): void {
+  const base = pointAt(el)
   const down = { ...base, button: 0, buttons: 1 }
 
   el.dispatchEvent(new PointerEvent('pointerover', base))
@@ -73,6 +92,7 @@ export interface HintOptions {
   newTab: boolean
   copy: boolean
   keep: boolean
+  hover: boolean
   theme: Tokens
   open(url: string, newTab: boolean, background?: boolean): void
   notify(text: string): void
@@ -81,6 +101,7 @@ export interface HintOptions {
 }
 
 function activate(el: Element, o: HintOptions, shifted: boolean): void {
+  if (o.hover) return hover(el)
   const href = el.tagName === 'A' ? el.getAttribute('href') : null
   const url = href ? new URL(href, location.href).href : null
   if (o.copy) {
@@ -118,14 +139,26 @@ export function startHint(o: HintOptions): HintSession | null {
   style.textContent = STYLE
   shadow.append(style)
 
+  const places = spread(
+    groups.map((group, i) => {
+      const r = group[0]!.getBoundingClientRect()
+      const off = frameOffset(group[0]!)
+      return {
+        x: Math.max(0, r.left + off.x),
+        y: Math.max(0, r.top + off.y),
+        w: labels[i]!.length * LABEL_CHAR_PX + LABEL_PAD_PX,
+        h: LABEL_HEIGHT_PX,
+      }
+    }),
+  )
+
   const items: Item[] = groups.map((group, i) => {
     const el = group[0]!
-    const r = el.getBoundingClientRect()
     const node = document.createElement('span')
     node.className = 'h'
     node.textContent = labels[i]!
-    node.style.top = `${Math.max(0, r.top)}px`
-    node.style.left = `${Math.max(0, r.left)}px`
+    node.style.top = `${places[i]!.y}px`
+    node.style.left = `${places[i]!.x}px`
     shadow.append(node)
     return { label: labels[i]!, text: group.map(hintText).join('\n'), el, node }
   })

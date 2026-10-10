@@ -19,10 +19,17 @@ import { beginVisual, moveVisual, yankVisual, clearVisual } from './visual.ts'
 import { createIndicator } from './indicator.ts'
 import { shieldOurFocus } from './focus-shield.ts'
 
-async function loadDsl(): Promise<string> {
-  const res = await chrome.runtime.sendMessage({ type: 'getDsl' }).catch(() => null)
-  const dsl = (res as { dsl?: unknown } | null)?.dsl
-  return typeof dsl === 'string' ? dsl : DEFAULT_DSL
+interface Startup {
+  dsl: string
+  scroll?: { x: number; y: number }
+}
+
+async function loadStartup(): Promise<Startup> {
+  const res = (await chrome.runtime.sendMessage({ type: 'getDsl' }).catch(() => null)) as {
+    dsl?: unknown
+    scroll?: Startup['scroll']
+  } | null
+  return { dsl: typeof res?.dsl === 'string' ? res.dsl : DEFAULT_DSL, scroll: res?.scroll }
 }
 
 declare global {
@@ -46,7 +53,13 @@ const JUMPS = new Set([
 ])
 
 async function main(): Promise<void> {
-  const site = resolveForHost(await loadDsl(), location.hostname)
+  const { dsl, scroll } = await loadStartup()
+  if (scroll) {
+    const land = () => window.scrollTo(scroll.x, scroll.y)
+    if (document.readyState === 'complete') land()
+    else window.addEventListener('load', land, { once: true })
+  }
+  const site = resolveForHost(dsl, location.hostname)
   if (site.disabled) return
 
   const { keyMatching } = site.options
@@ -98,7 +111,7 @@ async function main(): Promise<void> {
   const ctx: ActionContext = {
     opts: site.options,
     enter: (m: Mode) => modes.enter(m),
-    startHint: ({ newTab = false, frames = false, copy = false, keep = false }) => {
+    startHint: ({ newTab = false, frames = false, copy = false, keep = false, hover = false }) => {
       scroller.stop()
       const targets = frames
         ? Array.from(document.querySelectorAll('iframe')).filter(f => {
@@ -111,6 +124,7 @@ async function main(): Promise<void> {
         newTab,
         copy,
         keep,
+        hover,
         theme,
         open: openTarget,
         notify: indicator.flash,
@@ -218,7 +232,13 @@ async function main(): Promise<void> {
     composing || justEnded || e.isComposing || e.keyCode === 229
 
   const onKeydown = (e: KeyboardEvent) => {
-    if (fromInputMethod(e)) return
+    if (fromInputMethod(e)) {
+      if (hint) {
+        modes.enter('normal')
+        indicator.flash('Hints need the input method off')
+      }
+      return
+    }
     if (passNext) {
       if (!MODIFIER_KEYS.has(e.key)) passNext = false
       return

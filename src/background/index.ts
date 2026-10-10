@@ -42,7 +42,7 @@ interface Position {
   y: number
 }
 
-const pendingScroll = new Map<number, Position>()
+const pendingScroll = new Map<string, Position>()
 
 const scrollTab = (id: number, { x, y }: Position): Promise<unknown> =>
   chrome.tabs.sendMessage(id, { type: 'scrollTo', x, y }, { frameId: 0 }).catch(() => {})
@@ -50,8 +50,8 @@ const scrollTab = (id: number, { x, y }: Position): Promise<unknown> =>
 async function gotoMark(url: string, at: Position): Promise<void> {
   const open = (await chrome.tabs.query({})).find(t => t.url === url)
   if (open?.id === undefined) {
-    const tab = await chrome.tabs.create({ url })
-    if (tab.id !== undefined) pendingScroll.set(tab.id, at)
+    pendingScroll.set(url, at)
+    await chrome.tabs.create({ url })
     return
   }
   await chrome.tabs.update(open.id, { active: true })
@@ -71,14 +71,9 @@ chrome.tabs.onActivated.addListener(info => {
     return refreshBadge(tab)
   })
 })
-chrome.tabs.onUpdated.addListener((id, change, tab) => {
+chrome.tabs.onUpdated.addListener((_id, change, tab) => {
   if (change.url !== undefined || change.status === 'complete') track(tab)
   if (change.status === 'complete') void refreshBadge(tab)
-  const at = change.status === 'complete' ? pendingScroll.get(id) : undefined
-  if (at) {
-    pendingScroll.delete(id)
-    void scrollTab(id, at)
-  }
 })
 chrome.tabs.onRemoved.addListener(id => void updateTabLog(s => noteClosed(s, id)))
 
@@ -190,7 +185,10 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   }
 
   if (type === 'getDsl') {
-    void readDsl().then(dsl => reply({ dsl }))
+    const url = sender.frameId === 0 ? sender.url : undefined
+    const scroll = url === undefined ? undefined : pendingScroll.get(url)
+    if (url !== undefined) pendingScroll.delete(url)
+    void readDsl().then(dsl => reply({ dsl, scroll }))
     return true
   }
 

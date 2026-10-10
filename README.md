@@ -74,10 +74,12 @@ Defaults. Every one is rebindable; `?` shows the bindings actually in force.
 | `j` `k` `h` `l` | Scroll; hold to keep going |
 | `d` `u` | Scroll half a page |
 | `gg` `G` | Top, bottom |
+| `50%` | A percentage of the way down, given as a count |
 | `0` `$` | Left edge, right edge |
 | `f` | Hint clickable elements |
 | `F` | Hint, opening links in a new tab |
 | `<A-f>` | Hint, opening several links in background tabs |
+| `gh` | Hint, hovering instead of clicking |
 | `o` `O` | Open a URL or search here, in a new tab |
 | `ge` `gE` | Edit the page URL and open it here, in a new tab |
 | `T` | Search open tabs |
@@ -87,22 +89,26 @@ Defaults. Every one is rebindable; `?` shows the bindings actually in force.
 | `J` `K` | Previous, next tab; also `gT` `gt` |
 | `^` | Back to the tab you were just on |
 | `<` `>` | Move the tab left, right |
+| `W` | Move the tab to a new window |
+| `<A-p>` `<A-m>` | Pin, mute the tab |
+| `zi` `zo` `z0` | Zoom in, out, reset |
 | `g0` `g$` | First, last tab |
 | `H` `L` | Back, forward |
 | `r` `R` | Reload, reload bypassing the cache |
 | `x` `X` | Close, reopen tab |
 | `yt` | Duplicate tab |
+| `gs` | View the page source |
 | `yy` `yl` `ym` | Copy the page URL, title, Markdown link |
 | `p` `P` | Open the clipboard URL here, in a new tab |
 | `gi` | Focus the first text field |
 | `gu` `gU` | Up one URL level, site root |
 | `[[` `]]` | Previous page, next page |
-| `gf` | Focus an iframe by hint |
+| `gf` `gF` | Focus an iframe by hint, return focus to the page |
 | `i` | Suspend vimplug until Esc |
 | `-` `=` `m` | Media volume down, up, mute |
 | `/` `n` `N` | Find in page, next, previous |
 | `*` `#` | Find the selected text, forward, backward |
-| `M` `` ` `` | Set a mark, jump to it |
+| `M` `` ` `` | Set a mark, jump to it; ``` `` ``` returns to where the last jump started |
 | `v` | Visual mode |
 | `:` | Run any action by name |
 | `.` | Repeat the last action |
@@ -117,7 +123,18 @@ Most keys take a count: `5j` scrolls five steps, `3K` moves three tabs on, `2gu`
 URL levels. A bare `0` stays a binding of its own, so a count cannot start with it.
 
 Some actions have no default key and run from `:` until you map them: scrolling a full
-page, muting the tab, and closing the other tabs or those to the left or right.
+page, closing the other tabs or those to the left or right, and sending the next key to the
+page.
+
+A lowercase mark belongs to its page. An uppercase mark is global: jumping to it switches
+to the tab showing that page, or reopens it.
+
+`T` lists tabs most recently used first. `]]` and `[[` follow the page's own next and
+previous links, and fall back to a `page=` or `/page/` number in the URL.
+
+In the find box, Up and Down recall earlier queries, and a query containing `\r` is a
+regular expression: `v\d+\r` finds `v12`. `n` and `N` find the last query again after a
+reload.
 
 `o` searches your open tabs, bookmarks and history alongside plain URLs and searches. What
 you typed is always one of the rows, so Enter never has to guess between navigating and
@@ -127,7 +144,9 @@ Scrolling acts on the pane under the cursor, not only the document, so `j` works
 whose page does not itself scroll.
 
 Safari does not grant extensions access to history, bookmarks or closed tabs, so there `o`
-searches open tabs only and `b` finds nothing. `X` reopens the last 25 tabs closed since
+searches open tabs only and `b` finds nothing. `gs` is Chrome only, and `W` on Safari
+reopens the page in the new window instead of moving the tab. An action the browser cannot
+run says so. `X` reopens the last 25 tabs closed since
 Safari started, at their URL but without their back history. Everything else behaves the
 same on both browsers.
 
@@ -136,8 +155,14 @@ text. The last candidate left fires once you pause, or at once on Enter, and Bac
 takes back a character. Typing a label in capitals, with Shift held, opens the link in a
 background tab.
 
+Hints cover links inside same-origin iframes and open shadow roots, and a checkbox or radio
+button the page hides is hinted through its label. `gh` sends hover events, which opens
+menus built with script but not ones that rely on CSS `:hover`.
+
 In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection and take a count, `V`
-selects the line, `o` moves the cursor to the other end, `y` copies, and `<Esc>` cancels.
+selects the line, `o` moves the cursor to the other end, `(` `)` `{` `}` move by sentence and
+paragraph, `y` copies, `p` and `P` open the selection here or in a new tab, and `<Esc>`
+cancels.
 
 Clicking the toolbar button turns vimplug off for the site you are on, and on again. The
 button reads `off` where it is disabled.

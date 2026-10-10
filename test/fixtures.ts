@@ -91,6 +91,17 @@ const PAGES: Record<string, string> = {
       </div>
     </body>`,
   '/combobox': '<body style="height:5000px"><input id="c" role="combobox" aria-expanded="true"></body>',
+  '/framed-links': `<body style="height:5000px">
+      <iframe src="/links" style="width:400px;height:300px;margin:80px 0 0 60px"></iframe>
+    </body>`,
+  '/hover': `<body style="height:5000px">
+      <a href="/tall" onmouseover="document.title='hovered'">menu</a>
+    </body>`,
+  '/switch': `<body style="height:5000px">
+      <label style="display:inline-block;padding:10px">
+        <input type="checkbox" id="c" style="display:none"><span>toggle</span>
+      </label>
+    </body>`,
   '/framed': `<body style="height:5000px">
       <iframe id="f" src="/textarea" style="width:300px;height:200px"></iframe>
     </body>`,

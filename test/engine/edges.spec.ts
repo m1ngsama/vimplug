@@ -601,3 +601,42 @@ test('passNextKey hands exactly one key to the page', async ({ page }) => {
   await page.keyboard.press('j')
   await expect.poll(async () => (await state(page)).scrollY).toBeGreaterThan(0)
 })
+
+test.describe('hints reach further', () => {
+  test('a link inside a same-origin iframe gets a hint', async ({ page }) => {
+    await loadEngine(page, `${base}/framed-links`)
+    const frame = page.frames()[1]!
+    await frame.waitForLoadState()
+    await page.keyboard.press('f')
+    await page.keyboard.press('t')
+    await page.keyboard.press('Enter')
+    await expect.poll(() => frame.url()).toBe(`${base}/textarea`)
+    expect(page.url()).toBe(`${base}/framed-links`)
+  })
+
+  test('gh hovers the element instead of clicking it', async ({ page }) => {
+    await loadEngine(page, `${base}/hover`)
+    await page.keyboard.press('g')
+    await page.keyboard.press('h')
+    await page.keyboard.press('m')
+    await expect(page).toHaveTitle('hovered')
+    expect(page.url()).toBe(`${base}/hover`)
+  })
+
+  test('a hidden checkbox is hinted through its label', async ({ page }) => {
+    await loadEngine(page, `${base}/switch`)
+    await page.keyboard.press('f')
+    await page.keyboard.press('t')
+    await expect
+      .poll(() => page.evaluate(() => (document.getElementById('c') as HTMLInputElement).checked))
+      .toBe(true)
+  })
+
+  test('a key from an input method ends hint mode', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    await page.keyboard.press('f')
+    await composingKey(page, 'f', 'KeyF')
+    await page.keyboard.press('j')
+    await expect.poll(async () => (await state(page)).scrollY).toBeGreaterThan(0)
+  })
+})
