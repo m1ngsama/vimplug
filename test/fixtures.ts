@@ -130,6 +130,7 @@ const PAGES: Record<string, string> = {
       <p id="two">beta marker</p>
       <div style="height:1500px">end</div>
     </body>`,
+  '/visual': '<body><p id="v">one two three four</p><p>second line here</p></body>',
   '/dotted': `<body>
       <p>İstanbul</p>
       <div style="height:1500px">top</div>

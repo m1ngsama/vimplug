@@ -47,11 +47,21 @@ export function beginVisual(): boolean {
   return false
 }
 
-export function moveVisual(key: string): boolean {
-  const cmd = selectionCommand(key)
+export function moveVisual(key: string, times = 1): boolean {
   const sel = selection()
-  if (!cmd || !sel) return false
-  sel.modify(...cmd)
+  if (!sel?.anchorNode || !sel.focusNode) return false
+  if (key === 'o') {
+    sel.setBaseAndExtent(sel.focusNode, sel.focusOffset, sel.anchorNode, sel.anchorOffset)
+    return true
+  }
+  if (key === 'V') {
+    sel.modify('move', 'backward', 'lineboundary')
+    sel.modify('extend', 'forward', 'lineboundary')
+    return true
+  }
+  const cmd = selectionCommand(key)
+  if (!cmd) return false
+  for (let i = 0; i < times; i += 1) sel.modify(...cmd)
   return true
 }
 

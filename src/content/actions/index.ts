@@ -23,6 +23,21 @@ const OVERLAY_FOR: Record<string, [kind: OverlayKind, newTab?: boolean] | undefi
   openBookmarkNewTab: ['bookmarks', true],
 }
 
+interface HintKind {
+  newTab?: boolean
+  frames?: boolean
+  copy?: boolean
+  keep?: boolean
+}
+
+const HINT_FOR: Record<string, HintKind | undefined> = {
+  hint: {},
+  hintNewTab: { newTab: true },
+  hintCopyUrl: { copy: true },
+  hintFrame: { frames: true },
+  hintMulti: { keep: true },
+}
+
 export function openTarget(url: string, newTab: boolean, background = false): void {
   if (!newTab) {
     location.href = url
@@ -36,9 +51,10 @@ export function openTarget(url: string, newTab: boolean, background = false): vo
 export interface ActionContext {
   opts: Options
   enter: (m: Mode) => void
-  startHint: (newTab: boolean, frames?: boolean, copy?: boolean) => boolean
+  startHint: (kind: HintKind) => boolean
   startOverlay: (kind: OverlayKind, newTab?: boolean) => boolean
   find: (dir: 1 | -1 | 'open') => boolean
+  findSelection: (dir: 1 | -1) => boolean
   clearFind: () => boolean
   awaitMark: (mode: 'set' | 'jump') => boolean
   startVisual: () => boolean
@@ -70,10 +86,8 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
     return true
   }
 
-  if (id === 'hint' || id === 'hintNewTab' || id === 'hintCopyUrl')
-    return ctx.startHint(id === 'hintNewTab', false, id === 'hintCopyUrl')
-
-  if (id === 'hintFrame') return ctx.startHint(false, true)
+  const hint = HINT_FOR[id]
+  if (hint) return ctx.startHint(hint)
 
   const overlay = OVERLAY_FOR[id]
   if (overlay) return ctx.startOverlay(...overlay)
@@ -85,6 +99,9 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
     for (let i = 0; i < count; i += 1) stepped = ctx.find(id === 'findNext' ? 1 : -1) || stepped
     return stepped
   }
+
+  if (id === 'findSelection' || id === 'findSelectionBack')
+    return ctx.findSelection(id === 'findSelection' ? 1 : -1)
 
   if (id === 'setMark' || id === 'jumpMark')
     return ctx.awaitMark(id === 'setMark' ? 'set' : 'jump')

@@ -77,20 +77,22 @@ Defaults. Every one is rebindable; `?` shows the bindings actually in force.
 | `0` `$` | Left edge, right edge |
 | `f` | Hint clickable elements |
 | `F` | Hint, opening links in a new tab |
-| `o` | Open a URL or search |
-| `ge` | Edit the page URL and open it |
+| `<A-f>` | Hint, opening several links in background tabs |
+| `o` `O` | Open a URL or search here, in a new tab |
+| `ge` `gE` | Edit the page URL and open it here, in a new tab |
 | `T` | Search open tabs |
 | `t` | New tab |
-| `b` | Search bookmarks |
+| `b` `B` | Search bookmarks, opening here, in a new tab |
 | `yf` | Copy a link URL by hint |
-| `J` `K` | Previous, next tab |
+| `J` `K` | Previous, next tab; also `gT` `gt` |
 | `^` | Back to the tab you were just on |
 | `<` `>` | Move the tab left, right |
 | `g0` `g$` | First, last tab |
 | `H` `L` | Back, forward |
-| `r` `x` `X` | Reload, close, reopen tab |
+| `r` `R` | Reload, reload bypassing the cache |
+| `x` `X` | Close, reopen tab |
 | `yt` | Duplicate tab |
-| `yy` | Copy the page URL |
+| `yy` `yl` `ym` | Copy the page URL, title, Markdown link |
 | `p` `P` | Open the clipboard URL here, in a new tab |
 | `gi` | Focus the first text field |
 | `gu` `gU` | Up one URL level, site root |
@@ -99,9 +101,11 @@ Defaults. Every one is rebindable; `?` shows the bindings actually in force.
 | `i` | Suspend vimplug until Esc |
 | `-` `=` `m` | Media volume down, up, mute |
 | `/` `n` `N` | Find in page, next, previous |
+| `*` `#` | Find the selected text, forward, backward |
 | `M` `` ` `` | Set a mark, jump to it |
 | `v` | Visual mode |
 | `:` | Run any action by name |
+| `.` | Repeat the last action |
 | `?` | Keyboard help |
 | `<Esc>` | Leave the current mode |
 
@@ -109,8 +113,11 @@ Hint and visual mode also leave on `Ctrl`, for keyboards with Caps Lock remapped
 
 `m` keeps vimkey's mute, so marks use `M` and `` ` `` rather than vim's `m`.
 
-Most keys take a count: `5j` scrolls five steps, `3K` moves three tabs on. A bare `0` stays
-a binding of its own, so a count cannot start with it.
+Most keys take a count: `5j` scrolls five steps, `3K` moves three tabs on, `2gu` climbs two
+URL levels. A bare `0` stays a binding of its own, so a count cannot start with it.
+
+Some actions have no default key and run from `:` until you map them: scrolling a full
+page, muting the tab, and closing the other tabs or those to the left or right.
 
 `o` searches your open tabs, bookmarks and history alongside plain URLs and searches. What
 you typed is always one of the rows, so Enter never has to guess between navigating and
@@ -129,8 +136,8 @@ text. The last candidate left fires once you pause, or at once on Enter, and Bac
 takes back a character. Typing a label in capitals, with Shift held, opens the link in a
 background tab.
 
-In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection, `y` copies it, and
-`<Esc>` cancels.
+In visual mode `h` `j` `k` `l` `w` `b` `0` `$` extend the selection and take a count, `V`
+selects the line, `o` moves the cursor to the other end, `y` copies, and `<Esc>` cancels.
 
 Clicking the toolbar button turns vimplug off for the site you are on, and on again. The
 button reads `off` where it is disabled.

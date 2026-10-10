@@ -68,7 +68,7 @@ function toRanges(pieces: Piece[], spans: Span[]): Range[] {
 }
 
 export interface FindSession {
-  search(query: string): number
+  search(query: string, from?: Range): number
   step(dir: 1 | -1): { index: number; total: number } | null
   select(): void
   prepare(): void
@@ -126,11 +126,14 @@ export function createFind(theme: Tokens): FindSession | null {
   return {
     select,
     prepare,
-    search(query: string): number {
+    search(query: string, from?: Range): number {
       prepare()
       const { text, pieces } = walk()
       ranges = toRanges(pieces, collectMatches(text, query))
-      index = 0
+      const at = from
+        ? ranges.findIndex(r => r.compareBoundaryPoints(Range.START_TO_START, from) >= 0)
+        : 0
+      index = Math.max(0, at)
       paint()
       if (ranges.length > 0) reveal()
       return ranges.length
