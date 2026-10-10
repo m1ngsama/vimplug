@@ -1,7 +1,7 @@
 import { readDsl, writeDsl } from '../shared/storage.ts'
 import { registrationFor, isDisabled, hostOf, REGISTRATION_ID } from './injection.ts'
-import { runTabAction, noteActiveTab } from './tabs.ts'
-import { noteOpen, noteClosed, updateClosedTabs } from './closed-tabs.ts'
+import { runTabAction } from './tabs.ts'
+import { byRecency, noteActive, noteOpen, noteClosed, updateTabLog } from './tab-log.ts'
 import { rankSuggestions, type Suggestion } from './omnibar.ts'
 import { disabledHosts } from '../shared/config.ts'
 import { toggleSite } from '../shared/dsl/edits.ts'
@@ -33,11 +33,8 @@ chrome.action.onClicked.addListener(tab => {
   })()
 })
 
-// Safari has no sessions API, so restoreTab there replays tabs we saw close.
-const tracksClosedTabs = !chrome.sessions
-
 function track(...tabs: chrome.tabs.Tab[]): void {
-  if (tracksClosedTabs) void updateClosedTabs(s => tabs.forEach(t => noteOpen(s, t)))
+  void updateTabLog(s => tabs.forEach(t => noteOpen(s, t)))
 }
 
 async function start(): Promise<void> {
@@ -46,7 +43,7 @@ async function start(): Promise<void> {
 }
 
 chrome.tabs.onActivated.addListener(info => {
-  noteActiveTab(info.tabId)
+  void updateTabLog(s => noteActive(s, info.tabId))
   void chrome.tabs.get(info.tabId).then(tab => {
     track(tab)
     return refreshBadge(tab)
@@ -56,9 +53,7 @@ chrome.tabs.onUpdated.addListener((_id, change, tab) => {
   if (change.url !== undefined || change.status === 'complete') track(tab)
   if (change.status === 'complete') void refreshBadge(tab)
 })
-if (tracksClosedTabs) {
-  chrome.tabs.onRemoved.addListener(id => void updateClosedTabs(s => noteClosed(s, id)))
-}
+chrome.tabs.onRemoved.addListener(id => void updateTabLog(s => noteClosed(s, id)))
 
 chrome.runtime.onInstalled.addListener(() => {
   void chrome.action.setBadgeBackgroundColor({ color: '#8a6d1f' })
@@ -117,11 +112,11 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   }
 
   if (type === 'listTabs') {
-    void chrome.tabs.query({}).then(tabs =>
-      reply({
-        tabs: tabs.map(t => ({ id: t.id, title: t.title ?? '', url: t.url ?? '' })),
-      }),
-    )
+    void (async () => {
+      const tabs = await chrome.tabs.query({})
+      const sorted = await updateTabLog(s => byRecency(tabs, s, sender.tab?.id))
+      reply({ tabs: sorted.map(t => ({ id: t.id, title: t.title ?? '', url: t.url ?? '' })) })
+    })()
     return true
   }
 
@@ -144,8 +139,19 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     const id = String((msg as { id?: unknown }).id ?? '')
     const count = Number((msg as { count?: unknown }).count ?? 1) || 1
     const tab = sender.tab
-    if (tab) void runTabAction(id, tab, count).then(ok => reply({ ok }))
+    if (tab)
+      void runTabAction(id, tab, count)
+        .catch(() => false)
+        .then(ok => reply({ ok }))
     else reply({ ok: false })
+    return true
+  }
+
+  if (type === 'focusTop') {
+    const id = sender.tab?.id
+    if (id !== undefined)
+      void chrome.tabs.sendMessage(id, { type: 'focusTop' }, { frameId: 0 }).catch(() => {})
+    reply({ ok: true })
     return true
   }
 

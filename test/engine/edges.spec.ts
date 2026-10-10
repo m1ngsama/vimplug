@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { loadEngine, serveFixtures, state, composingKey } from './harness.ts'
+import { DEFAULT_DSL } from '../../src/shared/config.ts'
 
 // A busy machine can start the animation later than one poll, so leave `from` before settling.
 async function settled(page: Page, from: number): Promise<number> {
@@ -583,4 +584,20 @@ test.describe('shifted keys inside a sequence', () => {
       .poll(() => actions(page))
       .toEqual([{ type: 'runAction', id: 'lastTabInWindow', count: 1 }])
   })
+})
+
+test('passNextKey hands exactly one key to the page', async ({ page }) => {
+  await loadEngine(page, `${base}/tall`, `${DEFAULT_DSL}\nmap q passNextKey`)
+  await page.evaluate(() =>
+    document.addEventListener('keydown', e => {
+      if (e.key === 'j') document.title += 'j'
+    }),
+  )
+  await page.keyboard.press('q')
+  await page.keyboard.press('j')
+  await expect(page).toHaveTitle('j')
+  expect((await state(page)).scrollY).toBe(0)
+
+  await page.keyboard.press('j')
+  await expect.poll(async () => (await state(page)).scrollY).toBeGreaterThan(0)
 })

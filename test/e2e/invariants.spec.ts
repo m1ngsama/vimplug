@@ -700,3 +700,76 @@ test('a label typed with Shift opens the link in a background tab', async () => 
   await tab.close()
   await page.close()
 })
+
+test('gs opens the page source beside the tab', async () => {
+  const page = await open('/tall?source')
+  await page.keyboard.press('g')
+  await page.keyboard.press('s')
+  await expect.poll(activeTabUrl).toBe(`view-source:${base}/tall?source`)
+  await ctx.pages().at(-1)!.close()
+  await page.close()
+})
+
+test('alt+p pins the tab and pressing it again unpins it', async () => {
+  const page = await open('/tall?pin')
+  const [sw] = ctx.serviceWorkers()
+  const pinned = () =>
+    sw!.evaluate(async () => (await chrome.tabs.query({ active: true }))[0]?.pinned)
+  await page.keyboard.press('Alt+p')
+  await expect.poll(pinned).toBe(true)
+  await page.keyboard.press('Alt+p')
+  await expect.poll(pinned).toBe(false)
+  await page.close()
+})
+
+test('zi zooms in and z0 resets', async () => {
+  const page = await open('/tall?zoom')
+  const [sw] = ctx.serviceWorkers()
+  const zoom = () =>
+    sw!.evaluate(async () => {
+      const [tab] = await chrome.tabs.query({ active: true })
+      return Math.round((await chrome.tabs.getZoom!(tab!.id!)) * 100)
+    })
+  await page.keyboard.press('z')
+  await page.keyboard.press('i')
+  await expect.poll(zoom).toBe(110)
+  await page.keyboard.press('z')
+  await page.keyboard.press('0')
+  await expect.poll(zoom).toBe(100)
+  await page.close()
+})
+
+test('shift+w moves the tab to a window of its own', async () => {
+  const page = await open('/tall?window')
+  const [sw] = ctx.serviceWorkers()
+  const windows = () => sw!.evaluate(async () => new Set((await chrome.tabs.query({})).map(t => t.windowId)).size)
+  const before = await windows()
+  await page.keyboard.press('Shift+w')
+  await expect.poll(windows).toBe(before + 1)
+  await page.close()
+})
+
+test('gF hands focus back from an iframe to the page', async () => {
+  const page = await open('/framed')
+  const frame = page.frames()[1]!
+  await frame.waitForFunction(() => document.documentElement.dataset.vimplug === 'on')
+  await page.evaluate(() => document.querySelector('iframe')!.focus())
+  await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).toBe('IFRAME')
+  await page.keyboard.press('g')
+  await page.keyboard.press('Shift+f')
+  await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).toBe('BODY')
+  await page.close()
+})
+
+test('^ returns to the tab used before this one', async () => {
+  const first = await open('/tall?a')
+  const second = await open('/tall?b')
+  await first.bringToFront()
+  await expect.poll(activeTabUrl).toContain('?a')
+  await second.bringToFront()
+  await expect.poll(activeTabUrl).toContain('?b')
+  await second.keyboard.press('Shift+6')
+  await expect.poll(activeTabUrl).toContain('?a')
+  await first.close()
+  await second.close()
+})

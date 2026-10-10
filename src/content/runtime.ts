@@ -60,6 +60,7 @@ async function main(): Promise<void> {
   let overlayOpen = false
   const finder = createFind(theme)
   let awaitingMark: 'set' | 'jump' | null = null
+  let passNext = false
 
   let last: [id: string, times: number] | null = null
   const dispatch = (id: string, key: string | null, times = 1): boolean => {
@@ -126,6 +127,11 @@ async function main(): Promise<void> {
       if (!finder || !sel || !query) return false
       return finder.search(query, sel.getRangeAt(0)) > 0 && ctx.find(dir)
     },
+    passNextKey: () => {
+      passNext = true
+      indicator.flash('Next key goes to the page')
+      return true
+    },
     notify: indicator.flash,
     startOverlay: (kind, newTab) => {
       if (overlayOpen) return false
@@ -178,6 +184,10 @@ async function main(): Promise<void> {
 
   const onKeydown = (e: KeyboardEvent) => {
     if (fromInputMethod(e)) return
+    if (passNext) {
+      if (!MODIFIER_KEYS.has(e.key)) passNext = false
+      return
+    }
     if (e.repeat && heldFromHint) {
       e.preventDefault()
       return
@@ -309,6 +319,14 @@ async function main(): Promise<void> {
 
   syncMode()
   if (needsKeydown(modes.current)) attach()
+
+  if (window === top) {
+    chrome.runtime.onMessage.addListener(msg => {
+      if ((msg as { type?: unknown } | null)?.type !== 'focusTop') return
+      ;(document.activeElement as HTMLElement | null)?.blur()
+      window.focus()
+    })
+  }
 
   document.documentElement.dataset.vimplug = 'on'
 }

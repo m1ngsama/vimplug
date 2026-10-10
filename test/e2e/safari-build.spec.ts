@@ -67,3 +67,12 @@ test('X reopens closed tabs, most recent first, without the sessions API', async
   await keep.keyboard.press('Shift+X')
   await expect.poll(tabUrls).toHaveLength(4)
 })
+
+test('an action the browser cannot run says so', async () => {
+  const page = await open('/tall')
+  await page.keyboard.press('g')
+  await page.keyboard.press('s')
+  await expect.poll(() => page.evaluate(() => document.querySelectorAll('[data-vimplug-ui]').length)).toBe(1)
+  expect(await tabUrls()).not.toContain(`view-source:${base}/tall`)
+  await page.close()
+})

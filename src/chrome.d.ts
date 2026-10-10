@@ -28,7 +28,10 @@ declare namespace chrome {
       currentWindow?: boolean
       active?: boolean
     }): Promise<Tab[]>
-    function update(tabId: number, props: { active?: boolean; url?: string; muted?: boolean }): Promise<Tab>
+    function update(
+      tabId: number,
+      props: { active?: boolean; url?: string; muted?: boolean; pinned?: boolean },
+    ): Promise<Tab | undefined>
     function create(props: {
       url?: string
       active?: boolean
@@ -40,6 +43,9 @@ declare namespace chrome {
     function reload(tabId: number, props?: { bypassCache?: boolean }): Promise<void>
     function move(tabId: number, props: { index: number }): Promise<Tab | Tab[]>
     function get(tabId: number): Promise<Tab>
+    function sendMessage(tabId: number, message: unknown, options?: { frameId?: number }): Promise<unknown>
+    const getZoom: ((tabId: number) => Promise<number>) | undefined
+    const setZoom: ((tabId: number, zoom: number) => Promise<void>) | undefined
     const onActivated: { addListener(cb: (info: { tabId: number }) => void): void }
     const onUpdated: {
       addListener(cb: (tabId: number, change: { status?: string; url?: string }, tab: Tab) => void): void
@@ -76,7 +82,7 @@ declare namespace chrome {
   }
 
   namespace windows {
-    function create(props: { url?: string }): Promise<unknown>
+    function create(props: { url?: string; tabId?: number }): Promise<unknown>
   }
 
   const sessions: { restore(sessionId?: string): Promise<unknown> } | undefined

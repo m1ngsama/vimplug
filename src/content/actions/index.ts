@@ -58,6 +58,7 @@ export interface ActionContext {
   clearFind: () => boolean
   awaitMark: (mode: 'set' | 'jump') => boolean
   startVisual: () => boolean
+  passNextKey: () => boolean
   notify: (text: string) => void
 }
 
@@ -65,7 +66,13 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
   const { opts } = ctx
 
   if (SCOPE.get(id) === 'background') {
-    void chrome.runtime.sendMessage({ type: 'runAction', id, count }).catch(() => {})
+    void chrome.runtime.sendMessage({ type: 'runAction', id, count }).then(
+      res => {
+        if ((res as { ok?: boolean } | null)?.ok === false)
+          ctx.notify('Not available in this browser')
+      },
+      () => {},
+    )
     return true
   }
 
@@ -107,6 +114,14 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
     return ctx.awaitMark(id === 'setMark' ? 'set' : 'jump')
 
   if (id === 'visualMode') return ctx.startVisual()
+
+  if (id === 'focusTopFrame') {
+    if (window === top) return false
+    void chrome.runtime.sendMessage({ type: 'focusTop' }).catch(() => {})
+    return true
+  }
+
+  if (id === 'passNextKey') return ctx.passNextKey()
 
   if (id === 'passthrough') {
     ctx.enter('passthrough')
