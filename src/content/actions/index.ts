@@ -28,6 +28,7 @@ interface HintKind {
   frames?: boolean
   copy?: boolean
   keep?: boolean
+  hover?: boolean
 }
 
 const HINT_FOR: Record<string, HintKind | undefined> = {
@@ -36,6 +37,7 @@ const HINT_FOR: Record<string, HintKind | undefined> = {
   hintCopyUrl: { copy: true },
   hintFrame: { frames: true },
   hintMulti: { keep: true },
+  hintHover: { hover: true },
 }
 
 export function openTarget(url: string, newTab: boolean, background = false): void {
