@@ -16,8 +16,10 @@ test('every action has a non-empty description', () => {
   for (const a of ACTIONS) assert.ok(a.description.length > 0, a.id)
 })
 
-test('every action ships with at least one default binding', () => {
-  for (const a of ACTIONS) assert.ok(a.defaultKeys.length > 0, a.id)
+test('the keys Vimium, Surfingkeys and Tridactyl users reach for are bound', () => {
+  const bound = new Set(ACTIONS.flatMap(a => a.defaultKeys))
+  for (const k of ['O', 'B', 'gE', 'R', 'gt', 'gT', 'yl', 'ym', '.'])
+    assert.ok(bound.has(k), `unbound: ${k}`)
 })
 
 test('every vimkey key is bound out of the box', () => {

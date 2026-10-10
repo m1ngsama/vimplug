@@ -1,7 +1,7 @@
 import { ACTIONS } from '../../shared/actions.ts'
 import type { Options } from '../../shared/config.ts'
 import { runHistory } from './history.ts'
-import { runClipboard } from './clipboard.ts'
+import { copyNotice, runClipboard } from './clipboard.ts'
 import { runFocusInput } from './focus-input.ts'
 import { runMedia } from './media.ts'
 import { runUrl } from './url.ts'
@@ -11,13 +11,16 @@ import type { OverlayKind } from '../overlay/index.ts'
 
 const SCOPE = new Map(ACTIONS.map(a => [a.id, a.scope]))
 
-const OVERLAY_FOR: Record<string, OverlayKind | undefined> = {
-  help: 'help',
-  openPrompt: 'open',
-  editUrl: 'edit',
-  tabSearch: 'tabs',
-  commandPalette: 'palette',
-  openBookmark: 'bookmarks',
+const OVERLAY_FOR: Record<string, [kind: OverlayKind, newTab?: boolean] | undefined> = {
+  help: ['help'],
+  openPrompt: ['open'],
+  openPromptNewTab: ['open', true],
+  editUrl: ['edit'],
+  editUrlNewTab: ['edit', true],
+  tabSearch: ['tabs'],
+  commandPalette: ['palette'],
+  openBookmark: ['bookmarks'],
+  openBookmarkNewTab: ['bookmarks', true],
 }
 
 export function openTarget(url: string, newTab: boolean, background = false): void {
@@ -34,7 +37,7 @@ export interface ActionContext {
   opts: Options
   enter: (m: Mode) => void
   startHint: (newTab: boolean, frames?: boolean, copy?: boolean) => boolean
-  startOverlay: (kind: OverlayKind) => boolean
+  startOverlay: (kind: OverlayKind, newTab?: boolean) => boolean
   find: (dir: 1 | -1 | 'open') => boolean
   clearFind: () => boolean
   awaitMark: (mode: 'set' | 'jump') => boolean
@@ -54,14 +57,15 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
     runHistory(id, count) ||
     runMedia(id, opts.volumeStep * count) ||
     runFocusInput(id, count) ||
-    runUrl(id) ||
+    runUrl(id, count) ||
     runPager(id)
   )
     return true
 
-  if (id === 'copyUrl' || id === 'openClipboard' || id === 'openClipboardNewTab') {
+  const copied = copyNotice(id)
+  if (copied || id === 'openClipboard' || id === 'openClipboardNewTab') {
     const done = runClipboard(id, opts.searchEngine, openTarget)
-    if (id === 'copyUrl') done.then(() => ctx.notify('Copied URL'), () => ctx.notify('Copy failed'))
+    if (copied) done.then(() => ctx.notify(copied), () => ctx.notify('Copy failed'))
     else void done.catch(() => {})
     return true
   }
@@ -71,8 +75,8 @@ export function runAction(id: string, ctx: ActionContext, count = 1): boolean {
 
   if (id === 'hintFrame') return ctx.startHint(false, true)
 
-  const overlayKind = OVERLAY_FOR[id]
-  if (overlayKind) return ctx.startOverlay(overlayKind)
+  const overlay = OVERLAY_FOR[id]
+  if (overlay) return ctx.startOverlay(...overlay)
 
   if (id === 'find') return ctx.find('open')
 

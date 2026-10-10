@@ -39,6 +39,18 @@ async function jumpToEdge(tab: chrome.tabs.Tab, edge: 'first' | 'last'): Promise
   if (target?.id !== undefined) await chrome.tabs.update(target.id, { active: true })
 }
 
+const CLOSES: Record<string, (index: number, current: number) => boolean> = {
+  closeOtherTabs: (i, current) => i !== current,
+  closeTabsLeft: (i, current) => i < current,
+  closeTabsRight: (i, current) => i > current,
+}
+
+export function tabsToClose(action: string, tabs: chrome.tabs.Tab[], current: number): number[] {
+  const closes = CLOSES[action]
+  if (!closes) return []
+  return tabs.filter(t => !t.pinned && closes(t.index, current)).flatMap(t => t.id ?? [])
+}
+
 export async function runTabAction(id: string, tab: chrome.tabs.Tab, count = 1): Promise<boolean> {
   const tabId = tab.id
   switch (id) {
@@ -68,6 +80,19 @@ export async function runTabAction(id: string, tab: chrome.tabs.Tab, count = 1):
     case 'reload':
       if (tabId !== undefined) await chrome.tabs.reload(tabId)
       return true
+    case 'reloadHard':
+      if (tabId !== undefined) await chrome.tabs.reload(tabId, { bypassCache: true })
+      return true
+    case 'toggleMuteTab':
+      if (tabId !== undefined) await chrome.tabs.update(tabId, { muted: !tab.mutedInfo?.muted })
+      return true
+    case 'closeOtherTabs':
+    case 'closeTabsLeft':
+    case 'closeTabsRight': {
+      const tabs = await chrome.tabs.query({ windowId: tab.windowId })
+      await chrome.tabs.remove(tabsToClose(id, tabs, tab.index))
+      return true
+    }
     case 'closeTab':
       if (tabId !== undefined) await chrome.tabs.remove(tabId)
       return true

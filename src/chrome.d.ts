@@ -20,22 +20,24 @@ declare namespace chrome {
       url?: string
       active: boolean
       incognito: boolean
+      pinned?: boolean
+      mutedInfo?: { muted: boolean }
     }
     function query(info: {
       windowId?: number
       currentWindow?: boolean
       active?: boolean
     }): Promise<Tab[]>
-    function update(tabId: number, props: { active?: boolean; url?: string }): Promise<Tab>
+    function update(tabId: number, props: { active?: boolean; url?: string; muted?: boolean }): Promise<Tab>
     function create(props: {
       url?: string
       active?: boolean
       windowId?: number
       index?: number
     }): Promise<Tab>
-    function remove(tabId: number): Promise<void>
+    function remove(tabIds: number | number[]): Promise<void>
     function duplicate(tabId: number): Promise<Tab | undefined>
-    function reload(tabId: number): Promise<void>
+    function reload(tabId: number, props?: { bypassCache?: boolean }): Promise<void>
     function move(tabId: number, props: { index: number }): Promise<Tab | Tab[]>
     function get(tabId: number): Promise<Tab>
     const onActivated: { addListener(cb: (info: { tabId: number }) => void): void }

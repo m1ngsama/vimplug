@@ -61,8 +61,14 @@ async function main(): Promise<void> {
   const finder = createFind(theme)
   let awaitingMark: 'set' | 'jump' | null = null
 
-  const dispatch = (id: string, key: string | null, times = 1): boolean =>
-    scroller.press(id, key, times) || runAction(id, ctx, times)
+  let last: [id: string, times: number] | null = null
+  const dispatch = (id: string, key: string | null, times = 1): boolean => {
+    if (id === 'repeatLast')
+      return last !== null && dispatch(last[0], null, times > 1 ? times : last[1])
+    const ran = scroller.press(id, key, times) || runAction(id, ctx, times)
+    if (ran) last = [id, times]
+    return ran
+  }
 
   const ctx: ActionContext = {
     opts: site.options,
@@ -114,7 +120,7 @@ async function main(): Promise<void> {
       return true
     },
     notify: indicator.flash,
-    startOverlay: kind => {
+    startOverlay: (kind, newTab) => {
       if (overlayOpen) return false
       overlayOpen = true
       const origin = kind === 'find' ? { x: window.scrollX, y: window.scrollY } : null
@@ -140,6 +146,7 @@ async function main(): Promise<void> {
           if (found === 0 && origin) window.scrollTo(origin.x, origin.y)
           return found
         },
+        newTab,
       )
       return true
     },
