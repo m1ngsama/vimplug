@@ -3,7 +3,7 @@
 ## Requirements
 
 Safari 16.4+ (macOS 13.3+). `scripting.registerContentScripts` landed in 16.4 and the
-engine depends on it.
+engine depends on it. iOS and iPadOS are not supported.
 
 ## Installing
 
@@ -57,9 +57,6 @@ facts, current as of Safari 26:
   signed `.app` from a GitHub release, with no App Store review and no GPL conflict.
 - **An Apple Development certificate works only on the Mac that holds it.** Safari accepts
   the build as signed, but Gatekeeper rejects it everywhere else.
-- **Apple's fee waiver does not apply.** It covers nonprofit legal entities, accredited
-  schools and government bodies, and explicitly excludes individuals and one-person
-  businesses. Being open source is not itself a qualification.
 
 ## Generating the Xcode project
 
@@ -133,13 +130,6 @@ temporary extension and an installed app are separate extensions to Safari, and 
 
 Background console: Safari > Develop > Web Extension Background Content > vimplug.
 
-**Checking that the background worker runs:** the background is the only thing that
-registers content scripts, so behaviour answers the question directly. If `j` scrolls a
-long page, the worker ran. If nothing responds anywhere, it did not, and `background`
-needs to become `{ scripts: ['background.js'], persistent: false }` in
-`src/shared/manifest-def.ts`. The build already emits background as IIFE, so no build
-change is needed for that switch.
-
 ## Manifest fields Safari rejects
 
 `safari-web-extension-converter` warns about unsupported manifest keys. Findings so far,
@@ -192,16 +182,6 @@ python3 -m http.server 8000
 | 7 | Storage survives a restart | Scroll down, press `Ma`, quit and reopen Safari, press `` `a `` | The position is restored |
 | 8 | The installed app registers the extension | Install the release zip as README describes, open the app once | vimplug appears under Settings > Extensions without any temporary extension loaded. This is the path README sends people down, and only an ad-hoc signed bundle in Safari can confirm it. |
 
-Check 1 has been open since the project started and is the reason this table still exists.
-
 Find highlighting depends on the CSS Custom Highlight API, which Safari has from 17.2. On
 anything older the panel still opens and still scrolls to matches, and only the painting
 is skipped; `pnpm test:engine` covers that fallback.
-
-## Known gaps
-
-- Safari extensions cannot be driven by Playwright, and safaridriver cannot load one. The
-  engine is covered in WebKit instead; Safari's extension plumbing stays a manual list.
-- No signed release, so "Allow unsigned extensions" must be re-ticked at every Safari launch
-  ([#10](https://github.com/m1ngsama/vimplug/issues/10)).
-- iOS and iPadOS are not supported.
