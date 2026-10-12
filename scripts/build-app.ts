@@ -7,6 +7,8 @@ const LSREGISTER =
 
 const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }
 
+const team = process.env.DEVELOPMENT_TEAM ?? ''
+
 // Ad-hoc signed so the appex keeps its sandbox; CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO strips it too.
 execFileSync(
   'xcodebuild',
@@ -17,9 +19,9 @@ execFileSync(
     '-destination', 'generic/platform=macOS',
     '-derivedDataPath', 'dist/xcode',
     '-quiet',
-    'CODE_SIGN_IDENTITY=-',
+    `CODE_SIGN_IDENTITY=${team ? 'Apple Development' : '-'}`,
     'CODE_SIGN_STYLE=Manual',
-    'DEVELOPMENT_TEAM=',
+    `DEVELOPMENT_TEAM=${team}`,
     'PROVISIONING_PROFILE_SPECIFIER=',
     `MARKETING_VERSION=${version}`,
     'build',

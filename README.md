@@ -43,8 +43,9 @@ Then, in Safari:
 
 1. Settings > Advanced > check "Show features for web developers".
 2. Settings > Developer > check "Allow unsigned extensions". **This resets every time
-   Safari quits**, and an unsigned build needs it ticked again at the next launch. It is
-   the one thing a paid Apple account would remove.
+   Safari quits**, and an unsigned build needs it ticked again at the next launch.
+   [Building the app with your own Apple Development certificate](docs/SAFARI.md#installing)
+   removes this step on your Mac.
 3. Settings > Extensions > enable vimplug, and set site access to "Always Allow on Every
    Website". Without site access the extension silently does nothing, which looks exactly
    like a broken build.
