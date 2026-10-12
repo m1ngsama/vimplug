@@ -29,25 +29,34 @@ through a browser or AirDrop arrives quarantined and is refused. `curl` does not
 quarantine what it downloads, which is why README installs with it;
 `xattr -dr com.apple.quarantine /Applications/vimplug.app` clears a copy that was.
 
+To sign with an [Apple Development certificate](https://developer.apple.com/help/account/certificates/certificates-overview)
+instead, pass its team ID. Safari then keeps the extension across restarts without "Allow
+unsigned extensions". Xcode > Settings > Accounts creates the certificate, and the team ID
+is the `OU` in its subject.
+
+```sh
+security find-certificate -c "Apple Development" -p | openssl x509 -noout -subject
+DEVELOPMENT_TEAM=<team id> pnpm build:app
+```
+
 `pnpm package:app` zips the app as `dist/vimplug-safari.zip`. The Release workflow runs it
 on a macOS runner and attaches the zip to each published release.
 
 ## Distribution and signing
 
-Re-ticking "Allow unsigned extensions" at every Safari launch is the whole cost of having no
-Apple Developer Program membership, and nothing
-in this repository can remove it. Tracked in
-[#10](https://github.com/m1ngsama/vimplug/issues/10). The facts, current as of Safari 26:
+The release build is ad-hoc signed, so "Allow unsigned extensions" must be re-ticked at
+every Safari launch. Tracked in [#10](https://github.com/m1ngsama/vimplug/issues/10). The
+facts, current as of Safari 26:
 
-- **Only two ways exist to install permanently**: the Mac App Store, or an app signed with
-  a Developer ID certificate and notarized. Both require the $99/year membership; Developer
+- **Only two ways exist to ship a build that installs permanently**: the Mac App Store, or
+  an app signed with a Developer ID certificate and notarized. Both require the $99/year membership; Developer
   ID certificates and `notarytool` are issued to paid members only.
 - **Developer ID works outside the App Store as of Safari 18.4** (macOS 15.4). Before that,
   App Store distribution was the only route that avoided the unsigned-extensions toggle, so
   older answers saying otherwise are out of date. This matters here: it means shipping a
   signed `.app` from a GitHub release, with no App Store review and no GPL conflict.
-- **A free Apple ID does not help.** An "Apple Development" certificate from a personal
-  team is still treated as unsigned by Safari.
+- **An Apple Development certificate works only on the Mac that holds it.** Safari accepts
+  the build as signed, but Gatekeeper rejects it everywhere else.
 - **Apple's fee waiver does not apply.** It covers nonprofit legal entities, accredited
   schools and government bodies, and explicitly excludes individuals and one-person
   businesses. Being open source is not itself a qualification.
@@ -193,6 +202,6 @@ is skipped; `pnpm test:engine` covers that fallback.
 
 - Safari extensions cannot be driven by Playwright, and safaridriver cannot load one. The
   engine is covered in WebKit instead; Safari's extension plumbing stays a manual list.
-- No signed build, so "Allow unsigned extensions" must be re-ticked at every Safari launch
+- No signed release, so "Allow unsigned extensions" must be re-ticked at every Safari launch
   ([#10](https://github.com/m1ngsama/vimplug/issues/10)).
 - iOS and iPadOS are not supported.
