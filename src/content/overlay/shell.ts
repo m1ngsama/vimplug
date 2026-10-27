@@ -1,5 +1,6 @@
 import { filterRows, type Row } from './filter.ts'
 import { applyTheme, type Tokens } from '../../shared/theme.ts'
+import { styleShadow } from '../shadow-style.ts'
 
 export interface Overlay {
   close(): void
@@ -55,8 +56,7 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
   host.dataset.vimplugUi = ''
   const shadow = host.attachShadow({ mode: 'closed' })
 
-  const style = document.createElement('style')
-  style.textContent = STYLE
+  styleShadow(shadow, STYLE)
   const wrap = document.createElement('div')
   wrap.className = 'wrap'
   const panel = document.createElement('div')
@@ -74,7 +74,7 @@ export function openOverlay(cfg: OverlayConfig): Overlay {
 
   panel.append(input, status, list)
   wrap.append(panel)
-  shadow.append(style, wrap)
+  shadow.append(wrap)
   applyTheme(host, cfg.theme)
   document.body.append(host)
 

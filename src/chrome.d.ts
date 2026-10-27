@@ -124,6 +124,7 @@ declare namespace chrome {
       runAt?: 'document_start' | 'document_end' | 'document_idle'
       persistAcrossSessions?: boolean
     }
+    function getRegisteredContentScripts(filter?: { ids?: string[] }): Promise<RegisteredContentScript[]>
     function registerContentScripts(scripts: RegisteredContentScript[]): Promise<void>
     function unregisterContentScripts(filter: { ids: string[] }): Promise<void>
     function executeScript(injection: {

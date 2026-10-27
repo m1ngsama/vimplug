@@ -54,7 +54,7 @@ test('a key still down when its step ends keeps scrolling', () => {
   assert.equal(s.target, s.current)
 })
 
-test('a held step speeds up to 150px every tenth of a second', () => {
+test('a held step speeds up to its clamped cruise speed', () => {
   const s = run(tap(60), 60)
   const gain = advance(s, 16, smooth).current - s.current
   assert.ok(Math.abs(gain - 16 * 0.96) < 0.01, `${gain}px a frame`)
@@ -134,17 +134,54 @@ test('frames rounded to whole milliseconds still advance evenly', () => {
   assert.ok(spread < 0.2, `frame lengths vary by ${spread}ms`)
 })
 
-test('a dropped frame advances by two frames', () => {
+for (const hz of [60, 120]) {
+  for (const elapsed of [33, 53, 83, 235]) {
+    test(`a ${elapsed}ms late callback advances one learned ${hz}Hz frame`, () => {
+      const tick = frameClock()
+      roundedFrames(hz, 200).forEach(tick)
+      assert.ok(Math.abs(tick(elapsed) - 1000 / hz) < 0.5)
+      assert.ok(Math.abs(tick(1000 / hz) - 1000 / hz) < 0.5)
+    })
+  }
+}
+
+test('repeated stalls do not build up time debt or change the learned cadence', () => {
   const tick = frameClock()
   roundedFrames(60, 60).forEach(tick)
-  assert.ok(Math.abs(tick(33) - 2000 / 60) < 0.2)
+  for (let i = 0; i < 30; i++) {
+    for (const elapsed of [1000 / 60, 53, 1000 / 60, 235]) {
+      assert.ok(Math.abs(tick(elapsed) - 1000 / 60) < 0.5)
+    }
+  }
 })
 
-test('a long stall advances by no more than three frames', () => {
-  const tick = frameClock()
-  roundedFrames(60, 60).forEach(tick)
-  assert.ok(tick(235) < 3.1 * (1000 / 60))
-})
+for (const options of [smooth, instant]) {
+  test(`a cruising hold does not catch up with scrollSmooth=${options.scrollSmooth}`, () => {
+    const tick = frameClock()
+    let s = tap(60)
+    for (const elapsed of roundedFrames(60, 90)) s = advance(s, tick(elapsed), options)
+    for (const elapsed of [33, 53, 235, 1000 / 60]) {
+      const next = advance(s, tick(elapsed), options)
+      const distance = next.current - s.current
+      assert.ok(distance > 15 && distance < 17, `${distance}px after ${elapsed}ms`)
+      s = next
+    }
+    const stopped = advance({ ...s, dir: 0 }, tick(235), options)
+    assert.equal(stopped.current, s.current)
+    assert.ok(settled(stopped))
+  })
+}
+
+for (const distance of [60, 300]) {
+  test(`a released ${distance}px target still lands exactly after a stall`, () => {
+    const tick = frameClock()
+    let s = push(idle(), distance)
+    s = advance(s, tick(53), smooth)
+    for (const elapsed of roundedFrames(60, 60)) s = advance(s, tick(elapsed), smooth)
+    assert.equal(s.current, distance)
+    assert.ok(settled(s))
+  })
+}
 
 test('the frame length adapts to a faster display', () => {
   const tick = frameClock()

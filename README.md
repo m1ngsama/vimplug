@@ -3,8 +3,8 @@
 Keyboard-driven browser control for Safari and Chrome.
 
 Scroll, follow links, switch tabs, search a page and select text without leaving the home
-row. Every key is rebindable, and the configuration is one block of text you can read,
-version and carry between machines.
+row. Normal-mode actions are rebindable, and the configuration is one block of text you
+can read, version and carry between machines.
 
 <img src="docs/settings.png" alt="The settings page, listing each action beside the key that runs it" width="720">
 
@@ -68,7 +68,8 @@ pnpm build       # dist/chrome
 
 ## Keys
 
-Defaults. Every one is rebindable; `?` shows the bindings actually in force.
+Default normal-mode bindings. Actions are rebindable; `?` shows the bindings actually in
+force. Controls within hint, visual, insert and command modes are fixed.
 
 | Keys | Action |
 | --- | --- |
@@ -141,8 +142,9 @@ reload.
 you typed is always one of the rows, so Enter never has to guess between navigating and
 searching.
 
-Scrolling acts on the pane under the cursor, not only the document, so `j` works in apps
-whose page does not itself scroll.
+Scrolling first tries a scrollable ancestor of the focused element, then the last clicked
+element, then the viewport center, before falling back to the document. This lets `j`
+work in apps whose page does not itself scroll.
 
 Safari does not grant extensions access to history, bookmarks or closed tabs, so there `o`
 searches open tabs only and `b` finds nothing. `gs` is Chrome only, and `W` on Safari
@@ -270,8 +272,17 @@ pnpm build:app     # builds dist/safari, then the Safari app at dist/vimplug.app
 pnpm test:engine   # mode semantics against dist/safari, in WebKit and Chromium
 pnpm test:e2e      # builds, then drives the artifact in a real Chromium
 pnpm sweep         # runs the engine over real sites; needs the network
+pnpm benchmark     # frame-observed latency in Playwright WebKit; needs build:safari; JSON in OS temp
 pnpm icons         # regenerates the icon set
 ```
+
+`pnpm benchmark --suite held --samples 5 --warmup 1` compares held `j`/`k` on idle pages
+and with three 80 ms main-thread blocks after an 800 ms cruise warmup. The default
+`--suite latency` keeps the first-scroll, hint-host and find-query metrics. Both use the
+existing `dist/safari/content.js` without rebuilding; `--engine chromium` selects Chromium.
+JSON records raw callback observations and environment, revision, artifact and fixture
+provenance in an OS temporary directory, or a new file given by `--output /tmp/result.json`.
+Held steps and callback gaps do not measure actual paint or real Safari. See `--help`.
 
 Unit tests run on Node's built-in test runner straight from TypeScript, so there is no
 test framework and no compile step. Every browser test exercises a build artifact, never a

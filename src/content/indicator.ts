@@ -1,5 +1,6 @@
 import { applyTheme, type Tokens } from '../shared/theme.ts'
 import type { Mode } from './mode.ts'
+import { styleShadow } from './shadow-style.ts'
 
 export function indicatorLabel(m: Mode): string | null {
   if (m === 'passthrough') return '-- INSERT --'
@@ -42,11 +43,10 @@ export function createIndicator(theme: Tokens): Indicator {
       host = document.createElement('div')
       host.dataset.vimplugUi = ''
       const shadow = host.attachShadow({ mode: 'closed' })
-      const style = document.createElement('style')
-      style.textContent = STYLE
+      styleShadow(shadow, STYLE)
       badge = document.createElement('div')
       badge.className = 'badge'
-      shadow.append(style, badge)
+      shadow.append(badge)
       applyTheme(host, theme)
       document.body.append(host)
     }

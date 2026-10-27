@@ -9,19 +9,49 @@ test('parses a map statement', () => {
   const s = r.stmts[0]!
   assert.equal(s.kind, 'map')
   if (s.kind !== 'map') return
-  assert.equal(s.mode, 'normal')
   assert.equal(s.keys, 'j')
   assert.equal(s.action, 'scrollDown')
 })
 
-test('nmap is an alias for map, hmap and cmap set the mode', () => {
-  const r = parse('nmap j scrollDown\nhmap k scrollUp\ncmap h scrollLeft')
+test('nmap and nunmap are aliases for map and unmap', () => {
+  const r = parse('map j scrollDown\nnmap k scrollUp\nunmap j\nnunmap k')
   assert.deepEqual(r.errors, [])
   assert.deepEqual(
-    r.stmts.map(s => s.kind === 'map' && s.mode),
-    ['normal', 'hint', 'command'],
+    r.stmts.map(({ span, ...stmt }) => stmt),
+    [
+      { kind: 'map', keys: 'j', action: 'scrollDown' },
+      { kind: 'map', keys: 'k', action: 'scrollUp' },
+      { kind: 'unmap', keys: 'j' },
+      { kind: 'unmap', keys: 'k' },
+    ],
   )
 })
+
+for (const head of ['hmap', 'cmap', 'hunmap', 'cunmap']) {
+  test(`${head} reports an unknown statement globally and inside a site`, () => {
+    const src = [
+      'map j scrollDown',
+      `${head} j scrollUp`,
+      'set scrollStep = 80',
+      'site a.com {',
+      '  nmap k scrollUp',
+      `  ${head} k scrollDown`,
+      '  nunmap j',
+      '}',
+      'map h scrollLeft',
+    ].join('\n')
+    const r = parse(src)
+    assert.deepEqual(r.errors, [
+      { line: 2, message: `unknown statement: ${head}` },
+      { line: 6, message: `unknown statement: ${head}` },
+    ])
+    assert.deepEqual(r.stmts.map(s => s.kind), ['map', 'set', 'site', 'map'])
+    const site = r.stmts[2]!
+    assert.equal(site.kind, 'site')
+    if (site.kind !== 'site') return
+    assert.deepEqual(site.body.map(s => s.kind), ['map', 'unmap'])
+  })
+}
 
 test('records a source span covering the statement text', () => {
   const src = '\nmap j scrollDown\n'
@@ -51,6 +81,28 @@ test('parses set statements', () => {
   if (s.kind !== 'set') return
   assert.equal(s.option, 'hintChars')
   assert.equal(s.value, 'asdf')
+})
+
+test('legacy sequenceTimeout remains a set statement without diagnostics', () => {
+  const src = 'set sequenceTimeout = 250\nsite a.com {\n  set sequenceTimeout = 500\n}'
+  const r = parse(src)
+  assert.deepEqual(r.errors, [])
+  const global = r.stmts[0]!
+  assert.equal(global.kind, 'set')
+  if (global.kind !== 'set') return
+  assert.equal(global.option, 'sequenceTimeout')
+  assert.equal(global.value, '250')
+  const site = r.stmts[1]!
+  assert.equal(site.kind, 'site')
+  if (site.kind !== 'site') return
+  const local = site.body[0]!
+  assert.equal(local.kind, 'set')
+  if (local.kind !== 'set') return
+  assert.equal(local.option, 'sequenceTimeout')
+  assert.equal(local.value, '500')
+  for (const stmt of [global, local]) {
+    assert.equal(src.slice(stmt.span.start, stmt.span.end), `set sequenceTimeout = ${stmt.value}`)
+  }
 })
 
 test('parses a site block with nested statements', () => {

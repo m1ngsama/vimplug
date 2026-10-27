@@ -3,19 +3,16 @@ import { resolve } from 'node:path'
 import { DEFAULT_DSL } from '../../src/shared/config.ts'
 import { ACTIONS } from '../../src/shared/actions.ts'
 import { serveFixtures } from '../fixtures.ts'
+import { openEnginePage, startupErrors, waitForRegistration } from './startup.ts'
 
 const EXT = resolve('dist/chrome')
 
 let stop: () => Promise<void>
 let base: string
 let ctx: BrowserContext
+let errors: string[]
 
-async function open(path: string): Promise<Page> {
-  const page = await ctx.newPage()
-  await page.goto(`${base}${path}`)
-  await page.waitForFunction(() => document.documentElement.dataset.vimplug === 'on')
-  return page
-}
+const open = (path: string): Promise<Page> => openEnginePage(ctx, `${base}${path}`, errors)
 
 async function activeTabUrl(): Promise<string> {
   const [sw] = ctx.serviceWorkers()
@@ -52,8 +49,8 @@ test.beforeAll(async () => {
     headless: true,
     args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`],
   })
-  if (ctx.serviceWorkers().length === 0) await ctx.waitForEvent('serviceworker')
-  await new Promise(r => setTimeout(r, 1000))
+  errors = startupErrors(ctx)
+  await waitForRegistration(ctx, 'chrome')
 })
 
 test.afterAll(async () => {
@@ -535,12 +532,30 @@ test('the options page lists a keycap for every action', async () => {
   const page = await openOptions()
   expect(await page.locator('.cap:not(.preview-cap)').count()).toBe(ACTIONS.length)
   expect(await page.locator('.cap', { hasText: 'j' }).first().textContent()).toBe('j')
+  await expect(page.locator('.opt', { hasText: 'Sequence timeout' })).toHaveCount(0)
+  await expect(page.locator('.opt input[type="number"]')).toHaveCount(2)
   await page.close()
 })
 
-test('rebinding through the GUI rewrites the config and preserves comments', async () => {
-  await setDsl(`# a comment I wrote\nmap j scrollDown\nmap k scrollUp\n`)
+test('rebinding through the GUI preserves comments and unsupported configuration', async () => {
+  const src = [
+    '# a comment I wrote',
+    'map j scrollDown',
+    'map k scrollUp',
+    'hmap j scrollUp',
+    'cmap k scrollDown',
+    'hunmap j',
+    'cunmap k',
+    'set sequenceTimeout = 250',
+    'site a.com {',
+    '  set sequenceTimeout = 500',
+    '}',
+    '',
+  ].join('\n')
+  await setDsl(src)
   const page = await openOptions()
+  await expect(page.locator('.opt', { hasText: 'Sequence timeout' })).toHaveCount(0)
+  await expect(page.locator('.opt input[type="number"]')).toHaveCount(2)
 
   await page.locator('.row', { hasText: 'Scroll down' }).locator('.cap').click()
   await page.keyboard.press('Shift+d')
@@ -550,10 +565,7 @@ test('rebinding through the GUI rewrites the config and preserves comments', asy
     .toBe('D')
 
   await page.locator('.tabs button', { hasText: 'Text' }).click()
-  const text = await page.locator('textarea').inputValue()
-  expect(text).toContain('# a comment I wrote')
-  expect(text).toContain('map D scrollDown')
-  expect(text).toContain('map k scrollUp')
+  await expect(page.locator('textarea')).toHaveValue(src.replace('map j scrollDown', 'map D scrollDown'))
   await page.close()
   await setDsl(DEFAULT_DSL)
 })
@@ -567,12 +579,95 @@ test('a rebind made in the GUI reaches the page', async () => {
   await setDsl(DEFAULT_DSL)
 })
 
-test('the text view reports parse errors with line numbers', async () => {
-  await setDsl('map j scrollDown\nmap k nonsenseAction\n')
+test('the text view reports unsupported mode statements with line numbers', async () => {
+  const src = [
+    'map j scrollDown',
+    'map k nonsenseAction',
+    'hmap j scrollUp',
+    'cmap k scrollDown',
+    'hunmap j',
+    'cunmap k',
+    'site a.com {',
+    '  nmap h scrollLeft',
+    '  hmap h scrollRight',
+    '  cmap l scrollLeft',
+    '  hunmap h',
+    '  cunmap l',
+    '}',
+    '',
+  ].join('\n')
+  await setDsl(src)
   const page = await openOptions()
   await page.locator('.tabs button', { hasText: 'Text' }).click()
-  await expect(page.locator('.errors li')).toHaveCount(1)
-  expect(await page.locator('.errors li').textContent()).toContain('line 2')
+  await expect(page.locator('.errors li')).toHaveText([
+    'line 2unknown action: nonsenseAction',
+    'line 3unknown statement: hmap',
+    'line 4unknown statement: cmap',
+    'line 5unknown statement: hunmap',
+    'line 6unknown statement: cunmap',
+    'line 9unknown statement: hmap',
+    'line 10unknown statement: cmap',
+    'line 11unknown statement: hunmap',
+    'line 12unknown statement: cunmap',
+  ])
+  await expect(page.locator('textarea')).toHaveValue(src)
+  await page.close()
+  await setDsl(DEFAULT_DSL)
+})
+
+test('options save, import and export preserve unsupported statements verbatim', async () => {
+  const src = [
+    '# keep this configuration unchanged',
+    'set sequenceTimeout = 250',
+    'nmap j scrollDown',
+    'hmap j scrollUp',
+    'cmap k scrollDown',
+    'hunmap j',
+    'cunmap k',
+    'site a.com {',
+    '  hmap h scrollLeft',
+    '  cmap l scrollRight',
+    '  hunmap h',
+    '  cunmap l',
+    '  set sequenceTimeout = 500',
+    '  set scrollStep = 120',
+    '}',
+    '',
+  ].join('\n')
+  await setDsl(DEFAULT_DSL)
+  const page = await openOptions()
+  await page.locator('.tabs button', { hasText: 'Text' }).click()
+  await page.locator('textarea').fill(src)
+  await page.locator('textarea').blur()
+  await expect(page.locator('.status')).toHaveText('Saved')
+  await page.reload()
+  await page.locator('.tabs button', { hasText: 'Text' }).click()
+  await expect(page.locator('textarea')).toHaveValue(src)
+
+  const exported = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export to a file', exact: true }).click()
+  const download = await exported
+  expect(download.suggestedFilename()).toBe('vimplug.conf')
+  const chunks: Buffer[] = []
+  for await (const chunk of await download.createReadStream()) chunks.push(chunk)
+  expect(Buffer.concat(chunks).toString('utf8')).toBe(src)
+
+  await page.getByRole('button', { name: 'Restore defaults', exact: true }).click()
+  await expect(page.locator('textarea')).toHaveValue(DEFAULT_DSL)
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'vimplug.conf',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(src),
+  })
+  await expect(page.locator('textarea')).toHaveValue(src)
+  await page.reload()
+  await page.locator('.tabs button', { hasText: 'Text' }).click()
+  await expect(page.locator('textarea')).toHaveValue(src)
+  await expect(page.locator('.errors li')).toHaveCount(8)
+  await page.locator('.tabs button', { hasText: 'Keys' }).click()
+  await expect(page.locator('.opt', { hasText: 'Sequence timeout' })).toHaveCount(0)
+  await expect(page.locator('.opt input[type="number"]')).toHaveCount(2)
+  await expect(page.locator('.row', { hasText: 'Scroll down' }).locator('.cap')).toHaveText('j')
   await page.close()
   await setDsl(DEFAULT_DSL)
 })

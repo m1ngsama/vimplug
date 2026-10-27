@@ -1,13 +1,12 @@
 import { ACTIONS } from './actions.ts'
 import { parseKeys, type KeyMatching } from './keys.ts'
 import type { Binding } from './matcher.ts'
-import { parse, type BindMode, type Stmt } from './dsl/parse.ts'
+import { parse, type Stmt } from './dsl/parse.ts'
 import { SCHEME_NAMES } from './theme.ts'
 
 export interface Options {
   hintChars: string
   keyMatching: KeyMatching
-  sequenceTimeout: number
   scrollStep: number
   scrollSmooth: boolean
   volumeStep: number
@@ -29,7 +28,7 @@ export interface Options {
 interface SiteResolution {
   disabled: boolean
   options: Options
-  bindings: Record<BindMode, Binding[]>
+  bindings: { normal: Binding[] }
 }
 
 type SiteStmt = Extract<Stmt, { kind: 'site' }>
@@ -37,7 +36,6 @@ type SiteStmt = Extract<Stmt, { kind: 'site' }>
 const DEFAULT_OPTIONS: Options = {
   hintChars: 'fjdkslaghrueiwo',
   keyMatching: 'physical',
-  sequenceTimeout: 1000,
   scrollStep: 60,
   scrollSmooth: true,
   volumeStep: 0.1,
@@ -80,7 +78,6 @@ export const OPTION_SCHEMA: readonly OptionDef[] = [
   { key: 'keyMatching', type: 'choice', choices: ['physical', 'logical'] },
   { key: 'scrollStep', type: 'number' },
   { key: 'scrollSmooth', type: 'boolean' },
-  { key: 'sequenceTimeout', type: 'number' },
   { key: 'volumeStep', type: 'number' },
   { key: 'searchEngine', type: 'text' },
 
@@ -119,14 +116,10 @@ function applyOption(o: Options, option: string, value: string): void {
   ;(o[def.key] as string) = value
 }
 
-function apply(
-  stmts: Stmt[],
-  out: SiteResolution,
-  maps: Record<BindMode, Map<string, string>>,
-): void {
+function apply(stmts: Stmt[], out: SiteResolution, bindings: Map<string, string>): void {
   for (const s of stmts) {
-    if (s.kind === 'map') maps[s.mode].set(s.keys, s.action)
-    else if (s.kind === 'unmap') maps[s.mode].delete(s.keys)
+    if (s.kind === 'map') bindings.set(s.keys, s.action)
+    else if (s.kind === 'unmap') bindings.delete(s.keys)
     else if (s.kind === 'set') applyOption(out.options, s.option, s.value)
     else if (s.kind === 'disable') out.disabled = true
   }
@@ -142,18 +135,14 @@ export function resolveForHost(src: string, host: string): SiteResolution {
   const out: SiteResolution = {
     disabled: false,
     options: { ...DEFAULT_OPTIONS },
-    bindings: { normal: [], hint: [], command: [] },
+    bindings: { normal: [] },
   }
-  const maps: Record<BindMode, Map<string, string>> = {
-    normal: new Map(),
-    hint: new Map(),
-    command: new Map(),
-  }
+  const bindings = new Map<string, string>()
 
   apply(
     stmts.filter(s => s.kind !== 'site'),
     out,
-    maps,
+    bindings,
   )
 
   const hits = stmts
@@ -161,13 +150,11 @@ export function resolveForHost(src: string, host: string): SiteResolution {
     .map((s, i) => ({ s, i, spec: specificity(s.pattern) }))
     .sort((a, b) => a.spec - b.spec || a.i - b.i)
 
-  for (const { s } of hits) apply(s.body, out, maps)
+  for (const { s } of hits) apply(s.body, out, bindings)
 
-  for (const mode of ['normal', 'hint', 'command'] as const) {
-    for (const [notation, action] of maps[mode]) {
-      const keys = parseKeys(notation)
-      if (keys) out.bindings[mode].push({ keys, action, notation })
-    }
+  for (const [notation, action] of bindings) {
+    const keys = parseKeys(notation)
+    if (keys) out.bindings.normal.push({ keys, action, notation })
   }
 
   return out

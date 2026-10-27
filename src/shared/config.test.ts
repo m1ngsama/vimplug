@@ -60,6 +60,28 @@ test('an unknown set option is ignored rather than fatal', () => {
   assert.ok(r.bindings.normal.some(b => b.action === 'scrollDown'))
 })
 
+test('legacy sequenceTimeout is ignored globally and inside a site', () => {
+  const src = [
+    'set sequenceTimeout = 250',
+    'set scrollStep = 80',
+    'map j scrollDown',
+    'site a.com {',
+    '  set sequenceTimeout = 500',
+    '  set scrollStep = 120',
+    '  nmap k scrollUp',
+    '}',
+  ].join('\n')
+  assert.deepEqual(parse(src).errors, [])
+  assert.equal(OPTION_SCHEMA.some(o => String(o.key) === 'sequenceTimeout'), false)
+  for (const host of ['a.com', 'other.com']) {
+    const r = resolveForHost(src, host)
+    assert.equal('sequenceTimeout' in r.options, false)
+    assert.equal(r.options.scrollStep, host === 'a.com' ? 120 : 80)
+    assert.ok(r.bindings.normal.some(b => b.action === 'scrollDown'))
+    assert.equal(r.bindings.normal.some(b => b.action === 'scrollUp'), host === 'a.com')
+  }
+})
+
 test('disabledHosts lists every disabled pattern including wildcards', () => {
   const src = 'site a.com {\n  disable\n}\nsite b.com {\n  unmap j\n}\nsite *.c.com {\n  disable\n}'
   assert.deepEqual(disabledHosts(src), ['a.com', '*.c.com'])
@@ -70,10 +92,38 @@ test('a parse error does not discard valid statements', () => {
   assert.ok(r.bindings.normal.some(b => b.action === 'scrollDown'))
 })
 
-test('bindings are resolved for every mode', () => {
-  const r = resolveForHost('hmap d scrollDown\ncmap k scrollUp', 'a.com')
-  assert.ok(r.bindings.hint.some(b => b.action === 'scrollDown'))
-  assert.ok(r.bindings.command.some(b => b.action === 'scrollUp'))
+test('unsupported mode statements leave global and site rules intact', () => {
+  const src = [
+    'map j scrollDown',
+    'nmap k scrollUp',
+    'hmap j scrollLeft',
+    'cmap k scrollRight',
+    'hunmap j',
+    'cunmap k',
+    'set scrollStep = 80',
+    'site a.com {',
+    '  hmap k scrollLeft',
+    '  cmap k scrollRight',
+    '  hunmap k',
+    '  cunmap k',
+    '  nunmap j',
+    '  map h scrollLeft',
+    '  nmap l scrollRight',
+    '  unmap l',
+    '  set scrollStep = 120',
+    '}',
+    'site b.com {',
+    '  disable',
+    '}',
+  ].join('\n')
+  const normal = (host: string) =>
+    resolveForHost(src, host).bindings.normal.map(b => [b.notation, b.action])
+  assert.deepEqual(normal('other.com'), [['j', 'scrollDown'], ['k', 'scrollUp']])
+  assert.deepEqual(normal('a.com'), [['k', 'scrollUp'], ['h', 'scrollLeft']])
+  assert.equal(resolveForHost(src, 'other.com').options.scrollStep, 80)
+  assert.equal(resolveForHost(src, 'a.com').options.scrollStep, 120)
+  assert.equal(resolveForHost(src, 'b.com').disabled, true)
+  assert.deepEqual(Object.keys(resolveForHost(src, 'a.com').bindings), ['normal'])
 })
 
 test('the option schema covers every runtime option', () => {

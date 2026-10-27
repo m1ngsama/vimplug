@@ -90,7 +90,7 @@ async function check(page: Page, query: string): Promise<string[]> {
   return bad
 }
 
-const browser = await webkit.launch()
+const browser = await webkit.launch({ headless: true })
 let failed = 0
 
 for (const [name, url, query] of SITES) {

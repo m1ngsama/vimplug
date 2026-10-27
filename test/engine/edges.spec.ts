@@ -405,17 +405,38 @@ test.describe('hints', () => {
     await page.keyboard.press('f')
     expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
 
+    await page.mouse.move(200, 200)
     await page.mouse.wheel(0, 400)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
     await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before)
+  })
+
+  test('a late scroll event without movement keeps hints usable', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    const before = await page.evaluate(() => document.body.childElementCount)
+    await page.keyboard.press('f')
+    expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+    await page.evaluate(() => window.dispatchEvent(new Event('scroll')))
+    expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+    await page.keyboard.press('f')
+    await expect(page).toHaveURL(`${base}/tall`)
   })
 
   test('hints opened while a scroll settles stay up', async ({ page }) => {
     await loadEngine(page, `${base}/links`)
+    await page.locator('#b1').evaluate(button => {
+      button.style.position = 'fixed'
+      button.style.top = '100px'
+    })
     const before = await page.evaluate(() => document.body.childElementCount)
     await page.keyboard.press('d')
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
     await page.keyboard.press('f')
+    expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
     await page.waitForTimeout(400)
     expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+    await page.keyboard.type('three')
+    await expect(page).toHaveTitle('clicked')
   })
 
   test('one link drawn twice in a row takes one label', async ({ page }) => {

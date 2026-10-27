@@ -76,3 +76,34 @@ test('toggleSite twice is idempotent', () => {
   const once = toggleSite(SRC, 'a.com', true)
   assert.equal(toggleSite(once, 'a.com', true), once)
 })
+
+test('GUI edits preserve legacy sequenceTimeout settings verbatim', () => {
+  const legacy = 'set sequenceTimeout = 250\nsite a.com {\n  set sequenceTimeout = 500\n}\n'
+  const src = `map j scrollDown\nset scrollStep = 60\n${legacy}`
+  assert.equal(rebind(src, 'scrollDown', 'd'), `map d scrollDown\nset scrollStep = 60\n${legacy}`)
+  assert.equal(unbind(src, 'scrollDown'), `set scrollStep = 60\n${legacy}`)
+  assert.equal(setOption(src, 'scrollStep', '120'), `map j scrollDown\nset scrollStep = "120"\n${legacy}`)
+  assert.equal(toggleSite(src, 'b.com', true), `${src}site b.com {\n  disable\n}\n`)
+})
+
+test('GUI edits preserve unsupported mode statements verbatim', () => {
+  const legacy = [
+    '# unsupported bindings stay in the text',
+    'hmap j scrollDown',
+    'cmap k scrollUp',
+    'hunmap j',
+    'cunmap k',
+    'site a.com {',
+    '  hmap h scrollLeft',
+    '  cmap l scrollRight',
+    '  hunmap h',
+    '  cunmap l',
+    '}',
+    '',
+  ].join('\n')
+  const src = `map j scrollDown\n${legacy}`
+  assert.equal(rebind(src, 'scrollDown', 'd'), `map d scrollDown\n${legacy}`)
+  assert.equal(unbind(src, 'scrollDown'), legacy)
+  assert.equal(setOption(src, 'scrollStep', '120'), `${src}set scrollStep = "120"\n`)
+  assert.equal(toggleSite(src, 'b.com', true), `${src}site b.com {\n  disable\n}\n`)
+})

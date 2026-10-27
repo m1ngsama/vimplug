@@ -1,6 +1,7 @@
 import { test, expect, chromium, type BrowserContext, type Page } from '@playwright/test'
 import { resolve } from 'node:path'
 import { serveFixtures } from '../fixtures.ts'
+import { openEnginePage, startupErrors, waitForRegistration } from './startup.ts'
 
 // Chromium loads the Safari build without the permissions Safari withholds, which puts it
 // on the same fallback paths; nothing else automated reaches them.
@@ -9,13 +10,9 @@ const EXT = resolve('dist/safari')
 let stop: () => Promise<void>
 let base: string
 let ctx: BrowserContext
+let errors: string[]
 
-async function open(path: string): Promise<Page> {
-  const page = await ctx.newPage()
-  await page.goto(`${base}${path}`)
-  await page.waitForFunction(() => document.documentElement.dataset.vimplug === 'on')
-  return page
-}
+const open = (path: string): Promise<Page> => openEnginePage(ctx, `${base}${path}`, errors)
 
 // The tab closes on keydown, so the keyup that press() sends has no page left to land on.
 const closeWithX = (page: Page) => page.keyboard.down('x').catch(() => {})
@@ -29,9 +26,11 @@ test.beforeAll(async () => {
   ;({ base, stop } = await serveFixtures())
   ctx = await chromium.launchPersistentContext('', {
     channel: 'chromium',
+    headless: true,
     args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`],
   })
-  if (ctx.serviceWorkers().length === 0) await ctx.waitForEvent('serviceworker')
+  errors = startupErrors(ctx)
+  await waitForRegistration(ctx, 'safari')
 })
 
 test.afterAll(async () => {

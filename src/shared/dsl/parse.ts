@@ -6,11 +6,9 @@ export interface Span {
   end: number
 }
 
-export type BindMode = 'normal' | 'hint' | 'command'
-
 export type Stmt =
-  | { kind: 'map'; mode: BindMode; keys: string; action: string; span: Span }
-  | { kind: 'unmap'; mode: BindMode; keys: string; span: Span }
+  | { kind: 'map'; keys: string; action: string; span: Span }
+  | { kind: 'unmap'; keys: string; span: Span }
   | { kind: 'set'; option: string; value: string; span: Span }
   | { kind: 'disable'; span: Span }
   | { kind: 'site'; pattern: string; body: Stmt[]; span: Span }
@@ -23,20 +21,6 @@ interface ParseError {
 interface ParseResult {
   stmts: Stmt[]
   errors: ParseError[]
-}
-
-const MODE_OF: Record<string, BindMode> = {
-  map: 'normal',
-  nmap: 'normal',
-  hmap: 'hint',
-  cmap: 'command',
-}
-
-const UNMAP_OF: Record<string, BindMode> = {
-  unmap: 'normal',
-  nunmap: 'normal',
-  hunmap: 'hint',
-  cunmap: 'command',
 }
 
 interface Line {
@@ -128,8 +112,7 @@ export function parse(src: string): ParseResult {
       continue
     }
 
-    const mapMode = MODE_OF[head]
-    if (mapMode) {
+    if (head === 'map' || head === 'nmap') {
       if (words.length !== 3) {
         errors.push({ line: line.no, message: `expected: ${head} <keys> <action>` })
         continue
@@ -144,12 +127,11 @@ export function parse(src: string): ParseResult {
         errors.push({ line: line.no, message: `unknown action: ${action}` })
         continue
       }
-      emit({ kind: 'map', mode: mapMode, keys, action, span })
+      emit({ kind: 'map', keys, action, span })
       continue
     }
 
-    const unmapMode = UNMAP_OF[head]
-    if (unmapMode) {
+    if (head === 'unmap' || head === 'nunmap') {
       if (words.length !== 2) {
         errors.push({ line: line.no, message: `expected: ${head} <keys>` })
         continue
@@ -159,7 +141,7 @@ export function parse(src: string): ParseResult {
         errors.push({ line: line.no, message: `malformed key notation: ${keys}` })
         continue
       }
-      emit({ kind: 'unmap', mode: unmapMode, keys, span })
+      emit({ kind: 'unmap', keys, span })
       continue
     }
 

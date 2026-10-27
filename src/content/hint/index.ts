@@ -2,6 +2,7 @@ import { generateLabels, spread } from './labels.ts'
 import { collectTargets, frameOffset, groupTargets } from './collect.ts'
 import { hintText, filterHints } from './text.ts'
 import { applyTheme, type Tokens } from '../../shared/theme.ts'
+import { styleShadow } from '../shadow-style.ts'
 
 export interface HintSession {
   feed(ch: string, shift?: boolean): void
@@ -135,9 +136,7 @@ export function startHint(o: HintOptions): HintSession | null {
   const host = document.createElement('div')
   host.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647'
   const shadow = host.attachShadow({ mode: 'closed' })
-  const style = document.createElement('style')
-  style.textContent = STYLE
-  shadow.append(style)
+  styleShadow(shadow, STYLE)
 
   const places = spread(
     groups.map((group, i) => {
@@ -228,9 +227,11 @@ export function startHint(o: HintOptions): HintSession | null {
     })
 
     if (result.indexes.length === 1) {
-      const only = items[result.indexes[0]!]!
-      if (result.by === 'label') fire(only)
-      else settling = setTimeout(() => fire(only), SETTLE_MS)
+      // A label prefix waits for the rest of the label: a truncated label set can leave one label under a letter.
+      if (result.by === 'text') {
+        const only = items[result.indexes[0]!]!
+        settling = setTimeout(() => fire(only), SETTLE_MS)
+      }
     }
   }
 
