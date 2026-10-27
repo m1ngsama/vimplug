@@ -83,11 +83,10 @@ export interface FindSession {
   clear(): void
 }
 
-export function createFind(theme: Tokens): FindSession | null {
-  const highlights = (
+export function createFind(theme: Tokens): FindSession {
+  const highlights = typeof Highlight === 'undefined' ? undefined : (
     CSS as unknown as { highlights?: Map<string, unknown> & { delete(k: string): void } }
   ).highlights
-  if (!highlights || typeof Highlight === 'undefined') return null
 
   let sheet: HTMLStyleElement | null = null
   let ranges: Range[] = []
@@ -95,7 +94,7 @@ export function createFind(theme: Tokens): FindSession | null {
 
   // Adding or removing any stylesheet restyles the whole page (110ms on a long Wikipedia article), so it goes in once and stays.
   const prepare = () => {
-    if (sheet?.isConnected) return
+    if (!highlights || sheet?.isConnected) return
     sheet = document.createElement('style')
     sheet.id = STYLE_ID
     sheet.textContent = style(theme)
@@ -103,6 +102,7 @@ export function createFind(theme: Tokens): FindSession | null {
   }
 
   const paint = () => {
+    if (!highlights) return
     if (ranges.length === 0) {
       highlights.delete(ALL)
       highlights.delete(CURRENT)
@@ -134,6 +134,7 @@ export function createFind(theme: Tokens): FindSession | null {
   // ::highlight rules in the document do not reach into a shadow tree.
   let shared: CSSStyleSheet | null = null
   const styleShadowRoots = () => {
+    if (!highlights) return
     for (const r of ranges) {
       const root = r.startContainer.getRootNode()
       if (!(root instanceof ShadowRoot)) continue
@@ -176,8 +177,8 @@ export function createFind(theme: Tokens): FindSession | null {
       const cur = ranges[index]
       if (cur && sel?.rangeCount === 1 && sel.toString() === cur.toString()) sel.removeAllRanges()
       ranges = []
-      highlights.delete(ALL)
-      highlights.delete(CURRENT)
+      highlights?.delete(ALL)
+      highlights?.delete(CURRENT)
     },
   }
 }

@@ -149,12 +149,11 @@ async function main(): Promise<void> {
       return true
     },
     clearFind: () => {
-      finder?.clear()
+      finder.clear()
       return true
     },
     find: dir => {
       if (dir === 'open') return ctx.startOverlay('find')
-      if (!finder) return false
       if (!finder.active) {
         const last = findHistory()[0]
         const total = last ? finder.search(last) : 0
@@ -170,7 +169,7 @@ async function main(): Promise<void> {
     findSelection: dir => {
       const sel = getSelection()
       const query = sel?.toString().trim()
-      if (!finder || !sel || !query) return false
+      if (!sel || !query) return false
       return finder.search(query, sel.getRangeAt(0)) > 0 && ctx.find(dir)
     },
     passNextKey: () => {
@@ -183,7 +182,7 @@ async function main(): Promise<void> {
       if (overlayOpen) return false
       overlayOpen = true
       const origin = kind === 'find' ? { x: window.scrollX, y: window.scrollY } : null
-      if (origin) requestAnimationFrame(() => setTimeout(() => finder?.prepare()))
+      if (origin) requestAnimationFrame(() => setTimeout(() => finder.prepare()))
       modes.enter('command')
       startOverlay(
         kind,
@@ -192,19 +191,19 @@ async function main(): Promise<void> {
         reason => {
           overlayOpen = false
           if (origin && reason === 'cancel') {
-            finder?.clear()
+            finder.clear()
             window.scrollTo(origin.x, origin.y)
           }
           if (origin && reason === 'submit') {
             rememberPosition(origin)
-            finder?.select()
+            finder.select()
           }
           modes.enter('normal')
         },
         id => dispatch(id, null),
         theme,
         query => {
-          const found = finder?.search(query) ?? 0
+          const found = finder.search(query)
           if (found === 0 && origin) window.scrollTo(origin.x, origin.y)
           return found
         },

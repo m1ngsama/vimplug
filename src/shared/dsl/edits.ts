@@ -7,7 +7,7 @@ function topLevel(src: string): Stmt[] {
 
 function findMap(src: string, action: string): Stmt | undefined {
   return topLevel(src)
-    .filter(s => s.kind === 'map' && s.mode === 'normal' && s.action === action)
+    .filter(s => s.kind === 'map' && s.action === action)
     .at(-1)
 }
 

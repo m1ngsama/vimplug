@@ -266,18 +266,106 @@ test.describe('mode indicator', () => {
   })
 })
 
-test.describe('an action that cannot run must not swallow the key', () => {
-  test('/ with no Custom Highlight API still opens the panel', async ({ page }) => {
-    await page.addInitScript(() => {
-      delete (CSS as any).highlights
-      delete (window as any).Highlight
+for (const missing of ['registry', 'constructor', 'both'] as const) {
+  test.describe(`find without the Highlight ${missing}`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript(missing => {
+        if (missing !== 'constructor') delete (CSS as any).highlights
+        if (missing !== 'registry') delete (window as any).Highlight
+        const roots: ShadowRoot[] = []
+        ;(window as any).__testShadows = roots
+        const attach = Element.prototype.attachShadow
+        Element.prototype.attachShadow = function (init) {
+          const root = attach.call(this, init)
+          roots.push(root)
+          return root
+        }
+      }, missing)
     })
-    await loadEngine(page, `${base}/find`)
-    await page.keyboard.press('/')
-    await expect.poll(async () => (await state(page)).panels).toBe(1)
 
-    await page.keyboard.type('jjjj', { delay: 20 })
-    await page.waitForTimeout(300)
-    expect((await state(page)).scrollY).toBe(0)
+    test('counts, commits, steps, wraps and recalls matches without painting', async ({ page }) => {
+      await loadEngine(page, `${base}/twice`)
+      expect(await page.evaluate(() => ({
+        registry: typeof CSS.highlights !== 'undefined',
+        constructor: typeof Highlight !== 'undefined',
+      }))).toEqual({ registry: missing === 'constructor', constructor: missing === 'registry' })
+
+      await page.keyboard.press('/')
+      await expect.poll(async () => (await state(page)).focusInOverlay).toBe(true)
+      await page.keyboard.type('marker')
+      await expect.poll(() => page.evaluate(() =>
+        (window as any).__testShadows.find((r: ShadowRoot) => r.querySelector('.status'))
+          ?.querySelector('.status')?.textContent,
+      )).toBe('2 matches')
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
+      await page.keyboard.press('Enter')
+      await expect.poll(async () => (await state(page)).panels).toBe(0)
+      const selected = () => page.evaluate(() => ({
+        text: getSelection()?.toString(),
+        id: getSelection()?.anchorNode?.parentElement?.id,
+      }))
+      await expect.poll(selected).toEqual({ text: 'marker', id: 'one' })
+      const first = await page.evaluate(() => window.scrollY)
+
+      await page.keyboard.press('n')
+      await expect.poll(selected).toEqual({ text: 'marker', id: 'two' })
+      await page.keyboard.press('n')
+      await expect.poll(selected).toEqual({ text: 'marker', id: 'one' })
+      await page.keyboard.press('Shift+n')
+      await expect.poll(selected).toEqual({ text: 'marker', id: 'two' })
+      expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(first)
+      expect(await page.evaluate(() => ({
+        style: document.getElementById('vimplug-find-style') !== null,
+        painted: CSS.highlights?.has('vimplug-find') ?? false,
+      }))).toEqual({ style: false, painted: false })
+
+      await page.keyboard.press('Escape')
+      expect(await page.evaluate(() => getSelection()?.toString())).toBe('')
+      const origin = await page.evaluate(() => window.scrollY)
+      await page.keyboard.press('j')
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(origin)
+
+      await loadEngine(page, `${base}/twice`)
+      await page.keyboard.press('n')
+      await expect.poll(selected).toEqual({ text: 'marker', id: 'one' })
+    })
+
+    test('cancel restores the origin and a failed query does not move it', async ({ page }) => {
+      await loadEngine(page, `${base}/find`)
+      await page.evaluate(() => window.scrollTo(0, 120))
+      const origin = await page.evaluate(() => window.scrollY)
+      await page.keyboard.press('/')
+      await page.keyboard.type('findmethistext')
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
+      await page.keyboard.press('Escape')
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(origin)
+      await expect.poll(async () => (await state(page)).panels).toBe(0)
+
+      await page.keyboard.press('/')
+      await page.keyboard.type('jjjj')
+      await expect.poll(() => page.evaluate(() =>
+        (window as any).__testShadows.findLast((r: ShadowRoot) => r.querySelector('.status'))
+          ?.querySelector('.status')?.textContent,
+      )).toBe('No matches')
+      expect(await page.evaluate(() => window.scrollY)).toBe(origin)
+      await page.keyboard.press('Enter')
+      await expect.poll(async () => (await state(page)).panels).toBe(0)
+    })
+
+    test('searches an open shadow root without adopting a highlight stylesheet', async ({ page }) => {
+      await loadEngine(page, `${base}/shadow`)
+      await page.evaluate(() => {
+        const host = document.getElementById('h')!
+        host.style.marginTop = '1800px'
+        host.attachShadow({ mode: 'open' }).innerHTML = '<p>zebraword</p>'
+      })
+      await page.keyboard.press('/')
+      await page.keyboard.type('zebra')
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
+      expect(await page.evaluate(() =>
+        document.getElementById('h')!.shadowRoot!.adoptedStyleSheets.length,
+      )).toBe(0)
+      expect(await page.evaluate(() => document.getElementById('vimplug-find-style'))).toBeNull()
+    })
   })
-})
+}
