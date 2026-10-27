@@ -4,6 +4,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   timeout: 30_000,
+  use: { headless: true },
   projects: [
     // Safari cannot be driven by Playwright, but it is WebKit, and so is this. Engine
     // behaviour that depends on DOM, focus, event order or IME is verified here first.

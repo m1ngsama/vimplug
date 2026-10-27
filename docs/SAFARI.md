@@ -58,6 +58,33 @@ facts, current as of Safari 26:
 - **An Apple Development certificate works only on the Mac that holds it.** Safari accepts
   the build as signed, but Gatekeeper rejects it everywhere else.
 
+### Opt-in Developer ID builds
+
+The public release remains ad-hoc signed. To build with an existing Developer ID
+Application certificate, provide its full name and matching team:
+
+```sh
+DEVELOPMENT_TEAM=ABCDE12345 \
+DEVELOPER_ID_APPLICATION="Developer ID Application: Example Company (ABCDE12345)" \
+pnpm build:app
+```
+
+This enables secure timestamps and explicit distribution entitlements without
+`get-task-allow`. It does not notarize the app. Only adding `NOTARY_PROFILE` submits it to
+Apple, using credentials already stored with `notarytool store-credentials`:
+
+```sh
+DEVELOPMENT_TEAM=ABCDE12345 \
+DEVELOPER_ID_APPLICATION="Developer ID Application: Example Company (ABCDE12345)" \
+NOTARY_PROFILE=vimplug-release pnpm package:app
+```
+
+The command uploads a temporary zip, waits for `Accepted`, staples and validates the
+ticket, then creates the release zip. Rejection or tool failure stops the build. The script
+does not import certificates or create credentials; signing may still prompt for Keychain
+access. A distributable build needs Safari 18.4 or later. The default release workflow does
+not enable this path.
+
 ## Generating the Xcode project
 
 The project is generated once and committed. It is only regenerated when the set of
@@ -95,9 +122,10 @@ Three things in there are load-bearing.
 `MARKETING_VERSION` is passed on the command line from `package.json`, because the project
 file holds a `1.0` placeholder that would otherwise ship as the app's version.
 
-`CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO` must not be added to suppress `get-task-allow`: it
-drops the entire generated entitlement set, sandbox included, and Safari then refuses the
-extension.
+The ad-hoc and Apple Development builds rely on generated entitlements. Do not add
+`CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO` to those paths: it drops the sandbox entitlement,
+and Safari refuses the extension. Developer ID builds instead supply complete
+`Distribution.entitlements` files for both targets before disabling base injection.
 
 Both build products are unregistered from LaunchServices at the end. `xcodebuild` registers
 whatever it builds, so without that step every build adds another vimplug to Safari's

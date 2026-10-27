@@ -1,43 +1,47 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync, rmSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { notarize, signingConfig, verifyApp } from './signing.ts'
 
 const LSREGISTER =
   '/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister'
 
 const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }
-
-const team = process.env.DEVELOPMENT_TEAM ?? ''
-
-// Ad-hoc signed so the appex keeps its sandbox; CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO strips it too.
-execFileSync(
-  'xcodebuild',
-  [
-    '-project', 'xcode/vimplug/vimplug.xcodeproj',
-    '-scheme', 'vimplug',
-    '-configuration', 'Release',
-    '-destination', 'generic/platform=macOS',
-    '-derivedDataPath', 'dist/xcode',
-    '-quiet',
-    `CODE_SIGN_IDENTITY=${team ? 'Apple Development' : '-'}`,
-    'CODE_SIGN_STYLE=Manual',
-    `DEVELOPMENT_TEAM=${team}`,
-    'PROVISIONING_PROFILE_SPECIFIER=',
-    `MARKETING_VERSION=${version}`,
-    'build',
-  ],
-  { stdio: 'inherit' },
-)
-
+const signing = signingConfig(process.env)
 const built = 'dist/xcode/Build/Products/Release/vimplug.app'
-rmSync('dist/vimplug.app', { force: true, recursive: true })
-execFileSync('ditto', [built, 'dist/vimplug.app'])
+const output = 'dist/vimplug.app'
 
-// Each build otherwise adds a duplicate to Safari's extension list; -u fails on unscanned paths.
-for (const app of [built, 'dist/vimplug.app']) {
-  try {
-    execFileSync(LSREGISTER, ['-u', resolve(app)], { stdio: 'ignore' })
-  } catch {}
+rmSync(output, { force: true, recursive: true })
+rmSync('dist/vimplug-safari.zip', { force: true })
+try {
+  execFileSync(
+    'xcodebuild',
+    [
+      '-project', 'xcode/vimplug/vimplug.xcodeproj',
+      '-scheme', 'vimplug',
+      '-configuration', 'Release',
+      '-destination', 'generic/platform=macOS',
+      '-derivedDataPath', 'dist/xcode',
+      '-quiet',
+      ...signing.settings,
+      `MARKETING_VERSION=${version}`,
+      'build',
+    ],
+    { stdio: ['ignore', 'inherit', 'inherit'] },
+  )
+  verifyApp(built, Boolean(signing.developerId))
+  if (signing.profile) notarize(built, signing.profile)
+  execFileSync('ditto', [built, output])
+  verifyApp(output, Boolean(signing.developerId))
+  console.info(`vimplug.app ${version} at ${output}${signing.profile ? ' (notarized)' : ''}`)
+} catch (error) {
+  rmSync(output, { force: true, recursive: true })
+  throw error
+} finally {
+  // Xcode registers its build product; remove temporary copies from Safari's extension list.
+  for (const app of [built, output]) {
+    try {
+      execFileSync(LSREGISTER, ['-u', resolve(app)], { stdio: 'ignore' })
+    } catch {}
+  }
 }
-
-console.info(`vimplug.app ${version} at dist/vimplug.app`)
