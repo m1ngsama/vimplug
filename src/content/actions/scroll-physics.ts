@@ -53,11 +53,15 @@ export function settled(s: AxisState): boolean {
 }
 
 // Safari rounds rAF timestamps to whole milliseconds; stepping by them makes every frame a different length.
-// Advance one learned frame per callback; catching up missed frames makes the resumed scroll lurch.
+// Advance by the fewest frames any recent callback spanned: a lone stall is not made up, or the resumed scroll lurches,
+// but a page whose main thread only gets to every third frame still scrolls at full speed.
 export function frameClock(period = 1000 / 60): (elapsed: number) => number {
+  const recent = [1, 1, 1, 1]
   return elapsed => {
     const frames = Math.max(1, Math.round(elapsed / period))
     period += (elapsed / frames - period) / 16
-    return period
+    recent.shift()
+    recent.push(frames)
+    return Math.min(...recent) * period
   }
 }

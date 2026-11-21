@@ -183,6 +183,16 @@ for (const distance of [60, 300]) {
   })
 }
 
+for (const every of [2, 3, 8]) {
+  test(`a page that runs every ${every} frames keeps full speed`, () => {
+    const tick = frameClock()
+    roundedFrames(60, 60).forEach(tick)
+    const dts = Array.from({ length: 20 }, () => tick((every * 1000) / 60))
+    for (const dt of dts.slice(4)) assert.ok(Math.abs(dt - (every * 1000) / 60) < 0.5, `${dt}ms`)
+    assert.ok(Math.abs(tick(1000 / 60) - 1000 / 60) < 0.5)
+  })
+}
+
 test('the frame length adapts to a faster display', () => {
   const tick = frameClock()
   const dts = roundedFrames(120, 200).map(tick)
