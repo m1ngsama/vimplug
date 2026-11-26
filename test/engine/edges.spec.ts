@@ -439,6 +439,22 @@ test.describe('hints', () => {
     await expect(page).toHaveTitle('clicked')
   })
 
+  test('hints opened in the same moment as a scroll stay up', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    await page.locator('#b1').evaluate(button => {
+      button.style.position = 'fixed'
+      button.style.top = '100px'
+    })
+    const before = await page.evaluate(() => document.body.childElementCount)
+    await page.keyboard.press('d')
+    await page.keyboard.press('f')
+    expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+    await page.waitForTimeout(400)
+    expect(await page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+    await page.keyboard.type('three')
+    await expect(page).toHaveTitle('clicked')
+  })
+
   test('one link drawn twice in a row takes one label', async ({ page }) => {
     await loadEngine(page, `${base}/row`)
     await page.keyboard.press('f')
