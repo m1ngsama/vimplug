@@ -294,6 +294,18 @@ test.describe('visual mode motions', () => {
 })
 
 test.describe('hinting several links', () => {
+  // Safari reports Option+f as key 'ƒ'; Playwright's Alt+f keeps key 'f'.
+  test('<A-f> starts from the key value Safari reports for Option+f', async ({ page }) => {
+    await loadEngine(page, `${base}/links`)
+    const before = await page.evaluate(() => document.body.childElementCount)
+    await page.evaluate(() =>
+      document.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ƒ', code: 'KeyF', altKey: true, bubbles: true, cancelable: true, composed: true }),
+      ),
+    )
+    await expect.poll(() => page.evaluate(() => document.body.childElementCount)).toBe(before + 1)
+  })
+
   test('<A-f> opens each chosen link in a background tab and keeps the hints', async ({ page }) => {
     await loadEngine(page, `${base}/links`)
     await page.keyboard.press('Alt+f')
